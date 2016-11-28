@@ -10,7 +10,6 @@ addons:
     packages:
       - make
       - gcc
-      - postgresql
       - libboost-python-dev
       - libboost-system-dev
       - libboost-serialization-dev
@@ -20,6 +19,8 @@ addons:
       - libpq-dev
       - libjsoncpp-dev
       - node-less
+      # Disabling postgresql install becuase it breaks travis, but it is needed.
+      # - postgresql
 
 language: python
 
