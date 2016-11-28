@@ -12,7 +12,7 @@ addons:
       - libboost-program-options-dev
       - libpq-dev
       - libjsoncpp-dev
-      
+      - node-less
 
 language: python
 
