@@ -12,11 +12,11 @@ SITE_MANAGE := $(BASE_DIR)/site/manage.py
 NOSE := nosetests3
 NOSE_COVERAGE := coverage3 run --parallel-mode --timid /usr/bin/nosetests3
 
-LESSC := lessc
+LESSC := /usr/bin/lessc
 
-PYTHON_INCLUDE := /usr/include/python3.3
-LIB_PYTHON := :libpython3.3m.so
-LIB_BOOST_PYTHON := boost_python-py33
+PYTHON_INCLUDE := /usr/include/python3.4
+LIB_PYTHON := :libpython3.4m.so
+LIB_BOOST_PYTHON := boost_python-py34
 
 -include local.mk
 
