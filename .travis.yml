@@ -8,6 +8,9 @@ python:
 addons:
   apt:
     packages:
+      - make
+      - gcc
+      - postgresql
       - libboost-python-dev
       - libboost-system-dev
       - libboost-serialization-dev
