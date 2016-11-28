@@ -1,0 +1,23 @@
+python:
+  - "3.4"
+
+addons:
+  apt:
+    packages:
+      - libboost-python-dev
+      - libboost-system-dev
+      - libboost-serialization-dev
+      - libboost-iostreams-dev
+      - libboost-thread-dev
+      - libboost-program-options-dev
+      - libpq-dev
+      - libjsoncpp-dev
+      
+
+language: python
+
+install:
+  - "make init build"
+  
+script:
+  - "make test"
