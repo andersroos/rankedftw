@@ -1,0 +1,69 @@
+{% load sc2 %}
+
+<table class="team-size-{{ team_size }}">
+  <tr>
+    <th class="number">Rank</th>
+    <th class="img">Region</th>
+    <th class="img">League</th>
+    <th class="img">Tier</th>
+    <th class="team-header" colspan={{ team_size }}>Team</th>
+    <th class="mmr">MMR</th>
+    <th class="number">Points</th>
+    <th class="number">Wins</th>
+    <th class="number">Losses</th>
+    <th class="number">Played</th>
+    <th class="number">Win rate</th>
+    <th class="number">Age</th>
+  </tr>
+  {% for team in ladder.teams %}
+    <tr onclick="window.location='{% url 'team' team_id=team.team_id %}';" style="cursor: pointer;" class="{% if team.team_id == highlight_team_id %} highlight-team{% endif %}">
+      <td class="number">{{ team.rank }}</td>
+
+      <td class="img"><img src="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}-16x16.png" /></td>
+
+      <td class="img"><img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-16x16.png" /></td>
+
+      <td class="img">{{ team.tier|add:1 }}</td>
+
+      <td class="player">
+        <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m0_race | race_key }}-16x16.png" />
+        {% if team.m0_tag %}<span class="tag">{{ team.m0_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m0_name }}</span>
+      </td>
+
+      {% if team.m1_id %}
+        <td class="player">
+          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m1_race | race_key }}-16x16.png" />
+          {% if team.m1_tag %}<span class="tag">{{ team.m1_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m1_name }}</span>
+        </td>
+      {% endif %}
+
+      {% if team.m2_id %}
+        <td class="player">
+          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m2_race | race_key }}-16x16.png" />
+          {% if team.m2_tag %}<span class="tag">{{ team.m2_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m2_name }}</span>
+        </td>
+      {% endif %}
+
+      {% if team.m3_id %}
+        <td class="player">
+          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m3_race | race_key }}-16x16.png" />
+          {% if team.m3_tag %}<span class="tag">{{ team.m3_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m3_name }}</span>
+        </td>
+      {% endif %}
+
+      <td class="number">{{ team.mmr }}</td>
+
+      <td class="number">{{ team.points|floatformat:0 }}</td>
+
+      <td class="number">{{ team.wins }}</td>
+
+      <td class="number">{{ team.losses }}</td>
+
+      <td class="number">{{ team.wins|add:team.losses }}</td>
+
+      <td class="number">{{ team.win_rate|floatformat:1 }}%</td>
+
+      <td class="number">{{ team.age }}</td>
+    </tr>
+  {% endfor %}
+</table>

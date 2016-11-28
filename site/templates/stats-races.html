@@ -1,0 +1,134 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}Races - {{ mode_id | mode_name }} Stats - {% endblock pagetitle %}
+
+{% block description %}Current and historic sc2 ladder race distribution statistics for {{ mode_id | mode_name }}.{% endblock description %}
+
+{% block head %}
+<script src="{{ STATIC_URL }}js/stats.js" type="text/javascript"></script>
+{% endblock head %}
+
+{% block body_class %}stats{% endblock body_class %}
+
+{% block page %}
+  {% if mode_got_race_stats %}
+    
+    <div itemprop="mainContentOfPage" class="content">
+      <h1 itemprop="headline"> {{ mode_id | mode_name }} Race Distribution</h1>
+      <p itemprop="about">
+        Current and historic sc2 race distribution (by league and region)
+        for teams. The data is calculated by counting all teams ranked in
+        a season. If a player plays in multiple regions in identical teams
+        that team will be counted several times for the world total. The
+        region numbers are a more accurate way to count players. In 1v1
+        and random teams each teams only consist of one player.
+      </p>
+      <h2>Current {{ mode_id | mode_name }} Race Distribution</h2>
+      <p>
+        The current race distribution for the different
+        leagues. Select version to see numbers for LotV, HotS or WoL.
+      </p>
+    </div>
+    
+    <div id="races-table-container" class="data-container wait"> 
+      <div class="controls">
+        <div class="content">
+          <ul ctrl-name="v">
+            <span>Version:</span>
+            {% for version in versions %}<a ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
+          </ul>
+    
+          <ul ctrl-name="r">
+            <span>Region:</span>
+            {% for region in regions %}<a ctrl-value="{{ region }}" title="Show {{ region | region_name }}."><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></a>{% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="content">
+        <table>
+          <thead>
+            <th></th>
+            {% for race in races %}
+              <th><img src="{{ STATIC_URL }}img/races/{{ race | race_key }}-16x16.png"/><span>{{ race | race_name }}</span></th>
+            {% endfor %}
+          </thead>
+          <tbody>
+            {% for league in leagues %}
+              <tr>
+                <th><span>{{ league | league_name }}</span><img src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-16x16.png"/></th>
+                {% for race in races %}
+                  <td id="l{{ league }}-r{{ race }}"><span class="number"></span><span class="percent"></span></td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="content">
+      <h2>{{ mode_id | mode_name }} Race Distribution Over Time</h2>
+      <p>
+        Race distribution over time. Seasons are marked by the colored
+        sections of the x-axis. Mouse over on points to see date, season
+        and league distribution for that point.
+      </p>
+    </div>
+    
+    <div id="races-graph-container" class="data-container wait">
+      <div class="controls">
+        <div class="content">
+          <ul ctrl-name="v">
+            <span>Version:</span>
+            {% for version in versions %}<a ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
+          </ul>
+          
+          <ul ctrl-name="r">
+            <span>Region:</span>
+            {% for region in regions %}<a ctrl-value="{{ region }}" title="Show {{ region | region_name }}."><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></a>{% endfor %}
+          </ul>
+    
+          <ul ctrl-name="l">
+            <span>League:</span>
+            <a ctrl-value="-2" title="Show all leagues."><span>All</span></a><!--
+            -->{% for league in leagues %}<a ctrl-value="{{ league }}" title="Show {{ league | league_name }}."><img src="{{ STATIC_URL }}img/leagues/{{ league | league_key }}-16x16.png"/></a>{% endfor %}
+          </ul>
+        </div>
+      </div>
+      <canvas class="graph"></canvas>
+      <div class="tooltip">
+        <table>
+          <tbody>
+            <tr><th class="no-img">Date</th><td colspan="2" class="date"/></tr>
+            <tr><th class="no-img">Season</th><td colspan="2" class="season"/></tr>
+            {% for race in races %}
+              <tr>
+                <th><span>{{ race | race_name }}</span><img src="{{ STATIC_URL }}img/races/{{ race | race_key }}-16x16.png"/></th>
+                <td class="r{{ race }}-n"></td><td class="r{{ race }}-p"></td>
+              </tr>
+            {% endfor %}
+            <tr><th class="no-img">Population</th><td class="pop-n"></td><td class="pop-p">(100.00%)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div itemprop="mainContentOfPage" class="content">
+      <h1 itemprop="headline"> {{ mode_id | mode_name }} Race Distribution</h1>
+      <p itemprop="about">
+        Sorry no race stats for teams with multiple races.
+      </p>
+    </div>
+  {% endif %}
+{% endblock page %}
+
+{% block body_js %}
+  {% if mode_got_race_stats %}
+    <script type="text/javascript">
+      sc2.seasons.init({{ seasons | safe }});
+      sc2.stats.RaceDistributionTable({{ mode_id }});
+      sc2.stats.RaceDistributionGraph({{ mode_id }});
+    </script>
+  {% endif %}
+{% endblock body_js %}

@@ -1,0 +1,154 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}Population - {{ mode_id | mode_name | capfirst }} Stats - {% endblock pagetitle %}
+
+{% block description %}Current and historic sc2 ladder population statistics for {{ mode_id | mode_name }}.{% endblock description %}
+
+{% block head %}
+<script src="{{ STATIC_URL }}js/stats.js" type="text/javascript"></script>
+{% endblock head %}
+
+{% block body_class %}stats-population{% endblock body_class %}
+
+{% block page %}
+
+<div itemprop="mainContentOfPage" class="content">
+  <h1 itemprop="headline">{{ mode_id | mode_name }} Population</h1>
+  <p itemprop="about">
+    Current and historic sc2 population counts for teams (not
+    players). The data is calculated by counting all teams ranked in a
+    season. If a player plays in multiple regions in identical teams
+    that team will be counted several times for the world total. The
+    region numbers are a more accurate way to count players. In 1v1
+    and random teams each teams only consist of one player.
+  </p>
+
+  <h2>Current {{ mode_id | mode_name }} Population</h2>
+  <p>
+    The current number of ranked teams in each region. Select version
+    to see numbers for LotV, HotS or WoL.
+  </p>
+
+</div>
+  
+<div id="pop-table-container" class="data-container wait"> 
+  <div class="controls">
+    <div class="content">
+      <ul ctrl-name="v">
+        <span>Version:</span>
+        {% for version in versions %}<a ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="content">
+    <table class="table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Population</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for region in regions reversed %}
+          <tr>
+            <th><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></th>
+            <td id="r{{ region }}"><span class="number"></span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="content">
+  <h2>Ladder {{ mode_id | mode_name }} Population Over Time</h2>
+  <p>
+    The graph shows the number of ranked teams over time. Seasons are
+    marked by the colored sections of the x-axis. Mouse over on points
+    to see date, season, season age and exact number for that point.
+  </p>
+</div>
+
+<div id="pop-graph-container" class="data-container wait">
+  <div class="controls">
+    <div class="content">
+      <ul ctrl-name="v">
+        <span>Version:</span>
+        {% for version in versions %}<a ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
+      </ul>
+
+      <ul ctrl-name="r">
+        <span>Region:</span>
+        {% for region in regions %}<a ctrl-value="{{ region }}" title="Show {{ region | region_name }}."><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></a>{% endfor %}
+      </ul>
+
+      <ul ctrl-name="sy">
+        <span>Y-Axis:</span>
+        <a ctrl-value="c" title="Number of ranked teams of the season."
+        ><span>Teams</span></a
+        
+        ><a ctrl-value="g" title="Average number of played games per day."
+        ><span>Games/Day</span></a>
+      </ul>
+      
+      <ul ctrl-name="sx">
+        <span>X-Axis:</span>
+        <a ctrl-value="a" title="Show all data."
+        ><span>All</span></a
+        
+        ><a ctrl-value="sl" title="Show only one point in graph for each season."
+        ><span>Season Last</span></a>
+      </ul>
+    </div>
+  </div>
+  <canvas class="graph"></canvas>
+  <div class="tooltip">
+    <table>
+      <tbody>
+        <tr><th>Date</th><td class="date"/></tr>
+        <tr><th>Season</th><td class="season"/></tr>
+        <tr><th>Season Age</th><td class="season-age"/></tr>
+        <tr><th>Ranked Teams</th><td class="pop-n"/></tr>
+        <tr><th>Games in Season</th><td class="games"/></tr>
+        <tr><th>Games per Day</th><td class="gpd"/></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="content">
+  <h2>Comparing Seasons</h2>
+  <p>
+    It is not that easy to compare population between seasons since
+    the seasons have different length and players play at irregular
+    intervals. One more informative way to compare seasons is to
+    compare the population when the season is a few weeks old,
+    unfortunately that data is not available for season 15 and 16 so
+    there is no graph option to display that. It is possible to only
+    show the final ladder population in each season by selecting
+    "Season Last" but note that the last season is not yet completed.
+  </p>
+  <h2>Games Played</h2>
+  <p>
+    Another measurement of population is average games played per day.
+    The numbers are calculated as a delta of games played and days
+    from the point before. It seems to always be more games played per
+    day in the beginning of a season so the current season total
+    average may not be that comparable.
+  </p>
+</div>
+
+
+{% endblock page %}
+
+
+{% block body_js %}
+
+<script type="text/javascript">
+  sc2.seasons.init({{ seasons | safe }});
+  sc2.stats.PopulationTable({{ mode_id }});
+  sc2.stats.PopulationGraph({{ mode_id }});
+</script>
+
+{% endblock body_js %}

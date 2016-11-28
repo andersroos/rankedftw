@@ -1,0 +1,67 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}Search - {% endblock pagetitle %}
+
+{% block description %}Search for ranked sc2 players to see ladder rankings over time.{% endblock description %}
+
+{% block page_itemtype %}http://schema.org/SearchResultsPage{% endblock page_itemtype %}
+
+{% block top-nav-search %}{% endblock top-nav-search %}
+
+{% block body_class %}search{% endblock body_class %}
+
+{% block page %}
+<div itemprop="mainContentOfPage" class="content">
+  <h1 itemprop="headline">Search for Players</h1> 
+  <p itemprop="about">
+    Search the sc2 ladder for players to see global, regional and
+    league rankings over time. Search will match names by first part
+    of the name. Case is not important. You can also search by battle
+    net profile url.
+  </p>
+  {% include '-search-box.html' %}
+  <div>
+    <h1>Results</h1>
+    {% if no_search %}
+      <div>Too many hits, filter some more.</div>
+    {% elif items %}
+      <ul class="result">
+        {% for item in items %}
+          <a tabindex="{{ forloop.counter|add:2 }}" href='{% url "player" player_id=item.id %}'>
+            <li>
+              <span class="number">{{ offset | add:forloop.counter }}</span>
+              <img src="{{ STATIC_URL }}img/regions/{{ item.region | region_key }}-16x16.png" /><span class="region">{{ item.region | region_name }}</span>
+              <img class="league" src="{{ STATIC_URL }}img/leagues/{{ item.league  | league_key }}-16x16.png" />
+              <img class="race" src="{{ STATIC_URL }}img/races/{{ item.race | race_key }}-16x16.png" />
+              {% if item.tag %}<span class="tag">{{ item.tag | tag_braces }}</span>{% endif %}<span class="name">{{ item.name }}</span>
+            </li>
+          </a>
+        {% endfor %}
+      </ul>
+      
+      {% if pages and count > page_size %}
+        <ul class="pagination">
+          {% if prev != None %}
+            <li><a href='{% url "search" %}?offset={{ prev }}&name={{ name | urlencode }}'>&lt;</a></li>
+          {% endif %}
+          {% for page in pages %}
+            {% if page == offset %}
+              <li><b>{{ page | offset_to_page_number }}</b></li>
+            {% else %}
+              <li><a href='{% url "search" %}?offset={{ page }}&name={{ name | urlencode }}'>{{ page | offset_to_page_number }}</a></li>
+            {% endif %}
+          {% endfor %}
+          {% if next != None %}
+            <li><a href='{% url "search" %}?offset={{ next }}&name={{ name | urlencode }}'>&gt;</a></li>
+          {% endif %}
+        </ul>
+      {% endif %}
+      
+      <span class="count">{{ count }} players found.</span>
+    {% else %}
+      <div>Nothing found.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock page %}

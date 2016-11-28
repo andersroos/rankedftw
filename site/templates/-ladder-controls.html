@@ -1,0 +1,26 @@
+
+{% if mode_nav %}
+  <div  itemscope="" itemtype="http://schema.org/SiteNavigationElement" class="sub-nav">
+    <div class="content">
+      <span>Mode:</span>{% for visiting, title, key, href in mode_nav %}<a class="{{ visiting }}" href="{{ href }}">{{ title }}</a>{% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+<div  itemscope="" itemtype="http://schema.org/SiteNavigationElement" class="sub-nav">
+  <div class="content">
+    <div class="control"><span>Sort:</span><a class="{{ reverse_visiting }}" href="{{reverse_href }}">(Reverse sort)</a>{% for visiting, title, key, href in sort_key_nav %}<a class="{{ visiting }}" href="{{ href }}">{{ title }}</a>{% endfor %}</div>
+    {% if version_nav %}<div class="control"><span>Version:</span>{% for visiting, title, key, href in version_nav %}<a class="{{ visiting }}" href="{{ href }}">{{ title }}</a>{% endfor %}</div>{% endif %}
+  </div>
+</div>
+
+<div  itemscope="" itemtype="http://schema.org/SiteNavigationElement" class="sub-nav">
+  <div class="content">
+
+    <div class="control compact"><span>Race:</span>{% for visiting, title, key, href in race_nav %}{% if forloop.first %}<a class="{{ visiting}}" href="{{ href }}">{{ title }}</a>{% else %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/races/{{ key }}-16x16.png"/></a>{% endif %}{% endfor %}</div>
+
+    <div class="control compact"><span>Region:</span>{% for visiting, title, key, href in region_nav %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/regions/{{ key }}-16x16.png"/></a>{% endfor %}</div>
+
+    <div class="control compact"><span>League:</span>{% for visiting, title, key, href in league_nav %}{% if forloop.first %}<a class="{{ visiting}}" href="{{ href }}">{{ title }}</a>{% else %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/leagues/{{ key }}-16x16.png"/></a>{% endif %}{% endfor %}</div>
+  </div>
+</div>

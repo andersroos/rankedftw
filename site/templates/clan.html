@@ -1,0 +1,30 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}{{ tag }} - Clan - {% endblock pagetitle %}
+
+{% block description %}Clan ladders.{% endblock description %}
+
+{% block body_class %}ladder{% endblock body_class %}
+
+{% block page %}
+
+  {% if error %}
+    <div class="content">
+      <div class="server-error">
+        {{ error }}
+      </div>
+    </div>
+  {% else %}
+
+    {% include '-ladder-controls.html' %}
+
+    <div itemprop="mainContentOfPage" class="content">
+      <h1 itemprop="headline">{{ clan }} [{{ tag }}]</h1>
+      {% include '-ladder-core.html' %}
+    </div>
+
+  {% endif %}
+
+
+{% endblock page %}

@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}About - {% endblock pagetitle %}
+
+{% block description %}About the site.{% endblock description %}
+
+{% block page_itemtype %}http://schema.org/AboutPage{% endblock page_itemtype %}
+
+{% block page %}
+
+<div itemprop="mainContentOfPage" class="content">
+  <h1 itemprop="headline">About Ranked FTW</h1>
+  <p itemprop="about">
+    I originally make this site because I wanted to track my own
+    progress as a sc2 1v1-player. I wanted to see my rank relative to
+    other players and the leagues changes too much for this.
+  </p>
+  <p>
+    Too see progress data over time is needed so I started to collect
+    ladder data using the <a href="https://dev.battle.net/">Battle.net
+    API</a>. Unfortunately it was not possible to get all information
+    from the beginning of time as I wanted so the first data is from
+    season 5 2013. Sc2ranks.com already had something similar but only
+    showed the current and last season. Also it was a fun programming
+    project. The passion for programming is event bigger than the
+    passion for StarCraft.
+  </p>
+  <p>
+    All rankings are based on league and points, not MMR since
+    Blizzard is not public about that. It would be possible to
+    estimate MMR if match history API provided points won and lost,
+    but unfortunately it does not. The rankings would also be more
+    accurate if points given by bonus pool where subtracted, but bonus
+    pool information is not available either. :(
+  </p>
+  <p>
+    The site is built using Python and Django and runs on GNU/Linux
+    with Nginx as web server and Postgresql as database. There is also
+    quite a bit of c++ code in there, it turns out looking up complete
+    ranking history among 3 million teams over a couple of years is a
+    challenge on a 2 GB memory box. =)
+  </p>
+</div>
+
+{% endblock page %}

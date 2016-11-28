@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}{% endblock pagetitle %}
+
+{% block body_class %}main{% endblock body_class %}
+
+{% block top-nav-search %}{% endblock top-nav-search %}
+
+{% block page %}
+
+<div itemprop="mainContentOfPage" class="content">
+  <div class="center">
+    <h1 itemprop="headline">Ranked For Teh Win</h1>
+    <h5 class="tagline">Your sc2 ladder rankings since 2013</h5>
+    <p itemprop="about">
+      StarCraft 2 ladder rankings and statistics over time for players
+      and teams. Search for players and see world, region and league
+      rankings for 1v1 teams. All data is updated daily by fetching
+      the current sc2 ladder standings from battle net.
+    </p>
+    {% include '-search-box.html' %}
+    <div class="showcase">
+      <a href="{{ team_link }}">
+        <div class="img">
+          <img src="{{ STATIC_URL }}img/samples/team-ranking.png"/>
+          <div>1v1 team ranking history</div>
+        </div>
+      </a>
+      <a href="{% url 'stats:leagues' '1v1' %}">
+        <div class="img">
+          <img src="{{ STATIC_URL }}img/samples/league-distribution.png"/>
+          <div>Statistics over time</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock page %}

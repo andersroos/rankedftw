@@ -1,0 +1,9 @@
+<ul class="pagination">
+  {% for page in pages %}
+    {% if page.gap %}
+      <li>...</li>
+    {% else %}
+      <li>{% if page.index == current_page %}<b>{{ page.index | add:1 }}</b>{% else %}<a href="{{ page.href }}">{{ page.index | add:1 }}</a></li>{% endif %}
+    {% endif %}
+  {% endfor %}
+</ul>

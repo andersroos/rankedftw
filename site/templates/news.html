@@ -1,0 +1,203 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}News - {% endblock pagetitle %}
+
+{% block description %}The latest news and updates about the site.{% endblock description %}
+
+{% block page %}
+
+<div itemprop="mainContentOfPage" class="content">
+  <h1 itemprop="headline">Ranked FTW News</h1>
+  <p itemprop="about">
+    The latest news about the site.
+  </p>
+
+  <h2>MMR Part One (2016-11-17)</h2>
+  <p>
+    Blizzard finally added MMR to the API. I have now added MMR to the ladder
+    page, this is now the primary sort order for ladder ranks. I haven't decided
+    if I will add league and points back as a sort order, I feel it is not very
+    high on the prio list.
+  </p>
+  <p>
+    Next up will be MMR for the team rank over time graph. Also I will try to
+    update last season with MMR. This will have some nasty side effects since
+    it is only possible to get the rankings from the season end. So unless I want to
+    do some complicated mixing of how ranks are displayed/calculated I will
+    have to scrap all data points but the last from season 28 and from season
+    start until now for season 29. We will see. If you read this far and have
+    an opinion now is the time to shout.
+  </p>
+
+  <h2>Changed sorting order of Grandmaster (2016-11-06)</h2>
+  <p>
+    The last two seasons Blizzard has sorted GM on MMR. That
+    is the order it is received through the API (even though the actual
+    MMR value is not in the API). GM is now shown as is from
+    Blizzard (MMR order), rather than resorted using points as it was
+    before.
+  </p>
+  <p>
+    This have been updated for both season 28 and season 29.
+  </p>
+  <p>
+    When calculating world rank the different GM leagues for the different
+    regions will be interleaved. It will look a bit strange, but comparing
+    regions is a strange thing to do, so I think it is fine.
+  </p>
+
+  <h2>Tier Issue Solved (2016-10-22)</h2>
+  <p>
+    Blizzard added a new API so it is now possible to get information
+    on tiers. Ladder is now updated with tiers and rankings from last
+    season have been fixed.
+  </p>
+  <p>
+    Not possible to get tier data for SEA yet, so not fixed for SEA.
+  </p>
+
+  <a name="separate-mmr"></a>
+  <h2>Handling of Ranking by Race (Separate Race MMR) (2016-10-18)</h2>
+  <p>
+    Separate MMR for different races was introduced this season
+    (season 5 2016). For now this will be handled by only showing the
+    best rank for each team. Rankings for the other races will be
+    filtered out and not shown nor counted.
+  </p>
+  <p>
+    Note that the league stats will be skewed because of this, higher
+    leagues will appear larger and lower smaller. Also this may cause
+    grandmaster ladder on site to differ from the in game grandmaster
+    ladder or other ranking sites.
+  </p>
+  <p>
+    I will probably fix this in the future, maybe adding a filtering
+    option for it. The reason for doing it like this first is because
+    it is the simplest solution.
+  </p>
+
+  <h2>Broken Rankings Season 4 2016 (2016-07-28)</h2>
+  <p>
+    As a consequence of the Ladder Revamp where each ladder is now one
+    of three tiers, ladder ranks on the site are no longer
+    accurate. The tiers within a league are currently mixed up since
+    tier information is not yet available in the Blizzard Battle Net
+    API. This means that a tier-3 800 points master player will be
+    displayed higher ranked than a tier-1 700 point master player.
+  </p>
+  <p>
+    This applies to Season 4 2016 only, rankings before that are still
+    correct. Grandmaster is still accurate since it does not have
+    tiers. The statistics pages are also still accurate since it only
+    uses league information and ranks within a league are irrelevant.
+  </p>
+
+  <h2>Added Clan Support (2016-04-24)</h2>
+  <p>
+    <a href="{% url "clan-overview" %}">Clan ladders are now available.</a> Clan ladders are limited to members
+    ranked in the current season, 1v1 and LotV. At the moment I have no plans to add anything else please tell me if
+    you don't agree with this.
+  </p>
+  <p>
+    I am aware that linking to clans on the site is a bit lacking (for example can't click on clan tag in the regular
+    ladder or in player search results). I will probably address this later (and there are other usability issues
+    as well), but I have a few behind the scenes issues and bugs that I need to fix first.
+  </p>
+
+  <h2>More Frequent Updates (2016-03-10)</h2>
+  <p>
+    As of public request the ladder data now updates more frequently (this is the fast hack version, so don't expect
+    to work flawlessly yet). Grandmaster (1v1 and Archon) will be updated approximately once a minute (then there is a delay of 1 - 2
+    minutes before data appears on the site, this will be tuned later). 1v1 platinum to master will updated continuously but
+    not more often than every 10 minutes, in practice this will mean every 10 - 20 minutes depending on the region and
+    how fast the blizzard api responds at the moment. All other divisions will also be updated continuously but not more
+    often than once an hour.
+  </p>
+  <p>
+    There will also be a daily window of about 1 hour (around 08:00 UTC) where there will be no updates. This will
+    hopefully be removed later. The plan is to also remove the window of no updates around season breaks (this is now
+    5 days or so).
+  </p>
+  <p>
+    This feature experimental so don't be surprised if updates are slower, the age of the data will be displayed in
+    the ladder.
+  </p>
+
+  <h2>Support for Legacy of the Void (2015-11-24)</h2>
+  <p>
+    Legacy of the Void for all modes (including Archon mode) is now supported in ladder, stats and team history sections.
+  </p>
+
+  <h2>Current Ladder Sortable and Filterable (2015-08-30)</h2>
+  <p>
+    Added a <a href="{% url 'ladder' version='lotv' mode='1v1' sort_key='ladder-rank' reverse='' %}">section</a> for
+    the current ladder standing. All versions and modes are supported along with various sorting options like
+    ladder position, wins, losses etc. Filtering on race, region and league is also possible.
+  </p>
+  <p>
+    The worst random diamond players in EU:
+  </p>
+  <a href="{% url 'ladder' version='lotv' mode='1v1' sort_key='win-rate' reverse='-' %}?f=eu,random,diamond"><img src="{{ STATIC_URL }}img/samples/ladder.png"/></a>
+
+  <h2>Stats and Rankings for All Team Games (2015-08-30)</h2>
+  <p>
+    Team game data have been fetched since the start of the site but never been on the actual site, now they are.
+    Both <a href="{% url 'stats:leagues' 'team-4v4'%}">stats</a> and <a href="{%  url 'team' 350424 %}">rankings</a>
+    are available.
+  </p>
+
+  <h2>Ads Replaced with Donation Link (2015-08-30)</h2>
+  <p>
+    Ads was added as an experiment about half a year ago. It turned out that the ads generated zero income for
+    the site (only for the ad provider). There no reason to make the site ugly and give money to any possible
+    ad providers so ads have been removed. However the site still costs money to run and it would be nice
+    if the visitors of this site was willing to contribute to that, so a <a href="{% url 'donate' %}">donation link</a>
+    was added. Donations are appreciated, not required.
+  </p>
+
+  <h2>Active Ranks Removed (2015-02-19)</h2>
+  <p>
+    The intention with the active rank was to have a more accurate
+    estimate of skill progress, but it turns out it is not so I have
+    removed it. I have a few ideas to replace it with something
+    better soon&trade;.
+  </p>
+  
+  <h2>Race Statistics Added (2014-09-01)</h2>
+  <p>
+    The third sc2 statistics page added. Race distribution among ranked
+    1v1 players over time.
+  </p>
+  <a href="{% url 'stats:races' '1v1'%}"><img src="{{ STATIC_URL }}img/samples/race-stats.png"/></a>
+  
+  <h2>Population Statistics Added (2014-08-30)</h2>
+  <p>
+    <a href="{% url 'stats:population' '1v1'%}">The second statistics page
+    added.</a> The number of ranked 1v1 players over time.
+  </p>
+  
+  <h2>Ladder Distribution Statistics Added (2014-08-26)</h2>
+  <p>
+    As a bi-product of tracking sc2 ladder rankings for all players
+    the statistics section was added, more statistics will come but
+    the ladder distribution history is the first one out.
+  </p>
+  <a href="{% url 'stats:leagues' '1v1'%}"><img src="{{ STATIC_URL }}img/samples/league-distribution.png"/></a>
+  
+  <h2>Site Goes Live (2014-08-10)</h2>
+  <p>
+    The first version of the site goes live with 1v1 data
+    accessible. Team history is the only feature available.
+  </p>
+  <a href="{% url 'search' %}"><img src="{{ STATIC_URL }}img/samples/team-ranking.png"/></a>
+  
+  <h2>Data Collection Starts (fall 2013)</h2>
+  <p>
+    Data collection of sc2 ladder for the site is started. Using the
+    Blizzard Battle.net ladder API the current ladder standings are
+    updated every day.
+  </p>
+</div>
+
+{% endblock page %}

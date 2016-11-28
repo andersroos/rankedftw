@@ -1,0 +1,20 @@
+
+Running Tests
+=============
+
+Create postgres user that is allowed to create db:
+
+sudo -u postgres createuser $USER
+sudo -u postgres psql -c "alter user $USER with createdb;"
+
+Dependencies For Compiling C++ Code
+===================================
+
+* Boost
+* libpq
+* JsonCpp
+* Python 3
+
+For a complete and up to date list of dependecies and how to install
+them on Ubuntu see .travis.yaml
+

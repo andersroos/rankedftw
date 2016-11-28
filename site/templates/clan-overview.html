@@ -1,0 +1,44 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}Clan - {% endblock pagetitle %}
+
+{% block description %}Clan ladders.{% endblock description %}
+
+{% block body_class %}clan-search{% endblock body_class %}
+
+{% block page %}
+
+<div itemprop="mainContentOfPage" class="content">
+  <h1 itemprop="headline">Clans</h1>
+  <form class="search" method="get" action="{% url "clan-overview" %}">
+    <input placeholder=" Search by clan name or tag " tabindex="1" id="clan" name="clan" size="32" value="{{ request.GET.clan }}"/>
+    <button tabindex="2" type="submit">Go!</button>
+  </form>
+
+  {% if search %}
+    <h1>Results</h1>
+  {% else %}
+    <h1>Largest Clans</h1>
+  {% endif %}
+
+  {% if clans %}
+    <ul class="result">
+      {% for clan in clans %}
+        <a tabindex="{{ forloop.counter|add:2 }}" href='{% url "clan" tag=clan.tag reverse='' sort_key='ladder-rank' %}'>
+          <li>
+            <span class="tag">{{ clan.tag }}</span><span class="name">{{ clan.clan }}</span><span class="count">{{ clan.count }} members</span><br>
+          </li>
+        </a>
+      {% endfor %}
+    </ul>
+    {% if left_out %}
+      <p>Some results was left out, try narrow the search.</p>
+    {%  endif %}
+  {% else %}
+    <div>Nothing found.</div>
+  {% endif %}
+
+</div>
+
+{% endblock page %}

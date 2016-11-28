@@ -1,0 +1,47 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}Current {{ mode_id | mode_name }} Ladder - {% endblock pagetitle %}
+
+{% block description %}StarCraft 2 ladder rankings, sorted by points/played matches/win percentages etc.{% endblock description %}
+
+{% block head %}
+{% endblock head %}
+
+{% block body_class %}ladder{% endblock body_class %}
+
+{% block page %}
+
+  {% if error %}
+    <div class="content">
+      <div class="server-error">
+        {{ error }}
+      </div>
+    </div>
+  {% else %}
+
+    {% include '-ladder-controls.html' %}
+
+    <div class="content">
+
+      {% include '-ladder-pagination.html' %}
+
+      {% include '-ladder-core.html' %}
+
+      {% include '-ladder-pagination.html' %}
+
+      <p class="count">{{ ladder.count }} teams in total</p>
+
+    </div>
+
+  {% endif %}
+
+{% endblock page %}
+
+{% block body_js %}
+
+<script type="text/javascript">
+</script>
+
+{% endblock body_js %}
+

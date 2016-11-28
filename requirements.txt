@@ -1,0 +1,14 @@
+# Running
+Django>=1.9,<1.10
+psycopg2
+psutil
+uwsgi
+requests
+rocky>=0.0.0.dev0
+
+# Build/Install
+
+# Dev/Test
+nose
+pep8
+coverage

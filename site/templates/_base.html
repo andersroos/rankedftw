@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta charset="utf-8"/>
+    <title>{% block pagetitle %}{% endblock pagetitle %}Ranked FTW - StarCraft II Ladder Rankings</title>
+    <meta name="viewport" content="width=540" />
+    <meta name="description" content="{% block description %}StarCraft 2 ladder rankings over time. See world, region or league rankings for individual sc2 teams/players.{% endblock description %}" />
+    
+    <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon/favicon.ico">
+    <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="{{ STATIC_URL }}img/favicon/favicon-196x196.png" sizes="196x196">
+    
+    <link href="{{ STATIC_URL }}css/core.css" rel="stylesheet" />
+    {% if not debug and al %}{{ al|safe }}{% endif %}
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="{{ STATIC_URL }}js/core.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      sc2.static_url = "{{ STATIC_URL }}";
+      sc2.dynamic_url = window.location.protocol + '//' + window.location.host + '/';
+      sc2.enums_info = {{ enums_info | safe }};
+    </script>
+    {% block head %}
+    {% endblock head %}
+  </head>
+
+  <body class="{% block body_class %}{% endblock body_class %}" itemscope="" itemtype="{% block page_itemtype %}http://schema.org/WebPage{% endblock page_itemtype %}">
+
+    {% block message %}
+      <div class="message">
+        <p>
+          MMR added for ladder, next up is MMR for team graph (<a href="{% url 'news' %}">details</a>). SEA ladders still missing.
+
+        </p>
+      </div>
+    {%  endblock message %}
+    
+    <div itemscope="" itemtype="http://schema.org/SiteNavigationElement" class="top-nav">
+      <div class="content">
+        {% block top-nav-search %}{% include '-search-box.html' %}{% endblock top-nav-search %}
+        <a itemprop="name" href="{% url 'main' %}" class="logo" title="Main page.">RANKED FOR TEH WIN</a><!--
+        -->{% for heading, href, class, tooltip in main_nav %}<!--
+          --><a itemprop="url" tabindex="0" class="{{ class }}" href="{{ href }}" title="{{ tooltip }}">{{ heading }}</a><!--
+        -->{% endfor %}
+      </div>
+    </div>
+
+    {% block sub-nav %}
+      {% if sub_nav %}{% include '-sub-nav.html' with nav=sub_nav %}{% endif %}
+      {% if sub_sub_nav %}{% include '-sub-nav.html' with nav=sub_sub_nav %}{% endif %}
+    {% endblock sub-nav %}
+    
+    {% block page %}
+    {% endblock page %}
+    <div itemscope="" itemtype="http://schema.org/WPFooter" class="footer">
+      <div itemprop="author" itemscope="" itemtype="http://schema.org/Organization" class="content">
+        <a href="http://twitter.com/rankedftw" target="_top">Twitter</a><a itemprop="email" href="mailto:rankedftw.com@gmail.com" target="_top">E-Mail</a>{% if last_updated %}<span class=last-updated>Data from {{ last_updated }}</span>{% endif %}
+      </div>
+    </div>
+    {% block body_js %}
+    {% endblock body_js %}
+
+    <script type="text/javascript">
+      $(function() { $(".top-huk").addClass("fade"); });
+    </script>
+
+  </body>
+</html>

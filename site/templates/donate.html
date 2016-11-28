@@ -1,0 +1,35 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}Donate - {% endblock pagetitle %}
+
+{% block description %}{% endblock description %}
+
+{% block page %}
+
+  <div itemprop="mainContentOfPage" class="content">
+    <h1 itemprop="headline">Donate</h1>
+    <p itemprop="about">
+      If you like the site and want to help out with the running costs
+      a donation is very much appreciated!
+    </p>
+    
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+      <input type="hidden" name="cmd" value="_donations"/>
+      <input type="hidden" name="business" value="rankedftw.com@gmail.com"/>
+      <input type="hidden" name="lc" value="US"/>
+      <input type="hidden" name="item_name" value="Ranked FTW"/>
+      <input type="hidden" name="no_note" value="0"/>
+      <input type="hidden" name="currency_code" value="USD"/>
+      <input type="hidden" name="bn" value="PP-DonationsBF:btn_donate_LG.gif:NonHostedGuest"/>
+      <input type="hidden" name="on0" value="Message"/>
+      <p>
+        <textarea name="os0" rows="4" cols="50" placeholder="Message" maxlength="200"></textarea><br/>
+      </p>
+      <p>
+        <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" border="0" style="border: none;" name="submit" alt="PayPal - The safer, easier way to pay online!"/>
+      </p>
+    </form>
+  </div>
+
+{% endblock page %}

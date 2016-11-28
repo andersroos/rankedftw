@@ -1,0 +1,58 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}{% for m in members %}{% if not forloop.first %}, {% endif %}{{ m.name }}{% endfor %} - {{ team.mode | mode_name }} - {% endblock pagetitle %}
+
+{% block description %}{{ team.mode | mode_name }} StarCraft 2 ladder ranking history for {% for m in members %}{% if not forloop.first %}, {% endif %}{{ m.name }}{% endfor %}.{% endblock description %}
+
+{% block head %}
+<script src="{{ STATIC_URL }}js/team.js" type="text/javascript"></script>
+{% endblock head %}
+
+{% block body_class %}team{% endblock body_class %}
+
+{% block page %}
+
+<div class="content">
+  <h1 itemprop="headline">{% if ladder_href %}<a title="Ladder view" href="{{ ladder_href }}">{{ team.mode | mode_name }} Ranking</a>{% else %}{{ team.mode | mode_name }} Ranking{% endif %} for
+    {% for m in members %}{% if not forloop.first %}, {% endif %}{% if m.tag %}<a href="{% url 'clan' tag=m.tag sort_key='ladder-rank' reverse='' %}" class="tag">{{ m.tag | tag_braces }}</a>{% endif %}<a title="Player page" href="{% url "player" player_id=m.id %}">{{ m.name}}</a>{% endfor %}
+  </h1>
+
+  <p>
+    Use controls to see different aspects of the sc2 ladder ranking
+    history. Seasons are marked by the colored sections of the
+    x-axis. Mouse over on points to see date, season and full
+    information for that point. The rankings are all based on league
+    and ladder points, not MMR.
+  </p>
+  
+</div>
+
+<div id="graph-container"></div>
+
+<div class="content">
+  <h2>LotV, HotS or WoL?</h2>
+  <p>
+    There is no selection available between game versions. For each
+    point in time the data is chosen based on availability.
+    LotV data will be selected before HotS data, and HotS before WoL data.
+    So for example if the team was ranked in a HotS ladder the HotS data will be shown. If
+    there is no LotV or HotS data available but the team is ranked in a WoL
+    ladder the WoL data will be shown. If a team has switched from WoL
+    to HotS between seasons both HotS and WoL points will be shown in
+    the graph (but only one for each point in time). Mouse over the
+    graph to see game version for that point.
+  </p>
+</div>
+
+{% endblock page %}
+
+{% block body_js %}
+
+<script type="text/javascript">
+  sc2.seasons.init({{ seasons | safe }});
+  var graph = sc2.graph.RankingGraph("graph-container", {{ team.id }}, {{ team.member0.region }}, {{ team.member0.league }}, {{ team.mode }});
+</script>
+
+{% endblock body_js %}
+

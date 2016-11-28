@@ -1,0 +1,151 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}Leagues - {{ mode_id | mode_name | capfirst }} Stats - {% endblock pagetitle %}
+
+{% block description %}Current and historic sc2 ladder league distribution statistics for {{ mode_id | mode_name }}.{% endblock description %}
+
+{% block head %}
+<script src="{{ STATIC_URL }}js/stats.js" type="text/javascript"></script>
+{% endblock head %}
+
+{% block body_class %}stats{% endblock body_class %}
+
+{% block message %}
+  <div class="message">
+    <p>
+      <b>WARNING:</b> League stats not accurate due to separate race MMR quick fix, lower leagues too small (<a href="{% url 'news' %}#separate-mmr">details</a>).
+    </p>
+  </div>
+{%  endblock message %}
+
+{% block page %}
+
+<div itemprop="mainContentOfPage" class="content">
+  <h1 itemprop="headline">{{ mode_id | mode_name }} League Distribution</h1>
+  <p itemprop="about">
+    Current and historic sc2 league distribution for teams. The data
+    is calculated by counting all teams ranked in a season. If a player plays in multiple regions in identical teams
+    that team will be counted several times for the world total. The
+    region numbers are a more accurate way to count players. In 1v1
+    and random teams each teams only consist of one player.
+  </p>
+  
+  <h2>Current {{ mode_id | mode_name }} League Distribution</h2>
+  <p>
+    The current league distribution for the different
+    regions. Select version to see numbers for LotV, HotS or WoL.
+  </p>
+</div>
+
+<div id="leagues-table-container" class="data-container wait"> 
+  <div class="controls">
+    <div class="content">
+      <ul ctrl-name="v">
+        <span>Version:</span>
+        {% for version in versions %}<a ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="content">
+    <table>
+      <thead>
+        <th></th>
+        {% for region in regions %}
+          <th><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/><span>{{ region | region_name }}</span></th>
+        {% endfor %}
+      </thead>
+      <tbody>
+        {% for league in leagues %}
+          <tr>
+            <th><span>{{ league | league_name }}</span><img src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-16x16.png"/></th>
+            {% for region in regions %}
+              <td id="r{{ region }}-l{{ league }}"><span class="number"></span><span class="percent"></span></td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        <tr>
+          <th class="no-img">Population</th>
+          {% for region in regions %}
+            <td id="r{{region}}-pop"><span class="number"></span><span class="percent">(100.00%)</span></td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="content">
+  <h2>{{ mode_id | mode_name }} League Distribution Over Time</h2>
+  <p>
+    League distribution over time. Seasons are marked by the colored
+    sections of the x-axis. Mouse over on points to see date, season
+    and league distribution for that point.
+  </p>
+</div>
+
+<div id="leagues-graph-container" class="data-container wait">
+  <div class="controls">
+    <div class="content">
+      <ul ctrl-name="v">
+        <span>Version:</span>
+        {% for version in versions %}<a ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
+      </ul>
+      <ul ctrl-name="r">
+        <span>Region:</span>
+        {% for region in regions %}<a ctrl-value="{{ region }}" title="Show {{ region | region_name }}."><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></a>{% endfor %}
+      </ul>
+      <ul ctrl-name="sx">
+        <span>X-Axis:</span>
+        <a ctrl-value="a" title="Show all data."
+        ><span>All</span></a
+        
+        ><a ctrl-value="sl" title="Show only one point in graph for each season."
+        ><span>Season Last</span></a>
+      </ul>
+    </div>
+  </div>
+  <canvas class="graph"></canvas>
+  <div class="tooltip">
+    <table>
+      <tbody>
+        <tr><th class="no-img">Date</th><td colspan="2" class="date"/></tr>
+        <tr><th class="no-img">Season</th><td colspan="2" class="season"/></tr>
+        {% for league in leagues %}
+          <tr>
+            <th><span>{{ league | league_name }}</span><img src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-16x16.png"/></th>
+            <td class="l{{ league }}-n"></td><td class="l{{ league }}-p"></td>
+          </tr>
+        {% endfor %}
+        <tr><th class="no-img">Population</th><td class="pop-n"></td><td class="pop-p">(100.00%)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="content">
+  <p>
+    To make it easier to compare seasons you can click "Season Last"
+    to only see one point in the graph for each season. The last
+    season shown in the graph is the ongoing season. It is also worth
+    noting that Blizzard has target percentages for the ladders among
+    "active" players so even though league distribution looks kind of
+    unstable over time it may be more stable by that definition. As
+    far as I know they have not stated what their definition of an
+    "active" players is.
+  </p>
+</div>
+
+
+{% endblock page %}
+
+
+{% block body_js %}
+
+<script type="text/javascript">
+  sc2.seasons.init({{ seasons | safe }});
+  sc2.stats.LeagueDistributionTable({{ mode_id }});
+  sc2.stats.LeagueDistributionGraph({{ mode_id }});
+</script>
+
+{% endblock body_js %}

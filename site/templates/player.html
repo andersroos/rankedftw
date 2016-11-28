@@ -1,0 +1,72 @@
+{% extends "_base.html" %}
+{% load sc2 %}
+
+{% block pagetitle %}{{ player.name }} - {% endblock pagetitle %}
+
+{% block description %}sc2 player {{ player.name }}{% endblock description %}
+
+{% block head %}
+<script type="text/javascript">
+</script>
+{% endblock head %}
+
+{% block body_class %}player{% endblock body_class %}
+
+{% block page %}
+
+<div class="content">
+  <h1 itemprop="headline">Teams for {{ player.region | region_name }} Player {% if player.clan %}<a href="{%  url "clan" tag=player.tag sort_key='ladder-rank' reverse='' %}" title="Clan"><span class="tag">{{ player.tag | tag_braces }}</span></a>{% endif %}{{ player.name}}</h1>
+  <a class='bnet-link' href="{{ bnet_url }}" title="Battle.net profile">Battle.net profile</a>
+
+  <ul class="teams">
+    {% for team in teams %}
+      <li>
+        {% if team.ladder_url %}
+          <a class="ladder" href='{{ team.ladder_url }}' title="Ladder ranking"><img src="{{ STATIC_URL }}img/ladder.png"/></a><!--
+        {% else %}
+          <a style="height: 0px; padding-top: 0; padding-bottom: 0;" class="ladder"/><!--
+        {% endif %}
+          
+        --><a class="team" tabindex="{{ forloop.counter }}" href='{% url "team" team_id=team.id %}' title="Team ranking page">
+          <img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league | league_key }}-16x16.png" />
+          <span class="mode">{{ team.mode | mode_name }}</span>
+        </a>
+
+        <a class="player" href="{% url "player" player_id=team.member0.id %}" title="{{ team.member0.name }} page">
+          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.member0.race | race_key }}-16x16.png" />
+          <span class="tag">{{ team.member0.tag | tag_braces }}</span>{{ team.member0.name }}
+        </a>
+        
+        {% if team.member1 %}
+          <a class="player" href="{% url "player" player_id=team.member1.id %}" title="{{ team.member1.name }} page">
+            <img class="race" src="{{ STATIC_URL }}img/races/{{ team.member1.race | race_key }}-16x16.png" />
+            <span class="tag">{{ team.member1.tag | tag_braces }}</span>{{ team.member1.name }}
+          </a>
+        {% endif %}
+
+        {% if team.member2 %}
+          <a class="player"href="{% url "player" player_id=team.member2.id %}" title="{{ team.member2.name }} page">
+            <img class="race" src="{{ STATIC_URL }}img/races/{{ team.member2.race | race_key }}-16x16.png" />
+            <span class="tag">{{ team.member2.tag | tag_braces }}</span>{{ team.member2.name }}
+          </a>
+        {% endif %}
+         
+        {% if team.member3 %}
+          <a class="player" href="{% url "player" player_id=team.member3.id %}" title="{{ team.member3.name }} page">
+            <img class="race" src="{{ STATIC_URL }}img/races/{{ team.member3.race | race_key }}-16x16.png" />
+            <span class="tag">{{ team.member3.tag | tag_braces }}</span>{{ team.member3.name }}
+          </a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  
+</div>
+
+<div class="image-bank">
+  {% for league in leagues %}
+    <img id="league{{ forloop.counter | add:-1 }}" src="{{ STATIC_URL }}img/leagues/{{ league }}-16x16.png" />
+  {% endfor %}
+</div>
+   
+{% endblock page %}
