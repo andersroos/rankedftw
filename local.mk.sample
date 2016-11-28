@@ -1,3 +1,8 @@
-PYTHON_INCLUDE=/usr/include/python3.5
-LIB_PYTHON=:libpython3.5m.so
-LIB_BOOST_PYTHON=boost_python-py35
+#
+# Setup for running in Ubuntu 16.04 where python 3.5 is default.
+#
+
+PYTHON_INCLUDE = /usr/include/python3.5
+LIB_PYTHON = :libpython3.5m.so
+LIB_BOOST_PYTHON = boost_python-py35
+NOSE = nosetests3
