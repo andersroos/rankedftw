@@ -1,3 +1,7 @@
+dist: trusty
+
+sudo: false
+
 python:
   - "3.4"
 
