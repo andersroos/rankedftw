@@ -9,7 +9,7 @@ SRC_DIR := $(BASE_DIR)/src
 TASKS_MANAGE := $(BASE_DIR)/tasks/manage.py
 SITE_MANAGE := $(BASE_DIR)/site/manage.py
 
-NOSE := nosetests3
+NOSE := nosetests-3.4
 NOSE_COVERAGE := coverage3 run --parallel-mode --timid /usr/bin/nosetests3
 
 LESSC := lessc
