@@ -68,7 +68,7 @@ required):
 
    ./lib/server
 
-It will work but not be that fun witout data.
+It will work but not be that fun without data, see below.
 
 Gettting Data
 =============
