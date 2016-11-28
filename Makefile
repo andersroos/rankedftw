@@ -106,8 +106,8 @@ css: $(CORE_CSS)
 
 test:
 	@mkdir -p $(BASE_DIR)/.build
-	$(NOSE) $(BASE_DIR)/test
-	$(NOSE) $(BASE_DIR)/pg_test
+	LOG_DIR=$(BASE_DIR)/.build $(NOSE) $(BASE_DIR)/test
+	LOG_DIR=$(BASE_DIR)/.build $(NOSE) $(BASE_DIR)/pg_test
 
 coverage:
 	@rm -f $(BASE_DIR)/.coverage*
