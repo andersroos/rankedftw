@@ -3,7 +3,7 @@ from copy import copy
 
 from logging import INFO
 from os import environ
-from os.path import join, basename, abspath, dirname
+from os.path import join, basename, abspath, dirname, exists
 from rocky.config import PyFileSrc, Config, EnvSrc, FileContent
 
 topdir = abspath(join(dirname(__file__), '..'))
@@ -70,7 +70,7 @@ def common_settings():
 def logging_settings(log_filename=None, log_stdout=False):
         handlers = {}
 
-        if log_filename:
+        if log_filename and exists(dirname(log_filename)):
             handlers['file'] = {'level': 'DEBUG' if config.DB_DEBUG else 'INFO',
                                 'class': 'logging.handlers.WatchedFileHandler',
                                 'filename': log_filename,

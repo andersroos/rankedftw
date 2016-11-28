@@ -104,10 +104,10 @@ $(CORE_CSS): $(BASE_DIR)/site/static/css/core.less
 css: $(CORE_CSS)
 
 test:
-	if [ ! -f $(BASE_DIR)/local.py ]; then cp local.py.sample local.py; fi
+	@if [ ! -f $(BASE_DIR)/local.py ]; then cp local.py.sample local.py; fi
 	@mkdir -p $(BASE_DIR)/.build
-	LOG_DIR=$(BASE_DIR)/.build $(NOSE) $(BASE_DIR)/test
-	LOG_DIR=$(BASE_DIR)/.build $(NOSE) $(BASE_DIR)/pg_test
+	$(NOSE) $(BASE_DIR)/test
+	$(NOSE) $(BASE_DIR)/pg_test
 
 coverage:
 	@rm -f $(BASE_DIR)/.coverage*
