@@ -61,6 +61,7 @@ default: build
 
 init:
 	pip3 install --upgrade -r $(BASE_DIR)/requirements.txt
+	if [ ! -f $(BASE_DIR)/local.py ]; then cp local.py.sample local.py; fi
 
 pep8:
 	pep8 --ignore=W602,W391,W293,E701,E241,E201,E402,W503 --max-line-length=120 --exclude=./main/migrations .
