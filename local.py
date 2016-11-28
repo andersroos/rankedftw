@@ -1,3 +1,0 @@
-PROD = False
-# DEBUG_TEMPLATE = False
-# DB_DEBUG = 1
