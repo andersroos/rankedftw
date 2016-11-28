@@ -87,7 +87,6 @@ Create postgres user that is allowed to create db (needed for tests):
 
 Then to run tests:
 
-.. code-block:: bash
-   :syntax_highlight: none
+.. code-block:: none
 
    make test
