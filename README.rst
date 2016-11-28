@@ -23,7 +23,7 @@ Major Dependencies
 * Lessc
 
 For a complete and up to date list of dependecies and example on
-install steps on Ubuntu 14.04 see ``.travis.yaml``.
+install steps on Ubuntu 14.04 see `<.travis.yml>`_.
 
 Basic Build Steps
 -----------------
@@ -55,7 +55,7 @@ Then create databsae:
    sudo -u postgres createdb rankedftw
    make migrate-db
 
-Then to run the development http server on `localhost:8000`:
+Then to run the development http server on ``localhost:8000``:
 
 .. code-block:: bash
 
@@ -88,5 +88,6 @@ Create postgres user that is allowed to create db (needed for tests):
 Then to run tests:
 
 .. code-block:: bash
+   :syntax_highlight: none
 
    make test
