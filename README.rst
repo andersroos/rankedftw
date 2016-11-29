@@ -89,6 +89,6 @@ A few things will work (not crash) without data but most things wont.
 Gettting Data
 =============
 
-**TBD** Plase contact me if you get this far and want some real world
- data.
+**TBD**
 
+Plase contact me if you get this far and want some real world data.
