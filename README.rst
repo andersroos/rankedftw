@@ -43,6 +43,22 @@ Then compile:
 
    make build
 
+Running Tests
+=============
+
+Create postgres user that is allowed to create db (needed for tests):
+
+.. code-block:: bash
+
+   sudo -u postgres createuser $USER
+   sudo -u postgres psql -c "alter user $USER with createdb;"
+
+Then to run tests:
+
+.. code-block:: none
+
+   make test
+                
 Running Development Site
 ========================
 
@@ -68,25 +84,11 @@ required):
 
    ./lib/server
 
-It will work but not be that fun without data, see below.
+A few things will work (not crash) without data but most things wont.
 
 Gettting Data
 =============
 
-**TBD**
+**TBD** Plase contact me if you get this far and want some real world
+ data.
 
-Running Tests
-=============
-
-Create postgres user that is allowed to create db (needed for tests):
-
-.. code-block:: bash
-
-   sudo -u postgres createuser $USER
-   sudo -u postgres psql -c "alter user $USER with createdb;"
-
-Then to run tests:
-
-.. code-block:: none
-
-   make test
