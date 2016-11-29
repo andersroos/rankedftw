@@ -30,8 +30,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
    
    // Sort the team ranks to be able to create region, active and world ranks.
 
-   bool cmp_use_gm_rank = season_id >= 28;
-   cmp_tr cmp_inner(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT, cmp_use_gm_rank);
+   cmp_tr cmp_inner(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT);
    stable_sort(_team_ranks.begin(), _team_ranks.end(), cmp_tr_version_mode(cmp_inner));
 
    // Calcualte ranks, possible to do this smarter, but who cares, saving this in database
@@ -79,7 +78,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
                
                // Set league ranks.
                auto last_tr = _team_ranks.end();
-               cmp_tr cmp(NOT_REVERSED, region, league, NOT_SET, LADDER_RANK, STRICT, cmp_use_gm_rank);
+               cmp_tr cmp(NOT_REVERSED, region, league, NOT_SET, LADDER_RANK, STRICT);
                pos = 1;
                rank = 1;
                for (auto tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
@@ -98,7 +97,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
                
             // Set region ranks.
             auto last_tr = _team_ranks.end();
-            cmp_tr cmp(NOT_REVERSED, region, NOT_SET, NOT_SET, LADDER_RANK, STRICT, cmp_use_gm_rank);
+            cmp_tr cmp(NOT_REVERSED, region, NOT_SET, NOT_SET, LADDER_RANK, STRICT);
             pos = 1;
             rank = 1;
             for (auto tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
@@ -117,7 +116,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
          
          // Set world ranks.
          auto last_tr = _team_ranks.end();
-         cmp_tr cmp(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT, cmp_use_gm_rank);
+         cmp_tr cmp(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT);
          pos = 1;
          rank = 1;
          for (team_ranks_t::iterator tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
@@ -340,18 +339,17 @@ ranking_data::update_with_ladder(id_t ladder_id,
    // This comparator is used to find out what display race and league players and teams should have.
    cmp_tr cmp;
 
-   if (season_id < 29)
-      cmp = cmp_tr(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT, season_id >= 28);
-   else
+   bool mmr_available = season_id >= 28;
+   
+   if (mmr_available)
       cmp = cmp_tr(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, MMR, STRICT);
-      
+   else
+      cmp = cmp_tr(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT);      
    
    team_ranks_t ladder;
    {
       db::transaction_block transaction(_db);
    
-      uint32_t ladder_count = len(members);
-      
       //
       // Get or create player ids.
       //
@@ -471,10 +469,6 @@ ranking_data::update_with_ladder(id_t ladder_id,
             object member = members[i];
             auto& team = teams[i / team_size];
 
-            // Count ladder rank as provided by blizzard, disregard that teams can be filtered later and that ranking
-            // can be same for several teams. Season 28 they started to sort gm by mmr, but mmr is only visible in game.
-            rank++;
-
             if (not team_map.insert(make_pair(team.id, team)).second) {
                // No insert, skip duplicates for race mmr (first occurance will be the higher ranked).
                continue;
@@ -499,15 +493,13 @@ ranking_data::update_with_ladder(id_t ladder_id,
             team_rank.race1 = team.r1;
             team_rank.race2 = team.r2;
             team_rank.race3 = team.r3;
-            team_rank.ladder_rank = rank;
-            team_rank.ladder_count = ladder_count;
             
             ladder.push_back(team_rank);
          }
       }
 
       //
-      // Sort ladder and assign ranks (this will do nothing if gm season 28 and after.
+      // Sort ladder and assign ranks.
       //
       
       stable_sort(ladder.begin(), ladder.end(), cmp);
@@ -521,6 +513,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
          }
 
          tr->ladder_rank = rank;
+         tr->ladder_count = ladder.size();
          last_tr = tr;
       }
       

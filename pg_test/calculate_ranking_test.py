@@ -522,65 +522,23 @@ class Test(DjangoTestCase):
                                )
 
     def test_worst_race_is_filtered_if_team_has_several_races__separate_mmr_test(self):
+        self.db.create_season(id=29)
         self.process_ladder(members=[
-            gen_member(points=90, bid=1, race=Race.ZERG),
-            gen_member(points=80, bid=1, race=Race.RANDOM),
+            gen_member(points=99, mmr=99, bid=1, race=Race.TERRAN),
+            gen_member(points=80, mmr=80, bid=1, race=Race.RANDOM),
         ])
         
         self.process_ladder(league=League.GOLD,
                             members=[
-                                gen_member(points=99, bid=1, race=Race.TERRAN),
-                                gen_member(points=70, bid=1, race=Race.PROTOSS),
+                                gen_member(points=90, mmr=90, bid=1, race=Race.ZERG),
+                                gen_member(points=70, mmr=70, bid=1, race=Race.PROTOSS),
                             ])
                             
         self.save_to_ranking()
 
         self.assert_team_ranks(self.db.ranking.id,
-                               dict(ladder_count=2, region_count=1, region_rank=1, points=99, race0=Race.TERRAN, league=League.GOLD),
+                               dict(ladder_count=1, region_count=1, region_rank=1, points=99, mmr=99, race0=Race.TERRAN, league=League.GOLD),
                                )
-
-    def test_gm_is_using_ladder_rank_from_season_28(self):
-        self.db.create_season(id=28)
-        self.db.create_ranking()
-
-        self.process_ladder(league=League.GRANDMASTER, region=Region.EU,
-                            members=[
-                                gen_member(points=10, mmr=10),
-                                gen_member(points=80, mmr=80),
-                            ])
-
-        self.process_ladder(league=League.GRANDMASTER, region=Region.KR,
-                            members=[
-                                gen_member(points=99, mmr=99),
-                                gen_member(points=70, mmr=70),
-                                gen_member(points=70, mmr=70),
-                            ])
-
-        self.process_ladder(league=League.GRANDMASTER, region=Region.AM,
-                            members=[
-                                gen_member(points=98,  mmr=98),
-                                gen_member(points=200, mmr=200),
-                            ])
-
-        self.save_to_ranking()
-
-        self.assert_team_ranks(self.db.ranking.id,
-                               dict(world_rank=1,  region_rank=1,  league_rank=1,  ladder_rank=1,
-                                    points=99, region=Region.KR),
-                               dict(world_rank=2,  region_rank=1,  league_rank=1,  ladder_rank=1,
-                                    points=10, region=Region.EU),
-                               dict(world_rank=3,  region_rank=1,  league_rank=1,  ladder_rank=1,
-                                    points=98, region=Region.AM),
-
-                               dict(world_rank=4,  region_rank=2,  league_rank=2,  ladder_rank=2,
-                                    points=70, region=Region.KR),
-                               dict(world_rank=5,  region_rank=2,  league_rank=2,  ladder_rank=2,
-                                    points=80, region=Region.EU),
-                               dict(world_rank=6,  region_rank=2,  league_rank=2,  ladder_rank=2,
-                                    points=200, region=Region.AM),
-
-                               dict(world_rank=7,  region_rank=3,  league_rank=3,  ladder_rank=3,
-                                    points=70, region=Region.KR))
 
     def test_gm_is_using_points_before_season_28(self):
         self.db.create_season(id=27)

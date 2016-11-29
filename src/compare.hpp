@@ -28,43 +28,6 @@
 #define NOT_SET -64
 
 
-int32_t inline cmp_league_tier_points__or__gm_rank(const team_rank_t& x, const team_rank_t& y) {
-
-   if (x.league == GRANDMASTER and y.league == GRANDMASTER) {
-      
-      if (x.ladder_rank < y.ladder_rank) {
-         return BEFORE;
-      }
-
-      if (x.ladder_rank > y.ladder_rank) {
-         return AFTER;
-      }
-      
-      auto x_reg = x.region == KR ? -1 : x.region;
-      auto y_reg = y.region == KR ? -1 : y.region;
-
-      if (x_reg == y_reg) {
-         return EQUAL;
-      }
-
-      if (x_reg < y_reg) {
-         return BEFORE;
-      }
-
-      return AFTER;
-   }
-   
-   if (x.league == y.league and x.tier == y.tier and x.points == y.points)
-      return EQUAL;
-
-   if (x.league > y.league
-       or (x.league == y.league and x.tier < y.tier)
-       or (x.league == y.league and x.tier == y.tier and x.points > y.points))
-      return BEFORE;
-
-   return AFTER;
-}
-
 int32_t inline cmp_league_tier_points(const team_rank_t& x, const team_rank_t& y) {
 
    if (x.league == y.league and x.tier == y.tier and x.points == y.points)
@@ -94,15 +57,11 @@ struct cmp_tr
    // team_ranks, see use method. If set to a value it will alwasy be used as primary sort order (in region, league,
    // race order). If set to NOT_SET it may or may not be used in sort, depending on the sort order key.
    //
-   // For sorting gm rank according to original rank from blizzard use gm_rank true. This is used from season 28 when
-   // blizzard started sorting gm by mmr (but not providing gm in api). Regions will just be interleved with this
-   // sorting. Only applicable to LADDER_RANK sorting.
-   //
-   cmp_tr(bool reverse, enum_t region, enum_t league, enum_t race, enum_t key, bool strict=false, bool gm_rank=true) :
-      _reverse(reverse), _region(region), _league(league), _race(race), _key(key), _strict(strict), _gm_rank(gm_rank) {}
+   cmp_tr(bool reverse, enum_t region, enum_t league, enum_t race, enum_t key, bool strict=false) :
+      _reverse(reverse), _region(region), _league(league), _race(race), _key(key), _strict(strict) {}
 
    cmp_tr() : _reverse(false), _region(NOT_SET), _league(NOT_SET), _race(NOT_SET),
-              _key(LADDER_RANK), _strict(false), _gm_rank(false) {}
+              _key(LADDER_RANK), _strict(false) {}
    
    // Is x < y? (x before y)
    bool operator()(const team_rank_t& x, const team_rank_t& y) const {
@@ -143,12 +102,7 @@ struct cmp_tr
                                 or (x.wins == y.wins and x.losses == y.losses and x.team_id < y.team_id));
             
          case LADDER_RANK:
-            if (_gm_rank) {
-               res = cmp_league_tier_points__or__gm_rank(x, y);
-            }
-            else {
-               res = cmp_league_tier_points(x, y);
-            }
+            res = cmp_league_tier_points(x, y);
             if (res != EQUAL)
                return _reverse != (res == BEFORE);
             if (_strict)
@@ -268,7 +222,6 @@ struct cmp_tr
    enum_t _race;
    enum_t _key;
    bool   _strict;
-   bool   _gm_rank;
 };
 
 //
