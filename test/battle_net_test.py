@@ -124,6 +124,24 @@ class TestApi(DjangoTestCase):
             'race': Race.PROTOSS,
         }], al.members_for_ranking(1))
 
+    def test_survives_missing_legacy_name(self):
+        l = deepcopy(API_LADDER_1V1)
+        del l['team'][0]['member'][0]['legacy_link']['name']
+        al = ApiLadder(l)
+        self.assertEqual([{
+            'join_time': 1479018088,
+            'bid': 6205328,
+            'realm': 1,
+            'name': '',
+            'tag': 'Partha',
+            'clan': 'boom boom long time',
+            'points': 381,
+            'mmr': 2136,
+            'wins': 12,
+            'losses': 24,
+            'race': Race.PROTOSS,
+        }], al.members_for_ranking(1))
+
     def test_handles_empty(self):
         l = deepcopy(API_LADDER_1V1)
         del l['team']
