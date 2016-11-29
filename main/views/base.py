@@ -12,6 +12,17 @@ from django.views.generic.base import TemplateView, RedirectView
 from django.core.urlresolvers import reverse
 
 
+DEFAULT_SORT_KEY = 'mmr'
+SORT_KEYS = {
+    "league-points": 0,
+    "played": 1,
+    "wins": 2,
+    "losses": 3,
+    "win-rate": 4,
+    "mmr": 5,
+}
+
+
 SEASON_FILTER = 14
 
 
@@ -97,7 +108,7 @@ class MainNavMixin(object):
                  reverse('ladder', kwargs={'version': Version.DEFAULT_KEY,
                                            'mode': Mode.DEFAULT_KEY,
                                            'reverse': '',
-                                           'sort_key': 'ladder-rank'}),
+                                           'sort_key': DEFAULT_SORT_KEY}),
                  'Current ladder.') \
             .add('STATS',
                  reverse('stats:leagues', kwargs={'mode_key': Mode.DEFAULT_KEY}),

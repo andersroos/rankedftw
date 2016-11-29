@@ -79,7 +79,7 @@ class Test(DjangoTestCase):
             dict(team_id=self.t2_i, league=League.PLATINUM, mmr=50, tier=2),
         ])
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/')
+        response = self.c.get('/ladder/hots/1v1/mmr/')
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(1, response.context['team_size'])
@@ -102,7 +102,7 @@ class Test(DjangoTestCase):
             dict(team_id=self.t3_i, league=League.GOLD,     mmr=20),
         ])
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/')
+        response = self.c.get('/ladder/hots/1v1/mmr/')
         self.assertEqual(200, response.status_code)
 
         page = response.context['ladder']['teams']
@@ -127,7 +127,7 @@ class Test(DjangoTestCase):
         self.db.create_ranking()
         self.db.create_ranking_data(data=data)
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/')
+        response = self.c.get('/ladder/hots/1v1/mmr/')
         self.assertEqual(200, response.status_code)
 
         page = response.context['ladder']['teams']
@@ -145,7 +145,7 @@ class Test(DjangoTestCase):
 
         # For offset 1 team 1-10 should all have rank 2.
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=1')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=1')
         self.assertEqual(200, response.status_code)
 
         page = response.context['ladder']['teams']
@@ -158,7 +158,7 @@ class Test(DjangoTestCase):
 
         # For offset 6 team 1-5 should have rank 2 and team 6-10 should have rank 12.
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=6')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=6')
         self.assertEqual(200, response.status_code)
 
         page = response.context['ladder']['teams']
@@ -216,7 +216,7 @@ class Test(DjangoTestCase):
             (8, self.t2_i),
             (8, self.t0_i),
             (8, self.t1_i)
-        ], self.get_page('/ladder/hots/1v1/ladder-rank/', page_size=20))
+        ], self.get_page('/ladder/hots/1v1/mmr/', page_size=20))
 
         self.assertEqual([
             (1,  self.t1_i),
@@ -230,21 +230,21 @@ class Test(DjangoTestCase):
             (9,  self.t8_i),
             (10, self.t9_i),
             (11, self.t10_i),
-        ], self.get_page('/ladder/hots/1v1/-ladder-rank/', page_size=20))
+        ], self.get_page('/ladder/hots/1v1/-mmr/', page_size=20))
 
         #
         # Test another version filtering.
         #
 
-        self.assertEqual([(1, self.t11_i)], self.get_page('/ladder/wol/1v1/ladder-rank/'))
-        self.assertEqual([(1, self.t11_i)], self.get_page('/ladder/wol/1v1/-ladder-rank/'))
+        self.assertEqual([(1, self.t11_i)], self.get_page('/ladder/wol/1v1/mmr/'))
+        self.assertEqual([(1, self.t11_i)], self.get_page('/ladder/wol/1v1/-mmr/'))
 
         #
         # Test another mode version filtering.
         #
 
-        self.assertEqual([(1, self.t12_i)], self.get_page('/ladder/hots/random-2v2/ladder-rank/'))
-        self.assertEqual([(1, self.t12_i)], self.get_page('/ladder/hots/random-2v2/-ladder-rank/'))
+        self.assertEqual([(1, self.t12_i)], self.get_page('/ladder/hots/random-2v2/mmr/'))
+        self.assertEqual([(1, self.t12_i)], self.get_page('/ladder/hots/random-2v2/-mmr/'))
 
         #
         # Test league filtering.
@@ -257,7 +257,7 @@ class Test(DjangoTestCase):
             (2, self.t2_i),
             (2, self.t0_i),
             (2, self.t1_i),
-        ], self.get_page('/ladder/hots/1v1/ladder-rank/?f=bronze'))
+        ], self.get_page('/ladder/hots/1v1/mmr/?f=bronze'))
 
         self.assertEqual([
             (1, self.t1_i),
@@ -265,21 +265,21 @@ class Test(DjangoTestCase):
             (1, self.t2_i),
             (1, self.t3_i),
             (5, self.t4_i),
-        ], self.get_page('/ladder/hots/1v1/-ladder-rank/?f=bronze'))
+        ], self.get_page('/ladder/hots/1v1/-mmr/?f=bronze'))
 
         #
         # Test race filtering.
         #
 
-        self.assertEqual([(1, self.t0_i)], self.get_page('/ladder/hots/1v1/ladder-rank/?f=terran'))
-        self.assertEqual([(1, self.t0_i)], self.get_page('/ladder/hots/1v1/-ladder-rank/?f=terran'))
+        self.assertEqual([(1, self.t0_i)], self.get_page('/ladder/hots/1v1/mmr/?f=terran'))
+        self.assertEqual([(1, self.t0_i)], self.get_page('/ladder/hots/1v1/-mmr/?f=terran'))
 
         #
         # Test region filtering.
         #
 
-        self.assertEqual([(1, self.t1_i)], self.get_page('/ladder/hots/1v1/ladder-rank/?f=am'))
-        self.assertEqual([(1, self.t1_i)], self.get_page('/ladder/hots/1v1/-ladder-rank/?f=am'))
+        self.assertEqual([(1, self.t1_i)], self.get_page('/ladder/hots/1v1/mmr/?f=am'))
+        self.assertEqual([(1, self.t1_i)], self.get_page('/ladder/hots/1v1/-mmr/?f=am'))
 
         #
         # Test league, region and race filtering.
@@ -289,13 +289,53 @@ class Test(DjangoTestCase):
             (1, self.t4_i),
             (2, self.t3_i),
             (2, self.t2_i),
-        ], self.get_page('/ladder/hots/1v1/ladder-rank/?f=bronze,zerg,eu'))
+        ], self.get_page('/ladder/hots/1v1/mmr/?f=bronze,zerg,eu'))
 
         self.assertEqual([
             (1, self.t2_i),
             (1, self.t3_i),
             (3, self.t4_i),
-        ], self.get_page('/ladder/hots/1v1/-ladder-rank/?f=bronze,zerg,eu'))
+        ], self.get_page('/ladder/hots/1v1/-mmr/?f=bronze,zerg,eu'))
+
+    def test_league_points_sorts_on__league__tier__points__wins__losses__team_id(self):
+        self.db.create_ranking()
+        data = [
+            dict(team_id=self.t0_i, league=League.DIAMOND, tier=2, wins=1, losses=1, points=1),
+            dict(team_id=self.t1_i, league=League.GOLD,    tier=0, wins=1, losses=1, points=2),
+            dict(team_id=self.t2_i, league=League.GOLD,    tier=1, wins=1, losses=1, points=7),
+            dict(team_id=self.t3_i, league=League.GOLD,    tier=1, wins=9, losses=1, points=6),
+            dict(team_id=self.t4_i, league=League.GOLD,    tier=1, wins=6, losses=5, points=6),
+            dict(team_id=self.t5_i, league=League.GOLD,    tier=1, wins=6, losses=8, points=6),
+            dict(team_id=self.t6_i, league=League.GOLD,    tier=1, wins=6, losses=8, points=6),
+            dict(team_id=self.t7_i, league=League.GOLD,    tier=2, wins=1, losses=1, points=9),
+            dict(team_id=self.t8_i, league=League.BRONZE,  tier=0, wins=1, losses=1, points=96),
+        ]
+        shuffle(data)
+        self.db.create_ranking_data(data=data)
+
+        self.assertEqual([
+            (1, self.t0_i),
+            (2, self.t1_i),
+            (3, self.t2_i),
+            (4, self.t3_i),
+            (4, self.t4_i),
+            (4, self.t5_i),
+            (4, self.t6_i),
+            (8, self.t7_i),
+            (9, self.t8_i),
+        ], self.get_page('/ladder/hots/1v1/league-points/'))
+                        
+        self.assertEqual([
+            (1, self.t8_i),
+            (2, self.t7_i),
+            (3, self.t6_i),
+            (3, self.t5_i),
+            (3, self.t4_i),
+            (3, self.t3_i),
+            (7, self.t2_i),
+            (8, self.t1_i),
+            (9, self.t0_i),
+        ], self.get_page('/ladder/hots/1v1/-league-points/'))
 
     def test_games_played_sorts_on__played__mmr__wins__team_id(self):
         self.db.create_ranking()
@@ -416,7 +456,7 @@ class Test(DjangoTestCase):
 
         main.views.ladder.PAGE_SIZE = 3  # => 7 sections
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/')
+        response = self.c.get('/ladder/hots/1v1/mmr/')
 
         pages = response.context['pages']
 
@@ -424,10 +464,10 @@ class Test(DjangoTestCase):
         self.assertEqual(7, len(pages))
         self.assertEqual(0, len([p for p in pages if 'gap' in p]))
 
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/', index=0),           pages[0])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?offset=18', index=6), pages[6])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/', index=0),           pages[0])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?offset=18', index=6), pages[6])
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=18')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=18')
 
         pages = response.context['pages']
 
@@ -435,8 +475,8 @@ class Test(DjangoTestCase):
         self.assertEqual(7, len(pages))
         self.assertEqual(0, len([p for p in pages if 'gap' in p]))
 
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/', index=0),           pages[0])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?offset=18', index=6), pages[6])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/', index=0),           pages[0])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?offset=18', index=6), pages[6])
 
     def test_pagination_with_start_middle_and_end_section(self):
         self.db.create_ranking()
@@ -447,7 +487,7 @@ class Test(DjangoTestCase):
 
         # Test last page with connecting start and middle section.
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=7')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=7')
 
         pages = response.context['pages']
 
@@ -463,7 +503,7 @@ class Test(DjangoTestCase):
 
         # Test first page with separate start and middle section.
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=8')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=8')
 
         pages = response.context['pages']
 
@@ -482,7 +522,7 @@ class Test(DjangoTestCase):
 
         # Test last page with separate middle and end section.
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=11')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=11')
 
         pages = response.context['pages']
 
@@ -501,7 +541,7 @@ class Test(DjangoTestCase):
 
         # Test first page with connecting middle and end section.
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=12')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=12')
 
         pages = response.context['pages']
 
@@ -523,7 +563,7 @@ class Test(DjangoTestCase):
 
         main.views.ladder.PAGE_SIZE = 5  # => 4 sections, all visible all the time.
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=7')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=7')
 
         pages = response.context['pages']
 
@@ -531,13 +571,13 @@ class Test(DjangoTestCase):
         self.assertEqual(5, len(pages))
         self.assertEqual(0, len([p for p in pages if 'gap' in p]))
 
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/',           index=0), pages[0])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?offset=2',  index=1), pages[1])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?offset=7',  index=2), pages[2])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?offset=12', index=3), pages[3])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?offset=17', index=4), pages[4])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/',           index=0), pages[0])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?offset=2',  index=1), pages[1])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?offset=7',  index=2), pages[2])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?offset=12', index=3), pages[3])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?offset=17', index=4), pages[4])
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=19')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=19')
 
         pages = response.context['pages']
         page = response.context['ladder']['teams']
@@ -547,9 +587,9 @@ class Test(DjangoTestCase):
         self.assertEqual(0, len([p for p in pages if 'gap' in p]))
         self.assertEqual(1, len(page))
 
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?offset=19', index=4), pages[4])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?offset=19', index=4), pages[4])
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=21')
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=21')
 
         pages = response.context['pages']
         page = response.context['ladder']['teams']
@@ -566,7 +606,7 @@ class Test(DjangoTestCase):
 
         main.views.ladder.PAGE_SIZE = 12  # team link wants to display -10 iteams.
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?team=%d' % self.t14_i)
+        response = self.c.get('/ladder/hots/1v1/mmr/?team=%d' % self.t14_i)
 
         pages = response.context['pages']
         page = response.context['ladder']['teams']
@@ -577,9 +617,9 @@ class Test(DjangoTestCase):
         self.assertEqual(self.t14_i, page[10]["team_id"])
         self.assertEqual(12, len(page))
 
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?team=%d&offset=0' % self.t14_i,  index=0), pages[0])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?team=%d&offset=4' % self.t14_i,  index=1), pages[1])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?team=%d&offset=16' % self.t14_i, index=2), pages[2])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?team=%d&offset=0' % self.t14_i,  index=0), pages[0])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?team=%d&offset=4' % self.t14_i,  index=1), pages[1])
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?team=%d&offset=16' % self.t14_i, index=2), pages[2])
 
     def test_team_link_with_and_without_filtering(self):
         self.db.create_ranking()
@@ -588,7 +628,7 @@ class Test(DjangoTestCase):
 
         main.views.ladder.PAGE_SIZE = 8
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?f=zerg&team=%d' % self.t14_i)
+        response = self.c.get('/ladder/hots/1v1/mmr/?f=zerg&team=%d' % self.t14_i)
 
         pages = response.context['pages']
         page = response.context['ladder']['teams']
@@ -599,12 +639,12 @@ class Test(DjangoTestCase):
         self.assertEqual(self.t14_i, page[7]["team_id"])
         self.assertEqual(8, len(page))
 
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?f=zerg&team=%d&offset=0' % self.t14_i, index=0),
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?f=zerg&team=%d&offset=0' % self.t14_i, index=0),
                          pages[0])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?f=zerg&team=%d&offset=8' % self.t14_i, index=1),
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?f=zerg&team=%d&offset=8' % self.t14_i, index=1),
                          pages[1])
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?f=terran&team=%d' % self.t14_i)
+        response = self.c.get('/ladder/hots/1v1/mmr/?f=terran&team=%d' % self.t14_i)
 
         pages = response.context['pages']
         page = response.context['ladder']['teams']
@@ -615,28 +655,28 @@ class Test(DjangoTestCase):
         self.assertNotIn(self.t14_i, [p["team_id"] for p in page])
         self.assertEqual(8, len(page))
 
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?f=terran&team=%d&offset=0' % self.t14_i, index=0),
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?f=terran&team=%d&offset=0' % self.t14_i, index=0),
                          pages[0])
-        self.assertEqual(dict(href='/ladder/hots/1v1/ladder-rank/?f=terran&team=%d&offset=8' % self.t14_i, index=1),
+        self.assertEqual(dict(href='/ladder/hots/1v1/mmr/?f=terran&team=%d&offset=8' % self.t14_i, index=1),
                          pages[1])
 
     def test_various_bad_requests_for_good_code_coverage_and_error_checking(self):
         self.db.create_ranking()
         self.db.create_ranking_data(data=[dict(team_id=self.t1_i)])
 
-        response = self.c.get('/ladder/bw/1v1/ladder-rank/')
+        response = self.c.get('/ladder/bw/1v1/mmr/')
         self.assertEqual(404, response.status_code)
 
-        response = self.c.get('/ladder/hots/team-5v5/ladder-rank/')
+        response = self.c.get('/ladder/hots/team-5v5/mmr/')
         self.assertEqual(404, response.status_code)
 
-        response = self.c.get('/ladder/hots/1v1/mmr/')
+        response = self.c.get('/ladder/hots/1v1/ladder-rank/')
+        self.assertEqual(302, response.status_code)
+
+        response = self.c.get('/ladder/hots/1v1/mmr/?offset=%d' % 3e9)
         self.assertEqual(404, response.status_code)
 
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?offset=%d' % 3e9)
-        self.assertEqual(404, response.status_code)
-
-        response = self.c.get('/ladder/hots/1v1/ladder-rank/?team=%d' % 3e9)
+        response = self.c.get('/ladder/hots/1v1/mmr/?team=%d' % 3e9)
         self.assertEqual(404, response.status_code)
 
     def test_race_filtering_on_archon_mode_which_normally_does_not_work_on_teams(self):
@@ -688,14 +728,14 @@ class Test(DjangoTestCase):
             (2, t1.id),
             (3, t2.id),
             (4, t3.id),
-        ], self.get_page('/ladder/lotv/archon/ladder-rank/', page_size=20))
+        ], self.get_page('/ladder/lotv/archon/mmr/', page_size=20))
 
         #
         # Test race filtering.
         #
 
-        self.assertEqual([(1, t0.id), (2, t2.id)], self.get_page('/ladder/lotv/archon/ladder-rank/?f=zerg'))
-        self.assertEqual([(1, t1.id)], self.get_page('/ladder/lotv/archon/ladder-rank/?f=protoss'))
-        self.assertEqual([(1, t3.id)], self.get_page('/ladder/lotv/archon/ladder-rank/?f=terran'))
-        self.assertEqual([], self.get_page('/ladder/lotv/archon/ladder-rank/?f=random'))
+        self.assertEqual([(1, t0.id), (2, t2.id)], self.get_page('/ladder/lotv/archon/mmr/?f=zerg'))
+        self.assertEqual([(1, t1.id)], self.get_page('/ladder/lotv/archon/mmr/?f=protoss'))
+        self.assertEqual([(1, t3.id)], self.get_page('/ladder/lotv/archon/mmr/?f=terran'))
+        self.assertEqual([], self.get_page('/ladder/lotv/archon/mmr/?f=random'))
 

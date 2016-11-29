@@ -30,7 +30,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
    
    // Sort the team ranks to be able to create region, active and world ranks.
 
-   cmp_tr cmp_inner(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT);
+   cmp_tr cmp_inner(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LEAGUE_POINTS, STRICT);
    stable_sort(_team_ranks.begin(), _team_ranks.end(), cmp_tr_version_mode(cmp_inner));
 
    // Calcualte ranks, possible to do this smarter, but who cares, saving this in database
@@ -78,7 +78,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
                
                // Set league ranks.
                auto last_tr = _team_ranks.end();
-               cmp_tr cmp(NOT_REVERSED, region, league, NOT_SET, LADDER_RANK, STRICT);
+               cmp_tr cmp(NOT_REVERSED, region, league, NOT_SET, LEAGUE_POINTS, STRICT);
                pos = 1;
                rank = 1;
                for (auto tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
@@ -97,7 +97,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
                
             // Set region ranks.
             auto last_tr = _team_ranks.end();
-            cmp_tr cmp(NOT_REVERSED, region, NOT_SET, NOT_SET, LADDER_RANK, STRICT);
+            cmp_tr cmp(NOT_REVERSED, region, NOT_SET, NOT_SET, LEAGUE_POINTS, STRICT);
             pos = 1;
             rank = 1;
             for (auto tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
@@ -116,7 +116,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
          
          // Set world ranks.
          auto last_tr = _team_ranks.end();
-         cmp_tr cmp(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT);
+         cmp_tr cmp(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LEAGUE_POINTS, STRICT);
          pos = 1;
          rank = 1;
          for (team_ranks_t::iterator tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
@@ -344,7 +344,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
    if (mmr_available)
       cmp = cmp_tr(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, MMR, STRICT);
    else
-      cmp = cmp_tr(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LADDER_RANK, STRICT);      
+      cmp = cmp_tr(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LEAGUE_POINTS, STRICT);      
    
    team_ranks_t ladder;
    {

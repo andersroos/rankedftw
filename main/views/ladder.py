@@ -1,13 +1,14 @@
 import math
 from logging import getLogger
 
+from django.shortcuts import redirect
 from django.views.generic.base import TemplateView
 
 from common.utils import to_unix, utcnow
 from main.models import Team, Region, League, Race, Version, Mode
 from main.client import ClientError, client
 from common.cache import cache_value, cache_control
-from main.views.base import MainNavMixin, Nav
+from main.views.base import MainNavMixin, Nav, SORT_KEYS
 from django.http import Http404
 from django.core import urlresolvers
 from copy import copy
@@ -17,14 +18,6 @@ logger = getLogger('django')
 
 
 PAGE_SIZE = 100
-
-
-# MMR is 5 in c++ and league-points is 0, quick fix for now.
-sort_keys = {"ladder-rank": 5,
-             "played": 1,
-             "wins": 2,
-             "losses": 3,
-             "win-rate": 4}
 
 
 #
@@ -158,7 +151,7 @@ class LadderCommon(object):
 
         # Sort Key
         try:
-            sort_key_id = sort_keys[sort_key]
+            sort_key_id = SORT_KEYS[sort_key]
         except:
             raise Http404("Non existent sort key.")
 
@@ -199,6 +192,14 @@ class LadderCommon(object):
             raise Http404("Offset out of range.")
 
         return version_id, mode_id, team_id, request_offset
+
+    @staticmethod
+    def redirect_mmr_url(request, view, **kwargs):
+        kwargs['sort_key'] = 'mmr'
+        url = urlresolvers.reverse(view, kwargs=kwargs)
+        if request.GET:
+            url += '?' + request.GET.urlencode()
+        return url
 
 
 class LadderView(MainNavMixin, TemplateView, LadderCommon):
@@ -254,6 +255,9 @@ class LadderView(MainNavMixin, TemplateView, LadderCommon):
 
     @cache_control("max-age=40")
     def get(self, request, version=None, mode=None, reverse=None, sort_key=None):
+
+        if sort_key == 'ladder-rank':
+            return redirect(self.redirect_mmr_url(request, 'ladder', version=version, mode=mode, reverse=reverse))
 
         context = self.get_context_data()
 
@@ -327,7 +331,7 @@ class LadderView(MainNavMixin, TemplateView, LadderCommon):
         context['reverse_visiting'] = 'visiting' if reverse else ''
         context['reverse_href'] = ladder_url(request, paths, args, 'reverse', '' if reverse else '-')
 
-        values = [('Ladder rank', 'ladder-rank'), ('Games played', 'played'), ('Wins', 'wins'),
+        values = [('MMR', 'mmr'), ('League points', 'league-points'), ('Games played', 'played'), ('Wins', 'wins'),
                   ('Losses', 'losses'), ('Win rate', 'win-rate')]
         LadderCommon.set_nav(context, request, ladder_url, paths, args,
                              name='sort_key', values=values)

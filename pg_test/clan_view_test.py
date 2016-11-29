@@ -64,9 +64,9 @@ class Test(DjangoTestCase):
 
         self.db.create_ranking()
         self.db.create_ranking_data(data=[
-            dict(team_id=t1.id, league=League.GOLD,     region=Region.EU, race0=Race.TERRAN, points=20,
+            dict(team_id=t1.id, league=League.GOLD,     region=Region.EU, race0=Race.TERRAN, points=20, mmr=3,
                  version=Version.LOTV, wins=100, losses=100),
-            dict(team_id=t2.id, league=League.PLATINUM, region=Region.AM, race0=Race.ZERG,   points=40,
+            dict(team_id=t2.id, league=League.PLATINUM, region=Region.AM, race0=Race.ZERG,   points=40, mmr=4,
                  version=Version.LOTV, wins=200, losses=200),
         ])
 
@@ -78,13 +78,14 @@ class Test(DjangoTestCase):
             for i, p in enumerate(players):
                 self.assertEqual(p.name, teams[i]['m0_name'])
 
-        get_and_check('/clan/TL/ladder-rank/', p2, p1)
-        get_and_check('/clan/TL/-played/',     p1, p2)
-        get_and_check('/clan/TL/wins/',        p2, p1)
+        get_and_check('/clan/TL/mmr/',           p2, p1)
+        get_and_check('/clan/TL/-played/',       p1, p2)
+        get_and_check('/clan/TL/wins/',          p2, p1)
+        get_and_check('/clan/TL/league-points/', p2, p1)
 
-        get_and_check('/clan/TL/ladder-rank/?f=terran',   p1)
-        get_and_check('/clan/TL/ladder-rank/?f=am',       p2)
-        get_and_check('/clan/TL/ladder-rank/?f=eu,zerg')
+        get_and_check('/clan/TL/mmr/?f=terran',   p1)
+        get_and_check('/clan/TL/mmr/?f=am',       p2)
+        get_and_check('/clan/TL/mmr/?f=eu,zerg')
 
     def test_other_clan_season_mode_version_are_excluded(self):
 
@@ -114,7 +115,7 @@ class Test(DjangoTestCase):
         self.db.create_ranking()
         self.db.create_ranking_data(data=trs)
 
-        response = self.c.get('/clan/TL/ladder-rank/')
+        response = self.c.get('/clan/TL/mmr/')
         self.assertEqual(200, response.status_code)
         teams = response.context['ladder']['teams']
         self.assertEqual(1, len(teams))
@@ -138,7 +139,7 @@ class Test(DjangoTestCase):
                  version=Version.LOTV, wins=200, losses=200, mmr=2000),
         ])
 
-        response = self.c.get('/clan/TL/ladder-rank/?json')
+        response = self.c.get('/clan/TL/mmr/?json')
         self.assertEqual(200, response.status_code)
         teams = json.loads(response.content.decode('utf-8'))
         self.assertTrue(teams[0].pop("age"))

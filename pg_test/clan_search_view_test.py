@@ -44,12 +44,12 @@ class Test(DjangoTestCase):
     def test_search_hit_by_exact_name_redirects_to_clan_view(self):
         response = self.c.get('/clan/', {'clan': 'alfa'})
         self.assertEqual(302, response.status_code)
-        self.assertEqual('/clan/TA/ladder-rank/', response.url)
+        self.assertEqual('/clan/TA/mmr/', response.url)
 
     def test_search_hit_by_exact_tag_redirects_to_clan_view(self):
         response = self.c.get('/clan/', {'clan': 'xc'})
         self.assertEqual(302, response.status_code)
-        self.assertEqual('/clan/XC/ladder-rank/', response.url)
+        self.assertEqual('/clan/XC/mmr/', response.url)
 
     def test_search_hit_by_name_prefix_list_matches(self):
         response = self.c.get('/clan/', {'clan': 'y'})

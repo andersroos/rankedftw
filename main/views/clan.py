@@ -12,7 +12,7 @@ from django.views.generic.base import TemplateView
 from common.cache import cache_control, cache_value
 from main.client import client, ClientError
 from main.models import Season, Player, Mode, Team, Region, League, Race
-from main.views.base import MainNavMixin
+from main.views.base import MainNavMixin, DEFAULT_SORT_KEY
 from main.views.ladder import LadderCommon
 from main.views.search import get_bnet_url
 
@@ -74,7 +74,7 @@ class ClanOverviewView(MainNavMixin, TemplateView):
             clans.sort(key=lambda c: c['clan'])
 
             if len(clans) == 1:
-                return redirect('clan', tag=clans[0]['tag'], reverse='', sort_key='ladder-rank')
+                return redirect('clan', tag=clans[0]['tag'], reverse='', sort_key=DEFAULT_SORT_KEY)
 
             context['clans'] = clans
 
@@ -114,6 +114,10 @@ class ClanView(MainNavMixin, TemplateView, LadderCommon):
 
     @cache_control("max-age=3600")
     def get(self, request, *args, tag=None, reverse=None, sort_key=None, **kwargs):
+        
+        if sort_key == 'ladder-rank':
+            return redirect(self.redirect_mmr_url(request, 'clan', tag=tag, reverse=reverse))
+        
         context = self.get_context_data()
 
         json_response = 'json' in request.GET
@@ -168,7 +172,7 @@ class ClanView(MainNavMixin, TemplateView, LadderCommon):
                   for i in Region.ids if i != Region.UNKNOWN]
         LadderCommon.set_nav(context, request, clan_url, paths, args, name='region', values=values)
 
-        values = [('Ladder rank', 'ladder-rank'), ('Games played', 'played'), ('Wins', 'wins'),
+        values = [('MMR', 'mmr'), ('League points', 'league-points'), ('Games played', 'played'), ('Wins', 'wins'),
                   ('Losses', 'losses'), ('Win rate', 'win-rate')]
         LadderCommon.set_nav(context, request, clan_url, paths, args, name='sort_key', values=values)
 

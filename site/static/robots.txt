@@ -1,13 +1,10 @@
 Sitemap: http://www.rankedftw.com/sitemap.xml
 Host: www.rankedftw.com
 User-agent: *
-Allow: /team/277189/
-Allow: /team/757622/
-Allow: /team/333316/
-Allow: /ladder/hots/1v1/ladder-rank/
+Allow: /ladder/lotv/1v1/mmr/
 Disallow: /team/
 Disallow: /player/
 Disallow: /ladder/
 Disallow: /clan/
-Disallow: /ladder/hots/1v1/ladder-rank/?f
-Disallow: /ladder/hots/1v1/ladder-rank/?t
+Disallow: /ladder/lotv/1v1/mmr/?f
+Disallow: /ladder/lotv/1v1/mmr/?t

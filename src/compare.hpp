@@ -10,9 +10,8 @@
 #define BEFORE -1
 #define AFTER 1
 
-// After quick fix LADDER_RANK == LEAGUE_POINTS here, but in url LADDER_RANK == MMR, this should be fixed after
-// descision to keep league-tier-points as a sort order.
-#define LADDER_RANK   0
+// Sort order, same as in python.
+#define LEAGUE_POINTS 0
 #define PLAYED        1
 #define WINS          2
 #define LOSSES        3
@@ -61,7 +60,7 @@ struct cmp_tr
       _reverse(reverse), _region(region), _league(league), _race(race), _key(key), _strict(strict) {}
 
    cmp_tr() : _reverse(false), _region(NOT_SET), _league(NOT_SET), _race(NOT_SET),
-              _key(LADDER_RANK), _strict(false) {}
+              _key(LEAGUE_POINTS), _strict(false) {}
    
    // Is x < y? (x before y)
    bool operator()(const team_rank_t& x, const team_rank_t& y) const {
@@ -101,7 +100,7 @@ struct cmp_tr
                                 or (x.wins == y.wins and x.losses < y.losses)
                                 or (x.wins == y.wins and x.losses == y.losses and x.team_id < y.team_id));
             
-         case LADDER_RANK:
+         case LEAGUE_POINTS:
             res = cmp_league_tier_points(x, y);
             if (res != EQUAL)
                return _reverse != (res == BEFORE);
