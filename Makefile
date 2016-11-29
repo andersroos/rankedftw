@@ -14,6 +14,8 @@ NOSE_COVERAGE := coverage3 run --parallel-mode --timid /usr/bin/nosetests3
 
 LESSC := lessc
 
+DEFAULT_DB := rankedftw
+
 PYTHON_INCLUDE := /usr/include/python3.4
 LIB_PYTHON := :libpython3.4m.so
 LIB_BOOST_PYTHON := boost_python-py34
@@ -22,7 +24,7 @@ LIB_BOOST_PYTHON := boost_python-py34
 
 CORE_CSS = $(BASE_DIR)/site/static/css/core.css
 
-CXXFLAGS = -fPIC -g -O2 -I$(SRC_DIR) -I$(PYTHON_INCLUDE) -I/usr/include/postgresql -std=c++11 -Wall
+CXXFLAGS = -fPIC -g -O2 -DDEFAULT_DB=\"$(DEFAULT_DB)\" -I$(SRC_DIR) -I$(PYTHON_INCLUDE) -I/usr/include/postgresql -std=c++11 -Wall
 
 COMMON_OBJS = $(SRC_DIR)/io.o $(SRC_DIR)/db.o $(SRC_DIR)/exception.o $(SRC_DIR)/util.o
 

@@ -27,7 +27,7 @@ typedef std::map<id_t, update_t> updates_t;
 // able to filter those teams from earlier rankings.
 int main()
 {
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    db.exec("SELECT id, season_id FROM ranking WHERE status = 1 "
            " ORDER BY season_id DESC, data_time DESC");

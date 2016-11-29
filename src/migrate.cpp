@@ -20,7 +20,7 @@ int main()
 
    return 0; // Don't do it, better to keep old versions.
    
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    std::set<uint32_t> team_ids;
    

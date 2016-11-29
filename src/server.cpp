@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
       
       po::options_description desc("Usage");
       desc.add_options()
-         ("db,d", po::value<string>()->default_value("sc2"), "Database name to use.")
+         ("db,d", po::value<string>()->default_value(DEFAULT_DB), "Database name to use.")
          ("log,l", po::value<string>(), "Output log to file.")
          ("help,h", "Print help.")
          ;

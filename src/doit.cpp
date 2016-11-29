@@ -35,7 +35,7 @@ void write_read_team_rank_header()
 }
 
 void print_teams_that_played_both_versions() {
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    // vector<uint32_t> ids({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 24, 31, 39, 47,
    //                       54, 62, 69, 77, 80, 88, 96, 103, 191, 192, 199, 207, 214, 221, 228, 235,
@@ -74,7 +74,7 @@ void print_teams_that_played_both_versions() {
 }
 
 void find_teams_without_rankings_fast() {
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    std::set<uint32_t> team_ids;
    
@@ -126,7 +126,7 @@ void find_teams_without_rankings_fast() {
 }
 
 void print_all_team_ids_in_ranking() {
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    team_ranks_t team_ranks;
    
@@ -138,7 +138,7 @@ void print_all_team_ids_in_ranking() {
 }   
 
 void sort_one_ranking() {
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    team_ranks_t team_ranks;
 
@@ -162,7 +162,7 @@ void sort_one_ranking() {
 }
 
 void print_all_ranks_for_one_team() {
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    uint32_t team_id = 878892;
    team_ranks_t all_ranks;
@@ -194,7 +194,7 @@ void print_all_ranks_for_one_team() {
 typedef pair<uint32_t, uint32_t> team_id_version_t;
 void find_duplicate_rankings()
 {
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    std::set<uint32_t> team_ids;
    
@@ -220,7 +220,7 @@ void find_duplicate_rankings()
 
 void dump_ranking(uint32_t id)
 {
-   db db("sc2");
+   db db(DEFAULT_DB);
 
    team_ranks_header trh;
 
