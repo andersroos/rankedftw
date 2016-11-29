@@ -34,9 +34,9 @@ def gen_ladder_data(members, team_size=1):
             'losses':          t[0]['losses'],
             'member': [{
                 'character_link': {
-                    'battle_tag': m['name'] + '#1234',
                 },
                 'legacy_link': {
+                    'name': m['name'] + '#123',
                     'realm': m['realm'],
                     'id':    m['bid'],
                 },

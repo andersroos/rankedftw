@@ -381,7 +381,7 @@ class ApiLadder(object):
                     member = {
                         'bid': bid,
                         'realm': realm,
-                        'name': char.get('battle_tag', '').split('#')[0],
+                        'name': legacy['name'].split('#')[0],
                         'tag': clan.get('clan_tag', ''),
                         'clan': clan.get('clan_name', ''),
                         'race': race,
