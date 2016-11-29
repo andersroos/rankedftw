@@ -86,17 +86,17 @@ run: build
 	$(SITE_MANAGE) runserver 0.0.0.0:8000
 
 create-migration:
-	$(TASKS_MANAGE) makemigrations
+	$(SITE_MANAGE) makemigrations
 
 migrate-db:
-	$(TASKS_MANAGE) migrate main
+	$(SITE_MANAGE) migrate main
 
 migrate-list:
-	@$(TASKS_MANAGE) migrate main --changes
-	@$(TASKS_MANAGE) migrate main --list
+	@$(SITE_MANAGE) migrate main --changes
+	@$(SITE_MANAGE) migrate main --list
 
 dry-run-migrate-db:
-	$(TASKS_MANAGE) migrate main --db-dry-run --verbosity=2
+	$(SITE_MANAGE) migrate main --db-dry-run --verbosity=2
 
 $(CORE_CSS): $(BASE_DIR)/site/static/css/core.less
 	$(LESSC) $< $@
