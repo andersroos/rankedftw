@@ -232,6 +232,8 @@ class LadderView(MainNavMixin, TemplateView, LadderCommon):
 
             tr['rank'] += 1
 
+            tr['mmr'] = '-' if tr['mmr'] < 0 else tr['mmr']
+
             tr["m0_id"] = t.member0.id
             tr["m0_name"] = t.member0.name
             tr["m0_tag"] = t.member0.tag
