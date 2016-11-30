@@ -1,0 +1,43 @@
+{
+    "env": {
+        "browser": true
+    },
+    "globals": {
+    },
+    "plugins": [
+    ],
+    "extends": [
+        "eslint:recommended",
+    ],
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+        },
+    },
+    "rules": {
+        "strict": "warn",
+        "no-unsafe-negation": "warn",
+        "array-callback-return": "warn",
+        "eqeqeq": "warn",
+        "no-unused-expressions": "warn",
+        "no-with": "warn",
+        "no-shadow": "warn",
+        "no-undefined": "warn",
+        "no-use-before-define": [
+            "warn", {
+                "functions": false,
+                "classes": false,
+            }
+        ],
+        "wrap-iife": "error",
+        "no-proto": "error",
+        "no-throw-literal": "error",
+        "no-implicit-globals": "error",
+        "no-global-assign": "error",
+        "no-eval": "error",
+        "no-else-return": "error",
+        "consistent-return": "error",
+        "block-scoped-var": "error",
+    }
+}

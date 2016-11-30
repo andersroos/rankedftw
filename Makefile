@@ -12,6 +12,7 @@ PIP := pip3
 NPM := npm
 LESSC := $(BASE_DIR)/node_modules/.bin/lessc
 WEBPACK := $(BASE_DIR)/node_modules/.bin/webpack
+ESLINT := $(BASE_DIR)/node_modules/.bin/eslint
 
 DEFAULT_DB := rankedftw
 
@@ -89,7 +90,7 @@ pep8:
 	pep8 --ignore=W602,W391,W293,E701,E241,E201,E402,W503,E116 --max-line-length=120 --exclude=./main/migrations .
 
 eslint:
-	echo "TODO"
+	$(ESLINT) ./site/js
 
 check: pep8 eslint	
 
