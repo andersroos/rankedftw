@@ -15,6 +15,11 @@ using namespace boost::python;
 using namespace std;
 
 
+inline enum_t get_sort_key(id_t season_id)
+{
+   return season_id >= 28 ? MMR : LEAGUE_POINTS;
+}
+
 void ranking_data::load(id_t id)
 {
    boost::lock_guard<boost::mutex> lock(_team_ranks_mutex);
@@ -28,9 +33,11 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
 
    // Fix order here later, mostly used for team page.
    
-   // Sort the team ranks to be able to create region, active and world ranks.
+   // Sort the team ranks in global order within version and mode to be able to calculate the rest of the rankings.
 
-   cmp_tr cmp_inner(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LEAGUE_POINTS, STRICT);
+   enum_t sort_key = get_sort_key(season_id);
+   
+   cmp_tr cmp_inner(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, sort_key, STRICT);
    stable_sort(_team_ranks.begin(), _team_ranks.end(), cmp_tr_version_mode(cmp_inner));
 
    // Calcualte ranks, possible to do this smarter, but who cares, saving this in database
@@ -61,6 +68,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
          // Loop over all regions.
          for (vector<enum_t>::iterator region_i = regions.begin(); region_i != regions.end(); ++region_i) {
             enum_t region = *region_i;
+            
             region_count = 0;
             
             // Loop over all leagues in the region.
@@ -69,7 +77,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
             
                // Count league size.
                league_count = 0;
-               for (team_ranks_t::iterator tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
+               for (auto tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
                   if (tr->mode == mode and tr->version == version
                       and tr->region == region and tr->league == league) {
                      ++league_count;
@@ -78,7 +86,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
                
                // Set league ranks.
                auto last_tr = _team_ranks.end();
-               cmp_tr cmp(NOT_REVERSED, region, league, NOT_SET, LEAGUE_POINTS, STRICT);
+               cmp_tr cmp(NOT_REVERSED, region, league, NOT_SET, sort_key, STRICT);
                pos = 1;
                rank = 1;
                for (auto tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
@@ -97,7 +105,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
                
             // Set region ranks.
             auto last_tr = _team_ranks.end();
-            cmp_tr cmp(NOT_REVERSED, region, NOT_SET, NOT_SET, LEAGUE_POINTS, STRICT);
+            cmp_tr cmp(NOT_REVERSED, region, NOT_SET, NOT_SET, sort_key, STRICT);
             pos = 1;
             rank = 1;
             for (auto tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
@@ -116,10 +124,10 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
          
          // Set world ranks.
          auto last_tr = _team_ranks.end();
-         cmp_tr cmp(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LEAGUE_POINTS, STRICT);
+         cmp_tr cmp(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, sort_key, STRICT);
          pos = 1;
          rank = 1;
-         for (team_ranks_t::iterator tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
+         for (auto tr = _team_ranks.begin(); tr != _team_ranks.end(); ++tr) {
             if (tr->mode == mode and tr->version == version and cmp.use(*tr)) {
                if (last_tr == _team_ranks.end() or cmp(*last_tr, *tr) or cmp(*tr, *last_tr)) {
                   rank = pos;
@@ -337,14 +345,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
    uint32_t inserted_team_count = 0;
 
    // This comparator is used to find out what display race and league players and teams should have.
-   cmp_tr cmp;
-
-   bool mmr_available = season_id >= 28;
-   
-   if (mmr_available)
-      cmp = cmp_tr(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, MMR, STRICT);
-   else
-      cmp = cmp_tr(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, LEAGUE_POINTS, STRICT);      
+   cmp_tr cmp(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, get_sort_key(season_id), STRICT);
    
    team_ranks_t ladder;
    {

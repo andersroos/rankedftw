@@ -195,7 +195,8 @@ struct cmp_tr
    // idea to compare it with this comparator).
    bool use(const team_rank_t& x) const {
 
-      // This is a hack to make NO_MMR not appear in ladder, remove when blizzard bug is fixed.
+      // This is to mitigate a blizzard bug with bogus mmr. This filtering will make bogus mmr players to be filtered
+      // away in ladder when sorting on mmr. They will not get a proper ranking in history so they are filtered in TODO.
       if (_key == MMR and x.mmr == NO_MMR) {
          return false;
       }
