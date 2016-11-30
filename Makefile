@@ -1,28 +1,48 @@
-#
-# Common Variables
-#
-
 MAKEFILE_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 BASE_DIR := $(realpath $(CURDIR)/$(MAKEFILE_DIR))
 SRC_DIR := $(BASE_DIR)/src
 
-TASKS_MANAGE := $(BASE_DIR)/tasks/manage.py
-SITE_MANAGE := $(BASE_DIR)/site/manage.py
+#
+# Settings
+#
 
-NOSE := nosetests-3.4
-NOSE_COVERAGE := coverage3 run --parallel-mode --timid /usr/bin/nosetests3
+# Building
 
-LESSC := lessc
+PIP := pip3
+NPM := npm
+LESSC := $(BASE_DIR)/node_modules/.bin/lessc
+WEBPACK := $(BASE_DIR)/node_modules/.bin/webpack
 
 DEFAULT_DB := rankedftw
+
+PROD_JS :=
 
 PYTHON_INCLUDE := /usr/include/python3.4
 LIB_PYTHON := :libpython3.4m.so
 LIB_BOOST_PYTHON := boost_python-py34
 
+# Testing
+
+NOSE := nosetests-3.4
+NOSE_COVERAGE := coverage3 run --parallel-mode --timid /usr/bin/nosetests3
+
+# Running
+
+DEV_PORT := 8000
+
+# Override
+
 -include local.mk
 
-CORE_CSS = $(BASE_DIR)/site/static/css/core.css
+#
+# Build vars
+#
+
+TASKS_MANAGE = $(BASE_DIR)/tasks/manage.py
+SITE_MANAGE = $(BASE_DIR)/site/manage.py
+
+SITE_CSS = $(BASE_DIR)/site/static/site.css
+SITE_JS = $(BASE_DIR)/site/static/site.js
 
 CXXFLAGS = -fPIC -g -O2 -DDEFAULT_DB=\"$(DEFAULT_DB)\" -I$(SRC_DIR) -I$(PYTHON_INCLUDE) -I/usr/include/postgresql -std=c++11 -Wall
 
@@ -56,18 +76,24 @@ rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subs
 # Targets
 #
 
-.PHONY: default pep8 run test build init
+.PHONY: default pep8 run test build init check js css
 
 
 default: build
 
 init:
-	pip3 install --upgrade -r $(BASE_DIR)/requirements.txt
+	$(PIP) install --upgrade -r $(BASE_DIR)/requirements.txt
+	$(NPM) install
 
 pep8:
-	pep8 --ignore=W602,W391,W293,E701,E241,E201,E402,W503 --max-line-length=120 --exclude=./main/migrations .
+	pep8 --ignore=W602,W391,W293,E701,E241,E201,E402,W503,E116 --max-line-length=120 --exclude=./main/migrations .
 
-build: css lib/sc2.so lib/doit lib/server lib/migrate
+eslint:
+	echo "TODO"
+
+check: pep8 eslint	
+
+build: lib/sc2.so lib/doit lib/server lib/migrate js css
 
 %.o: %.cpp $(call rwildcard, $(BASE_DIR)/src/, *.hpp)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -85,7 +111,7 @@ lib/migrate: $(MIGRATE_OBJS)
 	$(CXX) -o $@ $^ $(MIGRATE_LIBS)
 
 run: build
-	$(SITE_MANAGE) runserver 0.0.0.0:8000
+	$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)
 
 create-migration:
 	$(SITE_MANAGE) makemigrations
@@ -100,10 +126,15 @@ migrate-list:
 dry-run-migrate-db:
 	$(SITE_MANAGE) migrate main --db-dry-run --verbosity=2
 
-$(CORE_CSS): $(BASE_DIR)/site/static/css/core.less
+$(SITE_CSS): $(BASE_DIR)/site/css/all.less
 	$(LESSC) $< $@
 
-css: $(CORE_CSS)
+css: $(SITE_CSS)
+
+$(SITE_JS): $(call rwildcard, $(BASE_DIR)/site/js/, *.js)
+	PROD_JS=$(PROD_JS) $(WEBPACK)
+
+js: $(SITE_JS)
 
 test:
 	@if [ ! -f $(BASE_DIR)/local.py ]; then cp local.py.sample local.py; fi
@@ -147,6 +178,7 @@ clean:
 	\rm -rf version .build coverage-code
 	\rm -f lib/sc2.so
 	\rm -f src/*.o
+	\rm -f $(SITE_JS)* $(SITE_CSS)*
 
 clean-test-data:
 	@for i in `psql -A -t -X -c "SELECT datname FROM pg_database WHERE datname like 'test_rankedftw-%'" postgres`; do\

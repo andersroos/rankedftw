@@ -18,7 +18,6 @@ addons:
       - libboost-program-options-dev
       - libpq-dev
       - libjsoncpp-dev
-      - node-less
       # Disabling postgresql install becuase it breaks travis, but it is needed.
       # - postgresql
 

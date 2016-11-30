@@ -4,11 +4,17 @@
 //
 
 var sc2 = {};
+window.sc2 = sc2;
 
 var TOT = -2;
 var COUNT = 0;
 var WINS = 1;
 var LOSSES = 2;
+
+window.TOT = TOT;
+window.COUNT = COUNT;
+window.WINS = WINS;
+window.LOSSES = LOSSES;
 
 // Enum info populated from python.
 sc2.enums_info = {};

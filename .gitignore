@@ -16,5 +16,7 @@ local.py
 *nosetests.xml
 version
 local.mk
-site/static/css/*.css
+site/static/*.css
+site/static/*.js*
 .idea
+node_modules

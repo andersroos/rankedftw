@@ -5,10 +5,6 @@
 
 {% block description %}{{ team.mode | mode_name }} StarCraft 2 ladder ranking history for {% for m in members %}{% if not forloop.first %}, {% endif %}{{ m.name }}{% endfor %}.{% endblock description %}
 
-{% block head %}
-<script src="{{ STATIC_URL }}js/team.js" type="text/javascript"></script>
-{% endblock head %}
-
 {% block body_class %}team{% endblock body_class %}
 
 {% block page %}
@@ -48,11 +44,7 @@
 {% endblock page %}
 
 {% block body_js %}
-
-<script type="text/javascript">
   sc2.seasons.init({{ seasons | safe }});
   var graph = sc2.graph.RankingGraph("graph-container", {{ team.id }}, {{ team.member0.region }}, {{ team.member0.league }}, {{ team.mode }});
-</script>
-
 {% endblock body_js %}
 

@@ -15,12 +15,13 @@ Major Dependencies
 
 * Postgresql and libpq
 * Python 3
-* Python Packages (requirements.txt)
+* Python libs (requirements.txt)
 * Boost
 * GCC
 * JsonCpp
 * GNU Make
-* Lessc
+* Nodejs
+* Javascript libs (package.json)
 
 For a complete and up to date list of dependecies and example on
 install steps on Ubuntu 14.04 see `<.travis.yml>`_.
@@ -28,10 +29,10 @@ install steps on Ubuntu 14.04 see `<.travis.yml>`_.
 Basic Build Steps
 -----------------
 
-Install Postgresql, libpq, python3, boost, gcc, libjsoncpp, make and
-lessc, see also `<.travis.yml>`_.
+Install Postgresql, libpq, python3, boost, gcc, libjsoncpp and make,
+see also `<.travis.yml>`_.
 
-Then install python libs:
+Then install python and javascript libs:
 
 .. code-block:: bash
 
@@ -41,7 +42,7 @@ Then compile:
 
 .. code-block:: bash
 
-   make build
+   make build -j
 
 Running Tests
 =============

@@ -5,10 +5,6 @@
 
 {% block description %}Current and historic sc2 ladder population statistics for {{ mode_id | mode_name }}.{% endblock description %}
 
-{% block head %}
-<script src="{{ STATIC_URL }}js/stats.js" type="text/javascript"></script>
-{% endblock head %}
-
 {% block body_class %}stats-population{% endblock body_class %}
 
 {% block page %}
@@ -144,11 +140,7 @@
 
 
 {% block body_js %}
-
-<script type="text/javascript">
   sc2.seasons.init({{ seasons | safe }});
   sc2.stats.PopulationTable({{ mode_id }});
   sc2.stats.PopulationGraph({{ mode_id }});
-</script>
-
 {% endblock body_js %}
