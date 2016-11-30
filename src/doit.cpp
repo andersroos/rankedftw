@@ -238,9 +238,29 @@ void dump_ranking(uint32_t id)
    }
 }
 
+void count_no_mmr()
+{
+   db db(DEFAULT_DB);
+   rankings_t rankings = db.get_available_rankings(27);
+
+   team_ranks_header trh;
+
+   for (auto ranking : rankings) {
+      team_ranks_t team_ranks;
+      db.load_team_ranks(ranking.id, team_ranks);
+      uint32_t count = 0;
+      for (uint32_t i = 0; i < team_ranks.size(); ++i) {
+         if (team_ranks[i].mmr == NO_MMR) {
+            ++count;
+         };
+      }
+      cerr << "ranking " << ranking.id << " " << count << "/" << team_ranks.size() << endl;
+   }
+}
+
 int main()
 {
-   dump_ranking(1041);
+   dump_ranking(1075);
    
    return 0;
 }
