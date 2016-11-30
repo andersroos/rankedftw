@@ -7,8 +7,8 @@ from random import randint
 from django.db import connection
 
 from lib import sc2
-from main.models import RankingData, Cache, Ranking, Team, Player, Ladder, Season, Version, Region, League, Mode, Race, \
-    Enums
+from main.models import RankingData, Cache, Ranking, Team, Player, Ladder, Season, Version, Region, League, \
+    Mode, Race, Enums
 from main.models import RankingStats
 
 logger = getLogger('django')
@@ -73,12 +73,12 @@ class Db(object):
 
     def create_season(self, **kwargs):
         kwargs = merge_args({'id': 16,
-                               'start_date': '2013-11-11',
-                               'end_date': '2014-01-03',
-                               'name': '2013 Season 6',
-                               'year': 2013,
-                               'number': 6,
-                               'version': Version.HOTS},
+                             'start_date': '2013-11-11',
+                             'end_date': '2014-01-03',
+                             'name': '2013 Season 6',
+                             'year': 2013,
+                             'number': 6,
+                             'version': Version.HOTS},
                             **kwargs)
         try:
             self.get(Season, id=kwargs['id'])
@@ -95,13 +95,13 @@ class Db(object):
             data = gen_ladder_data(members)
 
         kwargs = merge_args({'bid': randint(1, 1e6),
-                               'url': 'http://bnet/' + uniqueid(10),
-                               'type': type,
-                               'region': Region.EU,
-                               'created': utcnow(),
-                               'updated': utcnow(),
-                               'status': 200,
-                               'retry_count': 0},
+                             'url': 'http://bnet/' + uniqueid(10),
+                             'type': type,
+                             'region': Region.EU,
+                             'created': utcnow(),
+                             'updated': utcnow(),
+                             'status': 200,
+                             'retry_count': 0},
                             **kwargs)
         kwargs['data'] = json.dumps(data)
         
@@ -111,18 +111,18 @@ class Db(object):
 
     def create_ladder(self, **kwargs):
         kwargs = merge_args({'bid': 1,
-                               'region': Region.EU,
-                               'strangeness': Ladder.GOOD,
-                               'league': League.GOLD,
-                               'tier': 0,
-                               'version': Version.HOTS,
-                               'mode': Mode.TEAM_1V1,
-                               'season': self.season,
-                               'first_join': utcnow(),
-                               'last_join': utcnow(),
-                               'created': utcnow(),
-                               'updated': utcnow(),
-                               'max_points': 20},
+                             'region': Region.EU,
+                             'strangeness': Ladder.GOOD,
+                             'league': League.GOLD,
+                             'tier': 0,
+                             'version': Version.HOTS,
+                             'mode': Mode.TEAM_1V1,
+                             'season': self.season,
+                             'first_join': utcnow(),
+                             'last_join': utcnow(),
+                             'created': utcnow(),
+                             'updated': utcnow(),
+                             'max_points': 20},
                             **kwargs)
 
         self.ladder = Ladder(**kwargs)
@@ -131,14 +131,14 @@ class Db(object):
     
     def create_player(self, **kwargs):
         kwargs = merge_args({'bid': randint(0, 1e9),
-                               'region': Region.EU,
-                               'realm': 0,
-                               'mode': Mode.TEAM_1V1,
-                               'season': self.season,
-                               'race': Race.ZERG,
-                               'name': uniqueid(12),
-                               'clan': uniqueid(32),
-                               'tag': uniqueid(6)},
+                             'region': Region.EU,
+                             'realm': 0,
+                             'mode': Mode.TEAM_1V1,
+                             'season': self.season,
+                             'race': Race.ZERG,
+                             'name': uniqueid(12),
+                             'clan': uniqueid(32),
+                             'tag': uniqueid(6)},
                             **kwargs)
         self.player = Player(**kwargs)
         self.player.save()

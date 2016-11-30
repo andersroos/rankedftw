@@ -11,7 +11,7 @@ class Main(RegionsArgMixin, Command):
 
     def __init__(self):
         super().__init__("Refetch missing ladders handle temporary battle net glitches.",
-                        pid_file=True, stoppable=True)
+                         pid_file=True, stoppable=True)
         self.add_argument('--max-retries', '-m', dest="max_retries", default='60', type=int,
                           help="Only retry ladders that have less than 60 retries.")
         self.add_argument('--min-age', '-a', dest="min_age", default='24', type=int,

@@ -300,7 +300,7 @@ class Cache(models.Model):
     PLAYER_LADDERS = 2
     SEASON = 3  # bid is season_id
     LEAGUE = 4  # bid is concatenated number <season_id 2 dig><queue_id 3 dig><team_type 1 dig><league_id 1 dig>,
-                # stupid but fast fix, this is used in bnet client and refetch pasth
+                # stupid but fast fix, this is used in bnet client and refetch past
     type = models.IntegerField(null=False)
 
     # Region, the region the data was fetched from.
@@ -353,11 +353,11 @@ class Ladder(models.Model):
 
     # Is this ladder one of the strange ladders? A ladder is strange
     # if it has no related data and/or max points is less than 10 or if error code when fetched.
-    GOOD = 0    # Have matching player ladders, can be categorized.
-    NYD = 1     # Not yet determined. Not yet matching player, or too few points.
-    STRANGE = 2 # Between seasons strange ladders, usually too many members and points that are fractions below 10.
-    NOP = 3     # No players. Points seems legit but no players. Probably ok but unusable.
-    MISSING = 4 # 404 or 500 when trying to fetch it.
+    GOOD = 0     # Have matching player ladders, can be categorized.
+    NYD = 1      # Not yet determined. Not yet matching player, or too few points.
+    STRANGE = 2  # Between seasons strange ladders, usually too many members and points that are fractions below 10.
+    NOP = 3      # No players. Points seems legit but no players. Probably ok but unusable.
+    MISSING = 4  # 404 or 500 when trying to fetch it.
     strangeness = models.IntegerField(default=NYD)
 
     # Creation time if this row.

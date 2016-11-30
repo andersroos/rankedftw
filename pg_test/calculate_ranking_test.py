@@ -41,8 +41,8 @@ class Test(DjangoTestCase):
                                            points=10,
                                            wins=40,
                                            losses=10),
-                             ])
-
+                            ])
+        
         self.process_ladder(league=League.GOLD,
                             fetch_time=self.datetime(days=-330),
                             members=[
@@ -537,7 +537,8 @@ class Test(DjangoTestCase):
         self.save_to_ranking()
 
         self.assert_team_ranks(self.db.ranking.id,
-                               dict(ladder_count=1, region_count=1, region_rank=1, points=99, mmr=99, race0=Race.TERRAN, league=League.GOLD),
+                               dict(ladder_count=1, region_count=1, region_rank=1, points=99, mmr=99, race0=Race.TERRAN,
+                                    league=League.GOLD),
                                )
 
     def test_gm_is_using_points_before_season_28(self):

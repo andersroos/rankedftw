@@ -364,7 +364,7 @@ class ApiLadder(object):
 
                     # Is first race always latest played?
                     race = Race.id_by_keys[m.get('played_race_count', [{}])[0]
-                        .get('race', {}).get('en_US', 'unknown').lower()]
+                                           .get('race', {}).get('en_US', 'unknown').lower()]
 
                     # Character_link is unusable for identifying a player since it does not have realm and names can
                     # change, have to use legacy link.

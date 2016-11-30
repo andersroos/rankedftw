@@ -178,5 +178,5 @@ class Test(DjangoTestCase):
                 points=40.0,
             ),
         ],
-        teams)
+            teams)
 

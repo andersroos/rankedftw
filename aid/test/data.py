@@ -8,15 +8,15 @@ from main.models import Race
 def gen_member(**kwargs):
     """ Generate member as returned from ApiLadder and used by process_ladder. """
     return merge_args({"bid": randint(1, 1e6),
-                         "realm": 0,
-                         "name": uniqueid(length=12),
-                         "clan": uniqueid(length=32),
-                         "tag": uniqueid(length=6),
-                         "join_time": int(to_unix(utcnow())),
-                         "points": float(randint(0, 2000)),
-                         "wins": randint(0, 200),
-                         "mmr": randint(1000, 5000),
-                         "losses": randint(0, 200),
+                       "realm": 0,
+                       "name": uniqueid(length=12),
+                       "clan": uniqueid(length=32),
+                       "tag": uniqueid(length=6),
+                       "join_time": int(to_unix(utcnow())),
+                       "points": float(randint(0, 2000)),
+                       "wins": randint(0, 200),
+                       "mmr": randint(1000, 5000),
+                       "losses": randint(0, 200),
                        "race": choice([Race.ZERG, Race.PROTOSS, Race.TERRAN, Race.RANDOM])
                        },
                       **kwargs)
@@ -81,5 +81,5 @@ def gen_api_ladder(members=None, team_size=1, url='http://fake-url', gd=True, **
                     "clanTag":      m['tag'],
                     "displayName":  m['name'],
                 }
-            } for m in members ]
+            } for m in members]
         }, url)

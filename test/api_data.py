@@ -158,8 +158,10 @@ API_LADDER_4V4 = {
                         "clan_name": "Greek Operation Forces",
                         "id": 15592,
                         "clan_tag": "GROF",
-                        "decal_url": "http://EU.depot.battle.net:1119/eefd2345621a31d45109c2f42aebdc3338845bbccd1e6439b3b38a91e0996c54.clfl",
-                        "icon_url": "http://EU.depot.battle.net:1119/eefd2345621a31d45109c2f42aebdc3338845bbccd1e6439b3b38a91e0996c54.clfl"
+                        "decal_url": "http://EU.depot.battle.net:1119/eefd2345621a31d45109c2f42aebdc3338845bbccd1e64"
+                                     "39b3b38a91e0996c54.clfl",
+                        "icon_url": "http://EU.depot.battle.net:1119/eefd2345621a31d45109c2f42aebdc3338845bbccd1e643"
+                                    "9b3b38a91e0996c54.clfl"
                     }
                 },
                 {
@@ -188,8 +190,10 @@ API_LADDER_4V4 = {
                         "clan_name": "munaki",
                         "id": 242321,
                         "clan_tag": "munaki",
-                        "decal_url": "http://EU.depot.battle.net:1119/661853cbcec956f6522e72e7309e71973517bfe93747dbc64184606d4d02ee2f.clfl",
-                        "icon_url": "http://EU.depot.battle.net:1119/8fc2435b6a1737a7596168f2559dfbfaaf58bf758574d752271eb30fec5d72ae.clfl"
+                        "decal_url": "http://EU.depot.battle.net:1119/661853cbcec956f6522e72e7309e71973517bfe93747d"
+                                     "bc64184606d4d02ee2f.clfl",
+                        "icon_url": "http://EU.depot.battle.net:1119/8fc2435b6a1737a7596168f2559dfbfaaf58bf758574d7"
+                                    "52271eb30fec5d72ae.clfl"
                     }
                 }
             ]
