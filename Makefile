@@ -112,7 +112,7 @@ lib/migrate: $(MIGRATE_OBJS)
 	$(CXX) -o $@ $^ $(MIGRATE_LIBS)
 
 run: build
-	$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)
+	./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch" "./lib/server"
 
 create-migration:
 	$(SITE_MANAGE) makemigrations

@@ -72,18 +72,12 @@ Then create databsae:
    sudo -u postgres createdb rankedftw
    make migrate-db
 
-Then to run the development http server on ``localhost:8000``:
+To run the development http server on ``localhost:8000``, the ladder
+server (``./lib/server``) and webpack watch:
 
 .. code-block:: bash
 
    make run
-
-You may also start the server serving the current ladder (not
-required):
-
-.. code-block:: bash
-
-   ./lib/server
 
 A few things will work (not crash) without data but most things wont.
 
