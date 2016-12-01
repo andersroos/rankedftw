@@ -1,3 +1,33 @@
+import {deferred_doc_ready} from "./utils";
+import {GraphBase} from "./graph";
+import {Radio} from "./controls";
+
+//
+// Handling fetching and storing of stats data.
+//
+class StatsData {
+    
+    constructor() {
+        this.deferred = {};
+        this.raw_by_mode = {};
+    }
+    
+    // Return deferred for when mode data is available.
+    deferred_fetch_mode(mode_id) {
+        if (typeof this.deferred[mode_id] === "undefined") {
+            this.deferred[mode_id] = $.ajax({
+                dataType: "json",
+                url: sc2.dynamic_url + 'stats/raw/' + mode_id + '/',
+                success: (data) => { this.raw_by_mode[mode_id] = data; }
+            });
+        }
+        return this.deferred[mode_id];
+       
+    }
+}
+export let stats_data = new StatsData();
+
+
 //
 // Code for statistics pages.
 //
@@ -40,13 +70,14 @@ let LeagueDistributionTable = function(mode_id) {
     };
 
     o.init = function() {
-        sc2.controls.Radio($("#leagues-table-container ul[ctrl-name='v']"), sc2.default_version, o.controls_change);
+        Radio($("#leagues-table-container ul[ctrl-name='v']"), sc2.default_version, o.controls_change);
         $("#leagues-table-container.wait").removeClass("wait");
     };
 
-    $.when(sc2.utils.doc_ready(),
-           sc2.stats.load_all_for_mode(mode_id))
-        .done(function() { o.init(); });
+    $.when(
+        deferred_doc_ready(),
+        stats_data.deferred_fetch_mode(mode_id)
+    ).done(() => o.init());
     
     return o;
 };
@@ -54,7 +85,7 @@ let LeagueDistributionTable = function(mode_id) {
 // Abstraction of league distribution graph.
 let LeagueDistributionGraph = function(mode_id) {
     
-    var o = sc2.graph.GraphBase('#leagues-graph-container');
+    var o = GraphBase('#leagues-graph-container');
 
     var data = [];   // Filtered and aggregated data.
 
@@ -195,9 +226,10 @@ let LeagueDistributionGraph = function(mode_id) {
         wrapped();
     });
 
-    $.when(sc2.utils.doc_ready(),
-           sc2.stats.load_all_for_mode(mode_id))
-        .done(function() { o.init(); });
+    $.when(
+        deferred_doc_ready(),
+        stats_data.deferred_fetch_mode(mode_id)
+    ).done(function() { o.init(); });
     
     return o;
 };
@@ -230,9 +262,10 @@ let PopulationTable = function(mode_id) {
         $("#pop-table-container.wait").removeClass("wait");
     };
 
-    $.when(sc2.utils.doc_ready(),
-           sc2.stats.load_all_for_mode(mode_id))
-        .done(function() { o.init(); });
+    $.when(
+        deferred_doc_ready(),
+        stats_data.deferred_fetch_mode(mode_id)
+    ).done(function() { o.init(); });
    
     return o;
 };
@@ -380,9 +413,10 @@ let PopulationGraph = function(mode_id) {
         wrapped();
     });
 
-    $.when(sc2.utils.doc_ready(),
-           sc2.stats.load_all_for_mode(mode_id))
-        .done(function() { o.init(); });
+    $.when(
+        deferred_doc_ready(),
+        stats_data.deferred_fetch_mode(mode_id)
+    ).done(function() { o.init(); });
     
     return o;
 };
@@ -540,9 +574,10 @@ let RaceDistributionGraph = function(mode_id) {
         wrapped();
     });
 
-    $.when(sc2.utils.doc_ready(),
-           sc2.stats.load_all_for_mode(mode_id))
-        .done(function() { o.init(); });
+    $.when(
+        deferred_doc_ready(),
+        stats_data.deferred_fetch_mode(mode_id)
+    ).done(function() { o.init(); });
     
     return o;
 };
@@ -583,10 +618,11 @@ let RaceDistributionTable = function(mode_id) {
         $("#races-table-container.wait").removeClass("wait");
     };
 
-    $.when(sc2.utils.doc_ready(),
-           sc2.stats.load_all_for_mode(mode_id),
-           sc2.images.load_races())           
-        .done(function() { o.init(); });
+    $.when(
+        deferred_doc_ready(),
+        stats_data.deferred_fetch_mode(mode_id),
+        sc2.images.load_races()
+    ).done(function() { o.init(); });
     
     return o;
 };
