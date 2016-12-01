@@ -2,8 +2,9 @@
 // Code for statistics pages.
 //
 
+
 // Abstraction of league distribution table.
-sc2.stats.LeagueDistributionTable = function(mode_id) {
+let LeagueDistributionTable = function(mode_id) {
 
     var o = {};
 
@@ -51,7 +52,7 @@ sc2.stats.LeagueDistributionTable = function(mode_id) {
 };
 
 // Abstraction of league distribution graph.
-sc2.stats.LeagueDistributionGraph = function(mode_id) {
+let LeagueDistributionGraph = function(mode_id) {
     
     var o = sc2.graph.GraphBase('#leagues-graph-container');
 
@@ -203,7 +204,7 @@ sc2.stats.LeagueDistributionGraph = function(mode_id) {
 
 
 // Abstraction of the population table.
-sc2.stats.PopulationTable = function(mode_id) {
+let PopulationTable = function(mode_id) {
 
     var o = {};
 
@@ -237,7 +238,7 @@ sc2.stats.PopulationTable = function(mode_id) {
 };
 
 // Abstraction of a population graph.
-sc2.stats.PopulationGraph = function(mode_id) {
+let PopulationGraph = function(mode_id) {
 
     var o = sc2.graph.GraphBase('#pop-graph-container');
 
@@ -388,7 +389,7 @@ sc2.stats.PopulationGraph = function(mode_id) {
 
 
 // Abstraction of race distribution graph.
-sc2.stats.RaceDistributionGraph = function(mode_id) {
+let RaceDistributionGraph = function(mode_id) {
     
     var o = sc2.graph.GraphBase('#races-graph-container');
 
@@ -547,7 +548,7 @@ sc2.stats.RaceDistributionGraph = function(mode_id) {
 };
 
 // Abstraction of race distribution table.
-sc2.stats.RaceDistributionTable = function(mode_id) {
+let RaceDistributionTable = function(mode_id) {
 
     var o = {};
 
@@ -591,3 +592,11 @@ sc2.stats.RaceDistributionTable = function(mode_id) {
 };
 
 
+export let stats = {
+    RaceDistributionGraph,
+    RaceDistributionTable,
+    PopulationGraph,
+    PopulationTable,
+    LeagueDistributionGraph,
+    LeagueDistributionTable
+};

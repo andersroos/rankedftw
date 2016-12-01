@@ -4,7 +4,6 @@
 //
 
 var sc2 = {};
-window.sc2 = sc2;
 
 var TOT = -2;
 var COUNT = 0;
@@ -1000,3 +999,4 @@ sc2.graph.GraphBase = function(container_selector, edges, x_margin) {
     return o;
 };
     
+export let seasons = sc2.seasons;

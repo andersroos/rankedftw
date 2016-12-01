@@ -4,7 +4,7 @@
 //
 
 // The ranking graph object.
-sc2.graph.RankingGraph = function(container_id, team_id, region_id, league_id, mode_id) {
+let RankingGraph = function(container_id, team_id, region_id, league_id, mode_id) {
     
     //
     // Set up html for container canvas and controls.
@@ -457,3 +457,6 @@ sc2.graph.RankingGraph = function(container_id, team_id, region_id, league_id, m
             
     return o;
 };
+
+
+export let team = {RankingGraph};
