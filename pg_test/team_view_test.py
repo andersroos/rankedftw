@@ -7,6 +7,8 @@ from aid.test.db import Db
 from aid.test.base import DjangoTestCase
 
 from django.test import Client
+
+from main.battle_net import NO_MMR
 from main.models import Player, Version, Team, RankingData, Ranking, Cache, Ladder, Season
 from main.views.base import rankings_view_client
 
@@ -22,11 +24,10 @@ class Test(DjangoTestCase):
         self.db.create_cache()
         self.db.create_ladder()
 
-        self.db.create_season()
-
     def setUp(self):
         super().setUp()
-        self.db.delete_all(keep=[Cache, Ladder, Season])
+        self.db.delete_all(keep=[Cache, Ladder])
+        self.db.create_season()
         self.c = Client()
 
     def tearDown(self):
@@ -91,3 +92,38 @@ class Test(DjangoTestCase):
         self.assertEqual(r4.id, data3['id'])
         self.assertEqual(13, data3['ladder_rank'])
         self.assertEqual(Version.LOTV, data3['version'])
+
+    def test_no_mmr_is_filtered_after_mmr_season(self):
+        s27 = self.db.create_season(id=27)
+        s28 = self.db.create_season(id=28)
+
+        p1 = self.db.create_player(name="arne")
+        t1 = self.db.create_team()
+
+        r1 = self.db.create_ranking(season=s27)
+        self.db.create_ranking_data(data=[dict(ladder_rank=10, mmr=NO_MMR)])
+
+        r2 = self.db.create_ranking(season=s28)
+        self.db.create_ranking_data(data=[dict(ladder_rank=11, mmr=NO_MMR)])
+
+        r3 = self.db.create_ranking(season=s28)
+        self.db.create_ranking_data(data=[dict(ladder_rank=12, mmr=120)])
+
+        response = self.c.get('/team/%d/rankings/' % t1.id)
+
+        self.assertEqual(200, response.status_code)
+
+        data = json.loads(response.content.decode('utf-8'))
+
+        self.assertEqual(2, len(data))
+
+        data0 = data[0]
+
+        self.assertEqual(r1.id, data0['id'])
+        self.assertEqual(10, data0['ladder_rank'])
+
+        data1 = data[1]
+
+        self.assertEqual(r3.id, data1['id'])
+        self.assertEqual(12, data1['ladder_rank'])
+        self.assertEqual(120, data1['mmr'])

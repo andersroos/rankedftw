@@ -10,7 +10,6 @@ import {rev_each} from "./utils";
 import {Mode} from "./stats";
 import {format_int} from "./utils";
 
-
 //
 // Add classes to container.
 //

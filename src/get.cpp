@@ -73,7 +73,7 @@ get::rankings_for_team(id_t team_id)
       team_rank_t team_rank;
       find_team_rank(_db, rankings[i].id, team_id, team_rank);
 
-      if (team_rank.team_id != 0) {
+      if (team_rank.team_id != 0 and (rankings[i].season_id < MMR_SEASON or team_rank.mmr != NO_MMR)) {
          boost::python::dict tr;
 
          tr["league"] = team_rank.league;
@@ -82,7 +82,10 @@ get::rankings_for_team(id_t team_id)
          tr["data_time"] = rankings[i].data_time;
          tr["season_id"] = rankings[i].season_id;
          tr["race0"] = team_rank.race0;
-         
+
+         if (team_rank.mmr != NO_MMR) {
+            tr["mmr"] = team_rank.mmr;
+         }
          tr["points"] = team_rank.points;
          tr["wins"] = team_rank.wins;
          tr["losses"] = team_rank.losses;

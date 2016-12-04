@@ -17,7 +17,7 @@ using namespace std;
 
 inline enum_t get_sort_key(id_t season_id)
 {
-   return season_id >= 28 ? MMR : LEAGUE_POINTS;
+   return season_id >= MMR_SEASON ? MMR : LEAGUE_POINTS;
 }
 
 void ranking_data::load(id_t id)

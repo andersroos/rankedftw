@@ -22,6 +22,7 @@ typedef uint32_t bid_t;
 #define GRANDMASTER 6
 #define KR 2
 #define NO_MMR -32768
+#define MMR_SEASON 28
 
 //
 // Team rank data.
