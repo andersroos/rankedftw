@@ -32,7 +32,7 @@ class Images {
     }
 
     deferred_load_races() {
-        _.each(enums_info.race_ranking_ids, function(race_id) {
+        _.each(enums_info.race_ranking_ids, (race_id) => {
             var race_tag = enums_info.race_key_by_ids[race_id];
             var img = $("<img id='race" + race_id + "' src='" + static_url + "img/races/" + race_tag + "-16x16.png' />");
             img.one("load", () => {

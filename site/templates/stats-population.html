@@ -140,7 +140,7 @@
 
 
 {% block body_js %}
-  sc2.seasons.init({{ seasons | safe }});
-  sc2.stats.PopulationTable({{ mode_id }});
-  sc2.stats.PopulationGraph({{ mode_id }});
+  sc3.seasons.deferred_init({{ seasons | safe }});
+  sc3.stats.PopulationTable({{ mode_id }});
+  sc3.stats.PopulationGraph({{ mode_id }});
 {% endblock body_js %}
