@@ -22,12 +22,15 @@ struct ladder_handler
    // Get rankings for a clan (set of team ids in the request). Sorting and filtering possible.
    Json::Value clan(const Json::Value& request);
 
+   // Reload ranking will reload the ranking for db.
+   Json::Value refresh(const Json::Value& request);
+   
    virtual ~ladder_handler() {}
    
 private:
 
    // Get ranking from db if new ranking is available.
-   void refresh_ranking();
+   void refresh_ranking(bool force=false);
 
    std::string _db_name;
    uint64_t _last_checked;

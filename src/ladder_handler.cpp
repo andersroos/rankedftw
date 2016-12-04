@@ -10,13 +10,13 @@
 using namespace std;
 
 void
-ladder_handler::refresh_ranking()
+ladder_handler::refresh_ranking(bool force)
 {
    uint64_t now = now_us();
    
    boost::lock_guard<boost::mutex> lock(_mutex);
    // Check for new data every 1 minutes.
-   if (_last_checked == 0 or now > _last_checked + 1e6 * 60 * 1) {
+   if (_last_checked == 0 or now > _last_checked + 1e6 * 60 * 1 or force) {
       _last_checked = now;
       db db(_db_name);
       ranking ranking = db.get_latest_ranking();
@@ -35,6 +35,16 @@ ladder_handler::refresh_ranking()
          LOG_INFO("no new ranking available");
       }
    }
+}
+
+Json::Value
+ladder_handler::refresh(const Json::Value& request)
+   
+{
+   Json::Value response;
+   response["code"] = "ok";
+   refresh_ranking(true);
+   return response;
 }
 
 // Set start and end iterators to start and end of version and mode in team_ranks.

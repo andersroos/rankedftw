@@ -1,3 +1,5 @@
+import json
+import socket
 from collections import deque
 from datetime import timedelta
 from logging import getLogger
@@ -5,6 +7,7 @@ from time import sleep
 from django.db import transaction
 from common.utils import utcnow, to_unix, StoppableThread
 from main.battle_net import BnetClient, ApiLadder
+from main.client import request_udp
 from main.fetch import update_ladder_cache
 from main.models import Enums, Ladder, League, Mode, Version, Season, Ranking, get_db_name, Region
 from common.logging import log_context, LogContext
@@ -180,6 +183,19 @@ class UpdateManager(object):
 
         ranking.status = Ranking.COMPLETE_WITH_DATA
         ranking.save()
+
+        # Ping server to reload ranking.
+        try:
+            raw = request_udp('localhost', 4747, json.dumps({'cmd': 'refresh'}).encode('utf-8'))
+            response = json.loads(raw.decode('utf-8'))
+            code = response.get('code')
+            if code == 'ok':
+                logger.info("refresh ping returned ok")
+            else:
+                logger.warning("refresh ping returned %s" % code)
+
+        except socket.timeout:
+            logger.warning("refresh ping to server timed out")
 
     @classmethod
     def update_until(self, ranking=None, cpp=None, regions=None, until=None, check_stop=None,

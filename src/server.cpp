@@ -110,6 +110,9 @@ int main(int argc, char *argv[])
          else if (command == "clan") {
             response_data = ladder_handler.clan(request_data);
          }
+         else if (command == "refresh") {
+            response_data = ladder_handler.refresh(request_data);
+         }
          else {
             LOG_WARNING("don't know what to do with command '%s'", command.c_str());
             response_data["code"] = 400;
