@@ -263,15 +263,19 @@ export let GraphBase = function(container_selector, edges, x_margin) {
                 }
             }
 
-            // Draw lotv release line.
+            // Draw lotv release line and mmr avaiable line.
 
-            let lotv_label = "LotV Release";
-            let lotv_release_x = o.date_to_pixels(2015, 10, 9);
-            if (lotv_release_x - 10 > 0 && lotv_release_x + 10 < o.width) {
-                o.gline('#ffff00', 2, [{x: lotv_release_x, y: o.height + 5}, {x: lotv_release_x, y: o.height - 5}]);
-                o.text(lotv_label, o.edges.left + lotv_release_x, o.edges.top + o.height + 3 , 'center', 'top', '#ffff00');
-            }
-        
+            let draw_event_line = function(label, yr, m, d) {
+                let x = o.date_to_pixels(yr, m, d);
+                if (x - 10 > 0 && x + 10 < o.width) {
+                    o.gline('#ffff00', 2, [{x: x, y: o.height + 5}, {x: x, y: o.height - 5}]);
+                    o.text(label, o.edges.left + x, o.edges.top + o.height - 5 , 'center', 'bottom', '#ffff00');
+                }
+            };
+
+            draw_event_line("LotV", 2015, 10, 9);
+            draw_event_line("MMR", 2016, 6, 17);
+
             // Year label.
             if (x_label === 'year') {
                 let label_x = min_max(o.ctx.measureText(year).width / 2,
