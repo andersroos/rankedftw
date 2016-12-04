@@ -4,7 +4,7 @@
 //
 
 // The ranking graph object.
-let RankingGraph = function(container_id, team_id, region_id, league_id, mode_id) {
+export let RankingGraph = function(container_id, team_id, region_id, league_id, mode_id) {
     
     //
     // Set up html for container canvas and controls.
@@ -457,6 +457,3 @@ let RankingGraph = function(container_id, team_id, region_id, league_id, mode_id
             
     return o;
 };
-
-
-export let team = {RankingGraph};

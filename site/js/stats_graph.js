@@ -3,11 +3,13 @@ import {stats_data} from "./stats";
 import {GraphBase} from "./graph";
 import {Radio} from "./controls";
 import {Mode} from "./stats";
+import {seasons} from "./seasons";
+import {images} from "./images";
 import {format_int} from "./utils";
-import {default_version, static_url} from "./settings";
+import {default_version, enums_info} from "./settings";
 
 // Abstraction of league distribution table.
-let LeagueDistributionTable = function(mode_id) {
+export let LeagueDistributionTable = function(mode_id) {
 
     var o = {};
 
@@ -56,7 +58,7 @@ let LeagueDistributionTable = function(mode_id) {
 };
 
 // Abstraction of league distribution graph.
-let LeagueDistributionGraph = function(mode_id) {
+export let LeagueDistributionGraph = function(mode_id) {
 
     var o = GraphBase('#leagues-graph-container');
 
@@ -93,7 +95,7 @@ let LeagueDistributionGraph = function(mode_id) {
 
         // Add up for each league.
 
-        _.each(sc2.enums_info.league_ranking_ids, function(league) {
+        _.each(enums_info.league_ranking_ids, function(league) {
             last_line = line;
             line = [];
             for (var i = 0; i < data.length; ++i) {
@@ -156,10 +158,10 @@ let LeagueDistributionGraph = function(mode_id) {
         o.clear();
         o.setup_league_styles();
 
-        for (var li = sc2.enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
+        for (var li = enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
             o
                 .garea(o.league_styles[li], [{x: o.width, y: o.height}, {x: 0, y: o.height}]
-                .concat(lines[sc2.enums_info.league_ranking_ids[li]]));
+                .concat(lines[enums_info.league_ranking_ids[li]]));
         }
 
         o.y_axis("percent");
@@ -169,11 +171,11 @@ let LeagueDistributionGraph = function(mode_id) {
 
     o.update_tooltip = function(m) {
         function format_tooltip_data(c, t) {
-            return {n: sc2.utils.format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
+            return {n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
         }
 
         var d = data[m];
-        var season = sc2.seasons.by_id[d.season_id];
+        var season = seasons.by_id[d.season_id];
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
         var t = d.aggregate.count();
@@ -182,7 +184,7 @@ let LeagueDistributionGraph = function(mode_id) {
             $('.l' + league + "-n", o.tooltip).text(e.n);
             $('.l' + league + "-p", o.tooltip).text(e.p);
         });
-        $('.pop-n', o.tooltip).text(sc2.utils.format_int(t));
+        $('.pop-n', o.tooltip).text(format_int(t));
 
         return 210;
     };
@@ -192,7 +194,7 @@ let LeagueDistributionGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        Radio(o.container.find("ul[ctrl-name='v']"), sc2.default_version, o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='v']"), default_version, o.controls_change);
         Radio(o.container.find("ul[ctrl-name='r']"), '-2', o.controls_change);
         Radio(o.container.find("ul[ctrl-name='sx']"), 'a', o.controls_change);
 
@@ -209,7 +211,7 @@ let LeagueDistributionGraph = function(mode_id) {
 
 
 // Abstraction of the population table.
-let PopulationTable = function(mode_id) {
+export let PopulationTable = function(mode_id) {
 
     var o = {};
 
@@ -218,20 +220,20 @@ let PopulationTable = function(mode_id) {
     o.controls_change = function(name, value) {
         o.settings[name] = value;
 
-        var stat = sc2.stats.Mode(mode_id).get_last();
+        var stat = Mode(mode_id).get_last();
 
         var filters = {versions: [parseInt(o.settings.v)]};
 
         var regions = stat.filter_aggregate(filters, ['region']);
 
         _.each(regions.regions, function(region) {
-            $("#r" + region + " .number").text(sc2.utils.format_int(regions.count(region)));
+            $("#r" + region + " .number").text(format_int(regions.count(region)));
         });
-        $("#r-2 .number").text(sc2.utils.format_int(regions.count()));
+        $("#r-2 .number").text(format_int(regions.count()));
     };
 
     o.init = function() {
-        sc2.controls.Radio($("#pop-table-container ul[ctrl-name='v']"), sc2.default_version, o.controls_change);
+        Radio($("#pop-table-container ul[ctrl-name='v']"), default_version, o.controls_change);
         $("#pop-table-container.wait").removeClass("wait");
     };
 
@@ -244,9 +246,9 @@ let PopulationTable = function(mode_id) {
 };
 
 // Abstraction of a population graph.
-let PopulationGraph = function(mode_id) {
+export let PopulationGraph = function(mode_id) {
 
-    var o = sc2.graph.GraphBase('#pop-graph-container');
+    var o = GraphBase('#pop-graph-container');
 
     var data = [];     // Filtered and aggregated data.
     var max_y = 0.001;     // Max y value.
@@ -296,10 +298,10 @@ let PopulationGraph = function(mode_id) {
         data = [];
         max_y = 0.001;
         var last_season = -1;
-        var stats = sc2.stats.Mode(mode_id);
+        var stats = Mode(mode_id);
         stats.each_reverse(function(stat) {
             var aggregate = stat.filter_aggregate(filters, []);
-            var season = sc2.seasons.by_id[stat.season_id];
+            var season = seasons.by_id[stat.season_id];
             var point = {
                 season_id: season.id,
                 season_age: (stat.data_time - season.start) / (24 * 3600),
@@ -358,17 +360,17 @@ let PopulationGraph = function(mode_id) {
 
     o.update_tooltip = function(m) {
         function format_tooltip_data(c, t) {
-            return {n: sc2.utils.format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
+            return {n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
         };
 
         var d = data[m];
-        var season = sc2.seasons.by_id[d.season_id];
+        var season = seasons.by_id[d.season_id];
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
         $('.season-age', o.tooltip).text(Math.round(d.season_age) + " days");
-        $('.pop-n', o.tooltip).text(sc2.utils.format_int(d.count));
-        $('.gpd', o.tooltip).text(sc2.utils.format_int(Math.round(d.games_per_day)));
-        $('.games', o.tooltip).text(sc2.utils.format_int(Math.round(d.games)));
+        $('.pop-n', o.tooltip).text(format_int(d.count));
+        $('.gpd', o.tooltip).text(format_int(Math.round(d.games_per_day)));
+        $('.games', o.tooltip).text(format_int(Math.round(d.games)));
 
         return 188;
     };
@@ -378,10 +380,10 @@ let PopulationGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='v']"), sc2.default_version, o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='r']"), '-2', o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='sx']"), 'a', o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='sy']"), 'c', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='v']"), default_version, o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='r']"), '-2', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='sx']"), 'a', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='sy']"), 'c', o.controls_change);
 
         wrapped();
     });
@@ -396,9 +398,9 @@ let PopulationGraph = function(mode_id) {
 
 
 // Abstraction of race distribution graph.
-let RaceDistributionGraph = function(mode_id) {
+export let RaceDistributionGraph = function(mode_id) {
 
-    var o = sc2.graph.GraphBase('#races-graph-container');
+    var o = GraphBase('#races-graph-container');
 
     var data = [];   // Filtered and aggregated data.
 
@@ -427,14 +429,14 @@ let RaceDistributionGraph = function(mode_id) {
 
         for (var i = 0; i < data.length; ++i) {
             var x = o.epoch_to_pixels(data[i].data_time);
-            _.each(sc2.enums_info.race_ranking_ids, function(race_id) {
+            _.each(enums_info.race_ranking_ids, function(race_id) {
                 var y = o.y_per_unit * (data[i].aggregate.count(race_id) / data[i].aggregate.count() * 100 - max_value);
                 lines[race_id] = lines[race_id] || [];
                 lines[race_id].push({x: x, y: y, m: i});
             });
         }
 
-        _.each(sc2.enums_info.race_ranking_ids, function(race_id) {
+        _.each(enums_info.race_ranking_ids, function(race_id) {
             $.merge(new_points, lines[race_id]);
         });
 
@@ -472,7 +474,7 @@ let RaceDistributionGraph = function(mode_id) {
         max_value = 1;
 
         var all = [];
-        var stats = sc2.stats.Mode(mode_id);
+        var stats = Mode(mode_id);
         stats.each(function(stat) {
             var aggregate = stat.filter_aggregate(filters, ['race']);
             var point = {
@@ -502,11 +504,11 @@ let RaceDistributionGraph = function(mode_id) {
     o.redraw = function() {
         o.clear();
 
-        _.each(sc2.enums_info.race_ranking_ids, function(race) {
+        _.each(enums_info.race_ranking_ids, function(race) {
             o.gline(o.race_colors[race], 2, lines[race]);
         });
 
-        _.each(sc2.enums_info.race_ranking_ids, function(race) {
+        _.each(enums_info.race_ranking_ids, function(race) {
             o.ctx.drawImage(document.getElementById('race' + race),
                             lines[race][0].x - 8 + o.edges.left,
                             lines[race][0].y - 8 + o.edges.top);
@@ -518,20 +520,20 @@ let RaceDistributionGraph = function(mode_id) {
 
     o.update_tooltip = function(m) {
         function format_tooltip_data(c, t) {
-            return {n: sc2.utils.format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
+            return {n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
         };
 
         var d = data[m];
-        var season = sc2.seasons.by_id[d.season_id];
+        var season = seasons.by_id[d.season_id];
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
         var t = d.aggregate.count();
-        _.each(sc2.enums_info.race_ranking_ids, function(race) {
+        _.each(enums_info.race_ranking_ids, function(race) {
             var e = format_tooltip_data(d.aggregate.count(race), t);
             $('.r' + race + '-n', o.tooltip).text(e.n);
             $('.r' + race + '-p', o.tooltip).text(e.p);
         });
-        $('.pop-n', o.tooltip).text(sc2.utils.format_int(t));
+        $('.pop-n', o.tooltip).text(format_int(t));
         return 210;
     };
 
@@ -540,9 +542,9 @@ let RaceDistributionGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='v']"), sc2.default_version, o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='r']"), '-2', o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='l']"), '-2', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='v']"), default_version, o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='r']"), '-2', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='l']"), '-2', o.controls_change);
 
         wrapped();
     });
@@ -556,7 +558,7 @@ let RaceDistributionGraph = function(mode_id) {
 };
 
 // Abstraction of race distribution table.
-let RaceDistributionTable = function(mode_id) {
+export let RaceDistributionTable = function(mode_id) {
 
     var o = {};
 
@@ -565,7 +567,7 @@ let RaceDistributionTable = function(mode_id) {
     o.controls_change = function(name, value) {
         o.settings[name] = value;
 
-        var stat = sc2.stats.Mode(mode_id).get_last();
+        var stat = Mode(mode_id).get_last();
 
         var filters = {versions: [parseInt(o.settings.v)]};
 
@@ -579,33 +581,23 @@ let RaceDistributionTable = function(mode_id) {
             var t = races_by_league.count(league);
             _.each(races_by_league.races, function(race) {
                 var c = races_by_league.count(league, race);
-                $("#l" + league + "-r" + race + " .number").text(sc2.utils.format_int(c));
+                $("#l" + league + "-r" + race + " .number").text(format_int(c));
                 $("#l" + league + "-r" + race + " .percent").text("(" + (c * 100 / t).toFixed(2) + "%)");
             });
         });
     };
 
     o.init = function() {
-        sc2.controls.Radio($("#races-table-container ul[ctrl-name='v']"), sc2.default_version, o.controls_change);
-        sc2.controls.Radio($("#races-table-container ul[ctrl-name='r']"), '-2', o.controls_change);
+        Radio($("#races-table-container ul[ctrl-name='v']"), default_version, o.controls_change);
+        Radio($("#races-table-container ul[ctrl-name='r']"), '-2', o.controls_change);
         $("#races-table-container.wait").removeClass("wait");
     };
 
     $.when(
         deferred_doc_ready(),
         stats_data.deferred_fetch_mode(mode_id),
-        sc2.images.load_races()
+        images.deferred_load_races()
     ).done(function() { o.init(); });
 
     return o;
-};
-
-
-export let stats = {
-    RaceDistributionGraph,
-    RaceDistributionTable,
-    PopulationGraph,
-    PopulationTable,
-    LeagueDistributionGraph,
-    LeagueDistributionTable
 };

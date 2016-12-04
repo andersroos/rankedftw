@@ -89,3 +89,10 @@ export let get_cookie = function(name) {
     return value;
 };
 
+//
+// Return the value value, but make sure it is in the range [min, max].
+//
+export let min_max = function(min, value, max) {
+    return Math.min(Math.max(min, value), max);
+};
+

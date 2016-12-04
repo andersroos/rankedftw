@@ -184,7 +184,7 @@ export let Mode = function(mode_id) {
                 break;
             }
         }
-        return sc2.stats.Stat(mode_id, raw);
+        return Stat(mode_id, raw);
     };
 
     // Get lst stat.
@@ -196,7 +196,7 @@ export let Mode = function(mode_id) {
     object.each = function(fun, min_version) {
         for (var i = 0; i < raws.length; ++i) {
             if (_.isUndefined(min_version) || min_version <= raws[i].season_version) {
-                fun(sc2.stats.Stat(mode_id, raws[i]), i);
+                fun(Stat(mode_id, raws[i]), i);
             }
         }
     };
@@ -205,7 +205,7 @@ export let Mode = function(mode_id) {
     object.each_reverse = function(fun, min_version) {
         for (var i = raws.length - 1; i >= 0; --i) {
             if (_.isUndefined(min_version) || min_version <= raws[i].season_version) {
-                fun(sc2.stats.Stat(mode_id, raws[i]), i);
+                fun(Stat(mode_id, raws[i]), i);
             }
         }
     };

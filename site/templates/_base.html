@@ -57,9 +57,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
     <script src="{{ STATIC_URL }}site.js" type="text/javascript"></script>
     <script type="text/javascript">
-      sc2.settings.static_url = "{{ STATIC_URL }}";
-      sc2.settings.dynamic_url = window.location.protocol + '//' + window.location.host + '/';
-      sc2.settings.enums_info = {{ enums_info | safe }};
+      sc3.settings.static_url = "{{ STATIC_URL }}";
+      sc3.settings.dynamic_url = window.location.protocol + '//' + window.location.host + '/';
+      sc3.settings.enums_info = {{ enums_info | safe }};
 
       {% block body_js %}
       {% endblock body_js %}

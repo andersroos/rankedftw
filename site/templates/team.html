@@ -44,7 +44,7 @@
 {% endblock page %}
 
 {% block body_js %}
-  sc2.seasons.init({{ seasons | safe }});
-  var graph = sc2.team.RankingGraph("graph-container", {{ team.id }}, {{ team.member0.region }}, {{ team.member0.league }}, {{ team.mode }});
+  sc3.seasons.init({{ seasons | safe }});
+  var graph = sc3.team.RankingGraph("graph-container", {{ team.id }}, {{ team.member0.region }}, {{ team.member0.league }}, {{ team.mode }});
 {% endblock body_js %}
 

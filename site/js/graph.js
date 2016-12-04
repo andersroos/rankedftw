@@ -1,3 +1,5 @@
+import {seasons} from "./seasons";
+import {min_max} from "./utils";
 
 
 export let GraphBase = function(container_selector, edges, x_margin) {
@@ -201,12 +203,11 @@ export let GraphBase = function(container_selector, edges, x_margin) {
 
         // Draw season colored base line and labels.
 
-        var seasons = sc2.seasons.sorted;
         var y = o.height;
         var x_from = -o.x_margin; // Start outside actual drawing area.
         var season;
-        for (var i = 0; i < seasons.length; ++i) {
-            season = seasons[i];
+        for (var i = 0; i < seasons.sorted.length; ++i) {
+            season = seasons.sorted[i];
             if (season.end > o.x_ax.left_value && season.start < o.x_ax.right_value) {
                 var x_to = Math.min(o.epoch_to_pixels(season.end), o.width);
 
@@ -257,7 +258,7 @@ export let GraphBase = function(container_selector, edges, x_margin) {
                 // Month label.
                 var text_width = o.ctx.measureText(year).width;
                 if (x_label == 'month' && month_end_x > text_width / 2 && month_start_x < o.width - text_width / 2) {
-                    var text_x = sc2.utils.min_max(0, (month_end_x - month_start_x) / 2 + month_start_x, o.width);
+                    var text_x = min_max(0, (month_end_x - month_start_x) / 2 + month_start_x, o.width);
                     o.text(months[month], o.edges.left + text_x, o.edges.top + o.height + 3, 'center', 'top');
                 }
             }
@@ -274,9 +275,9 @@ export let GraphBase = function(container_selector, edges, x_margin) {
         
             // Year label.
             if (x_label == 'year') {
-                var label_x = sc2.utils.min_max(o.ctx.measureText(year).width / 2,
-                                            o.date_to_pixels(year, 6),
-                                            o.width - o.ctx.measureText(year).width / 2);
+                var label_x = min_max(o.ctx.measureText(year).width / 2,
+                                      o.date_to_pixels(year, 6),
+                                      o.width - o.ctx.measureText(year).width / 2);
                 o.text(year, o.edges.left + label_x, o.edges.top + o.height + 3, 'center', 'top');
             }
         }

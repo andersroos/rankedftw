@@ -1,10 +1,11 @@
 
 import * as settings from './settings.js';
-import {seasons} from './core.js';
-import {team} from './team.js';
-import {stats} from './stats_graph.js';
+import {seasons} from './seasons.js';
+import * as team from './team.js';
+import * as stats from './stats_graph.js';
 
-window.sc2 = {
+// TODO
+window.sc3 = {
     settings,
     seasons,
     team,
