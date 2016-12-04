@@ -105,9 +105,9 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
             {'value': 'c',
              'heading': 'Percent',
              'tooltip': 'Percent on y-axis, % of teams ranked above team.'},
-            {'value': 'p',
-             'heading': 'Points',
-             'tooltip': 'Points on y-axis, 0 at the bottom. Note that this graph does not change for different types of data since the points are always the same.'},
+            {'value': 'm',
+             'heading': 'MMR',
+             'tooltip': 'MMR on y-axis, 0 at the bottom. Note that this graph does not change for different types of data since the points are always the same. This will hide all parts of the graph where mmr was not avaiable.'},
             {'value': 'r',
              'heading': 'Rank',
              'tooltip': 'Absolute rank on y-axis, no 1 at the top. The grey area (or league distribution area) indicates all ranked teams from the top to the bottom at that point in time.'},
@@ -143,7 +143,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
              'tooltip': 'League distribution background off.'},
             {'value': '1',
              'heading': 'On',
-             'tooltip': 'League distribution background on, there will be no league background for "league" graph or if "points" is selected since that would not make any sense.'},
+             'tooltip': 'League distribution background on, there will be no league background for "league" graph.'},
         ]);
 
     add_canvas(container);
@@ -183,8 +183,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     let max_percent; // One value per settings.data.
     let min_percent; // One value per settings.data.
 
-    let min_points;
-    let max_points;
+    let min_mmr; // Min among points.
+    let max_mmr; // Max among points.
     
     //
     // Data for the graph.
@@ -203,22 +203,31 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Updating on units needs to be done after a resize or after settings changed.
     o.update_units = function() {
         
+        let start = 0;
         end_ranking_index = o.rankings.length - 1;
         o.x_ax.right_value = o.rankings[end_ranking_index].data_time;
-        
+
+        if (o.settings.ty === 'm') {
+            for (let i = end_ranking_index; i >= 0; --i) {
+                if  (typeof o.rankings[i].mmr !== 'undefined') {
+                    start = i;
+                }
+            }
+        }
+
         if (o.settings.tx === 'a') {
-            start_ranking_index = 0;
+            start_ranking_index = start;
         }
         else if (o.settings.tx === 's') {
             let season_id = o.rankings[end_ranking_index].season_id;
-            for (let i = end_ranking_index; i >= 0; --i) {
+            for (let i = end_ranking_index; i >= start; --i) {
                 if (season_id === o.rankings[i].season_id) {
                     start_ranking_index = i;
                 }
             }
         }
         else if (o.settings.tx === '60') {
-            for (let i = end_ranking_index; i >= 0; --i) {
+            for (let i = end_ranking_index; i >= start; --i) {
                 if (o.x_ax.right_value - o.rankings[i].data_time < 3600 * 24 * 60) {
                     start_ranking_index = i;
                 }
@@ -231,8 +240,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         min_rank = {world: 1e9, region: 1e9, league: 1e9};
         max_percent = {world: 0, region: 0, league: 0};
         min_percent = {world: 1e9, region: 1e9, league: 1e9};
-        min_points = 1e9;
-        max_points = 0;
+        min_mmr = 1e9;
+        max_mmr = 0;
         
         for (let i = start_ranking_index; i <= end_ranking_index; ++i) {
             $.each(['world', 'region', 'league'], function(j, key) {
@@ -247,8 +256,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                 min_percent[key] = Math.max(Math.min(min_percent[key], 100 * rank / count - 0.001), 0);
                 max_percent[key] = Math.min(Math.max(max_percent[key], 100 * rank / count + 0.001), 100);
             });
-            min_points = Math.min(min_points, o.rankings[i].points);
-            max_points = Math.max(max_points, o.rankings[i].points + 0.1);
+            min_mmr = Math.min(min_mmr, o.rankings[i].mmr);
+            max_mmr = Math.max(max_mmr, o.rankings[i].mmr);
         }
         
         o.x_per_unit = o.width / (o.x_ax.right_value - o.x_ax.left_value + 0.01);
@@ -258,9 +267,9 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                 o.y_ax.top_value = min_percent[o.settings.td];
                 o.y_ax.bottom_value = Math.min(100, max_percent[o.settings.td] * 1.02);
             }
-            else if (o.settings.ty === "p") {
-                o.y_ax.top_value = max_points;
-                o.y_ax.bottom_value = Math.max(0, min_points - o.y_ax.top_value * 0.02);                
+            else if (o.settings.ty === "m") {
+                o.y_ax.top_value = max_mmr;
+                o.y_ax.bottom_value = Math.max(0, min_mmr - o.y_ax.top_value * 0.02);
             }
             else if (o.settings.ty === "r") {
                 o.y_ax.top_value = min_rank[o.settings.td];
@@ -272,8 +281,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                 o.y_ax.top_value = 0;
                 o.y_ax.bottom_value = 100;
             }
-            else if (o.settings.ty === "p") {
-                o.y_ax.top_value = max_points;
+            else if (o.settings.ty === "m") {
+                o.y_ax.top_value = max_mmr;
                 o.y_ax.bottom_value = 0;
             }
             else if (o.settings.ty === "r") {
@@ -290,7 +299,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         
     // Print the y axis.
     o.y_axis = _.wrap(o.y_axis, function(wrapped) {
-        wrapped({'c': 'percent', 'r': 'int', 'p': 'int'}[o.settings.ty]);
+        wrapped({'c': 'percent', 'r': 'int', 'm': 'int'}[o.settings.ty]);
     });
 
     // Print the x axis.
@@ -306,8 +315,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         else if (o.settings.ty === 'r') {
             return o.y_value(ranking[o.settings.td + "_rank"]);
         }
-        else if (o.settings.ty === 'p') {
-            return o.y_value(ranking.points);
+        else if (o.settings.ty === 'm') {
+            return o.y_value(ranking.mmr);
         }
         return null;
     };
@@ -320,7 +329,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         else if (o.settings.ty === 'r') {
             return (value - o.y_ax.top_value) * o.y_per_unit;
         }
-        else if (o.settings.ty === 'p') {
+        else if (o.settings.ty === 'm') {
             return (value - o.y_ax.top_value) * o.y_per_unit;
         }
         return null;
@@ -336,7 +345,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
         // Calculate if floor or leagues background should be drawn.
 
-        if (o.settings.tl === '1' && o.settings.td !== 'league' && o.settings.ty !== 'p') {
+        if (o.settings.tl === '1' && o.settings.td !== 'league' && o.settings.ty !== 'm') {
             o.settings.bg = 'leagues';
         }
         else if (o.settings.ty === 'r') {
