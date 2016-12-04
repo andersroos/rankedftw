@@ -1,21 +1,7 @@
-//
-// Global settings and constants. Some of these are set in page.
-//
 
-var TOT = -2;
-var COUNT = 0;
-var WINS = 1;
-var LOSSES = 2;
-
-
-// TODO Fix this.
-window.TOT = TOT;
-window.COUNT = COUNT;
-window.WINS = WINS;
-window.LOSSES = LOSSES;
 
 //
-// Enum info populated from python.
+// Global settings and constants. Most are set in page.
 //
 
 export let enums_info = {};

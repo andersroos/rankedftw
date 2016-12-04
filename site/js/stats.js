@@ -1,5 +1,12 @@
 import {dynamic_url, enums_info} from "./settings";
 
+
+export let  TOT = -2;
+export let  COUNT = 0;
+export let  WINS = 1;
+export let  LOSSES = 2;
+
+
 //
 // Singleton for handling fetching of stats data.
 //

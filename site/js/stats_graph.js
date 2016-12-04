@@ -7,6 +7,7 @@ import {seasons} from "./seasons";
 import {images} from "./images";
 import {format_int} from "./utils";
 import {default_version, enums_info} from "./settings";
+import {TOT} from "./stats";
 
 
 //
@@ -367,10 +368,6 @@ export let PopulationGraph = function(mode_id) {
     };
 
     o.update_tooltip = function(m) {
-        function format_tooltip_data(c, t) {
-            return {n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
-        };
-
         var d = data[m];
         var season = seasons.by_id[d.season_id];
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
@@ -531,7 +528,7 @@ export let RaceDistributionGraph = function(mode_id) {
     o.update_tooltip = function(m) {
         function format_tooltip_data(c, t) {
             return {n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
-        };
+        }
 
         var d = data[m];
         var season = seasons.by_id[d.season_id];

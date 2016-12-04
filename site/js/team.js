@@ -22,8 +22,8 @@ let conf_container = function(jq_container) {
 // Add controls to container and returns of controls container.
 //
 let add_controls_div = function(jq_container) {
-    var controls = $('<div class="controls">');
-    var content = $('<div class="content">');
+    let controls = $('<div class="controls">');
+    let content = $('<div class="content">');
     controls.append(content);
     jq_container.append(controls);
     return content;
@@ -34,10 +34,10 @@ let add_controls_div = function(jq_container) {
 // <tooltip>, heading: <heading>, src: <optional heading img source>}.
 //
 let add_control = function(jq_controls, name, heading, options) {
-    var ul = $("<ul ctrl-name='" + name + "'>");
+    let ul = $("<ul ctrl-name='" + name + "'>");
     ul.append("<span>" + heading + "</span>");
-    for (var i = 0; i < options.length; ++i) {
-        var a = $("<a ctrl-value='" + options[i].value + "' title='" + options[i].tooltip + "'>");
+    for (let i = 0; i < options.length; ++i) {
+        let a = $("<a ctrl-value='" + options[i].value + "' title='" + options[i].tooltip + "'>");
         a.append("<span>" + options[i].heading + "</span>");
         if (options[i].src) {
             a.append("<img src='" + options[i].src + "'>");
@@ -58,10 +58,10 @@ let add_canvas = function(jq_container) {
 // Add tooltip element to container. Table is a list of <heading, data-class>.
 //
 let add_tooltip = function(jq_container, data) {
-    var tooltip = $('<div class="tooltip">');
-    var table = $('<table>');
-    for (var i = 0; i < data.length; ++i) {
-        var tr = $('<tr>');
+    let tooltip = $('<div class="tooltip">');
+    let table = $('<table>');
+    for (let i = 0; i < data.length; ++i) {
+        let tr = $('<tr>');
         tr.append("<th>" + data[i][0] + "</th>");
         tr.append("<td class='" + data[i][1] + "'></td>");
         table.append(tr);
@@ -80,11 +80,11 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Set up html for container canvas and controls.
     //
 
-    var container = $('#' + container_id);
+    let container = $('#' + container_id);
     
     conf_container(container);
     
-    var controls = add_controls_div(container);
+    let controls = add_controls_div(container);
 
     add_control(
         controls, 'td', 'Data:', [
@@ -167,35 +167,34 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Init graph base.
     //
     
-    var o = GraphBase('#' + container_id);
+    let o = GraphBase('#' + container_id);
 
     //
     // Calculated units by settings and size.
     //
 
-    var start_ranking_index;
-    var end_ranking_index;
+    let start_ranking_index;
+    let end_ranking_index;
     
-    var start_season_index;
-    var end_season_index;
-    
-    var max_rank_all; // One value per settings.data.
-    var min_rank_all; // One value per settings.data.
-    var max_rank; // One value per settings.data.
-    var min_rank; // One value per settings.data.
-    var max_percent; // One value per settings.data.
-    var min_percent; // One value per settings.data.
-    var min_points;
-    var max_points;
+    let max_rank_all; // One value per settings.data.
+
+    let max_rank; // One value per settings.data.
+    let min_rank; // One value per settings.data.
+
+    let max_percent; // One value per settings.data.
+    let min_percent; // One value per settings.data.
+
+    let min_points;
+    let max_points;
     
     //
     // Data for the graph.
     //
 
     o.points = [];          // Points {x, y, m} calcualted from rankings (m is the index in rankings).
-    var leagues = [];       // List of point plus league data in a map.
-    var floor = [];         // Points {x, y} used when there is an absolute floor.
-    var league_areas = {};  // Map from leagues to lists of league area points, league areas should be drawn in
+    let leagues = [];       // List of point plus league data in a map.
+    let floor = [];         // Points {x, y} used when there is an absolute floor.
+    let league_areas = {};  // Map from leagues to lists of league area points, league areas should be drawn in
                             // backwards order since they overlap (from gm to bronze)
 
     //
@@ -208,19 +207,19 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         end_ranking_index = o.rankings.length - 1;
         o.x_ax.right_value = o.rankings[end_ranking_index].data_time;
         
-        if (o.settings.tx == 'a') {
+        if (o.settings.tx === 'a') {
             start_ranking_index = 0;
         }
-        else if (o.settings.tx == 's') {
-            var season_id = o.rankings[end_ranking_index].season_id;
-            for (var i = end_ranking_index; i >= 0; --i) {
-                if (season_id == o.rankings[i].season_id) {
+        else if (o.settings.tx === 's') {
+            let season_id = o.rankings[end_ranking_index].season_id;
+            for (let i = end_ranking_index; i >= 0; --i) {
+                if (season_id === o.rankings[i].season_id) {
                     start_ranking_index = i;
                 }
             }
         }
-        else if (o.settings.tx == '60') {
-            for (var i = end_ranking_index; i >= 0; --i) {
+        else if (o.settings.tx === '60') {
+            for (let i = end_ranking_index; i >= 0; --i) {
                 if (o.x_ax.right_value - o.rankings[i].data_time < 3600 * 24 * 60) {
                     start_ranking_index = i;
                 }
@@ -228,19 +227,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         }
         o.x_ax.left_value = o.rankings[start_ranking_index].data_time;
         
-        start_season_index = -1;
-        end_season_index = -1;
-        for (var i = 0; i < seasons.sorted.length; ++i) {
-            if (seasons.sorted[i].start <= o.x_ax.left_value && o.x_ax.left_value <= seasons.sorted[i].end) {
-                start_season_index = i;
-            }
-            if (seasons.sorted[i].start <= o.x_ax.right_value && o.x_ax.right_value <= seasons.sorted[i].end) {
-                end_season_index = i;
-            }
-        }
-        
         max_rank_all = {world: 0, region: 0, league: 0};
-        min_rank_all = {world: 1, region: 1, league: 1};
         max_rank = {world: 0, region: 0, league: 0};
         min_rank = {world: 1e9, region: 1e9, league: 1e9};
         max_percent = {world: 0, region: 0, league: 0};
@@ -248,10 +235,10 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         min_points = 1e9;
         max_points = 0;
         
-        for (var i = start_ranking_index; i <= end_ranking_index; ++i) {
+        for (let i = start_ranking_index; i <= end_ranking_index; ++i) {
             $.each(['world', 'region', 'league'], function(j, key) {
-                var count = o.rankings[i][key + "_count"];
-                var rank =  o.rankings[i][key + "_rank"];
+                let count = o.rankings[i][key + "_count"];
+                let rank =  o.rankings[i][key + "_rank"];
 
                 max_rank_all[key] = Math.max(max_rank_all[key], count);
                 
@@ -267,30 +254,30 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         
         o.x_per_unit = o.width / (o.x_ax.right_value - o.x_ax.left_value + 0.01);
 
-        if (o.settings.tyz == "1") {
-            if (o.settings.ty == "c") {
+        if (o.settings.tyz === "1") {
+            if (o.settings.ty === "c") {
                 o.y_ax.top_value = min_percent[o.settings.td];
                 o.y_ax.bottom_value = Math.min(100, max_percent[o.settings.td] * 1.02);
             }
-            else if (o.settings.ty == "p") {
+            else if (o.settings.ty === "p") {
                 o.y_ax.top_value = max_points;
                 o.y_ax.bottom_value = Math.max(0, min_points - o.y_ax.top_value * 0.02);                
             }
-            else if (o.settings.ty == "r") {
+            else if (o.settings.ty === "r") {
                 o.y_ax.top_value = min_rank[o.settings.td];
                 o.y_ax.bottom_value = max_rank[o.settings.td] * 1.02;
             }
         }
         else {
-            if (o.settings.ty == "c") {
+            if (o.settings.ty === "c") {
                 o.y_ax.top_value = 0;
                 o.y_ax.bottom_value = 100;
             }
-            else if (o.settings.ty == "p") {
+            else if (o.settings.ty === "p") {
                 o.y_ax.top_value = max_points;
                 o.y_ax.bottom_value = 0;
             }
-            else if (o.settings.ty == "r") {
+            else if (o.settings.ty === "r") {
                 o.y_ax.top_value = 1;
                 o.y_ax.bottom_value = max_rank_all[o.settings.td];
             }
@@ -314,28 +301,30 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
     // Get y value for ranking based on settings.
     o.ranking_y_value = function(ranking) {
-        if (o.settings.ty == 'c') {
+        if (o.settings.ty === 'c') {
             return o.y_value(ranking[o.settings.td + "_rank"], ranking[o.settings.td + "_count"]);
         }
-        else if (o.settings.ty == 'r') {
+        else if (o.settings.ty === 'r') {
             return o.y_value(ranking[o.settings.td + "_rank"]);
         }
-        else if (o.settings.ty == 'p') {
+        else if (o.settings.ty === 'p') {
             return o.y_value(ranking.points);
         }
+        return null;
     };
 
     // Calculate y-value based on settings and ranking value and count.
     o.y_value = function(value, count) {
-        if (o.settings.ty == 'c') {
+        if (o.settings.ty === 'c') {
             return (100 * value / count - o.y_ax.top_value) * o.y_per_unit;
         }
-        else if (o.settings.ty == 'r') {
+        else if (o.settings.ty === 'r') {
             return (value - o.y_ax.top_value) * o.y_per_unit;
         }
-        else if (o.settings.ty == 'p') {
+        else if (o.settings.ty === 'p') {
             return (value - o.y_ax.top_value) * o.y_per_unit;
         }
+        return null;
     };    
     
     //
@@ -348,20 +337,20 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
         // Calculate if floor or leagues background should be drawn.
 
-        if (o.settings.tl == '1' && o.settings.td != 'league' && o.settings.ty != 'p') {
+        if (o.settings.tl === '1' && o.settings.td !== 'league' && o.settings.ty !== 'p') {
             o.settings.bg = 'leagues';
         }
-        else if (o.settings.ty == 'r') {
+        else if (o.settings.ty === 'r') {
             o.settings.bg = 'floor';
         }
         else {
-            o.settings.bg = undefined;
+            o.settings.bg = null;
         }
 
         // Set up filter for leagues background (version is different for each point).
 
-        var filters;
-        if (o.settings.bg == 'leagues') {
+        let filters;
+        if (o.settings.bg === 'leagues') {
             filters = {};
             if (o.settings.td !== 'world') {
                 filters.regions = [region_id];
@@ -375,43 +364,43 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         leagues = [];
         league_areas = {};
 
-        var league = -1;
-        for (var i = start_ranking_index; i <= end_ranking_index; ++i) {
-            var ranking = o.rankings[i];
-            var x = o.epoch_to_pixels(ranking.data_time);
-            var y = o.ranking_y_value(ranking);
-            var count = ranking[o.settings.td + "_count"];
+        let league = -1;
+        for (let i = start_ranking_index; i <= end_ranking_index; ++i) {
+            let ranking = o.rankings[i];
+            let x = o.epoch_to_pixels(ranking.data_time);
+            let y = o.ranking_y_value(ranking);
+            let count = ranking[o.settings.td + "_count"];
             o.points.push({x: x, y: y, m: i});
             
             if (o.settings.bg) {
                 floor.push({x: x, y: o.y_value(count, count)});
             }
-            if (o.settings.bg == 'leagues') {
-                var stat = Mode(mode_id).get(ranking.id);
+            if (o.settings.bg === 'leagues') {
+                let stat = Mode(mode_id).get(ranking.id);
                 filters.versions = [ranking.version];
-                var agg = stat.filter_aggregate(filters, ['league']);
-                var ly = 0;
-                rev_each(enums_info.league_ranking_ids, function(league_id) {
-                    league_areas[league_id] = league_areas[league_id] || [];
-                    league_areas[league_id].push({x: x, y: o.y_value(ly, count)});
-                    ly += agg.count(league_id);
+                let agg = stat.filter_aggregate(filters, ['league']);
+                let ly = 0;
+                rev_each(enums_info.league_ranking_ids, function(lid) {
+                    league_areas[lid] = league_areas[lid] || [];
+                    league_areas[lid].push({x: x, y: o.y_value(ly, count)});
+                    ly += agg.count(lid);
                 });
             }
             
-            if (league != ranking.league) {
+            if (league !== ranking.league) {
                 league = ranking.league;
                 leagues.push({x: o.edges.left + x, y: o.edges.top + y, league: league});
             }
         }
 
         // Make the areas areas.
-        if (o.settings.bg == 'floor') {
+        if (o.settings.bg === 'floor') {
             $.merge(floor, [{x: o.width, y: 0}, {x: 0, y: 0}]);
         }
-        else if (o.settings.bg == 'leagues') {
+        else if (o.settings.bg === 'leagues') {
             floor.reverse();
-                rev_each(enums_info.league_ranking_ids, function(league_id) {
-                    $.merge(league_areas[league_id], floor);
+                rev_each(enums_info.league_ranking_ids, function(lid) {
+                    $.merge(league_areas[lid], floor);
             });
             $.merge(floor, [{x: 0, y: o.height}, {x: o.width, y: o.height}]);
         }
@@ -430,19 +419,19 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         // Background.
 
         if (o.settings.bg) {
-            if (o.settings.bg == 'floor') {
+            if (o.settings.bg === 'floor') {
                 o.garea("#242424", floor);
             }
-            if (o.settings.bg == 'leagues') {
+            if (o.settings.bg === 'leagues') {
                 o.setup_league_styles();
-                rev_each(enums_info.league_ranking_ids, function(league_id, i) {
-                    o.garea(o.league_styles[i], league_areas[league_id]);
+                rev_each(enums_info.league_ranking_ids, function(lid, i) {
+                    o.garea(o.league_styles[i], league_areas[lid]);
                 });
                 o.garea('#000000', floor);
                 o.clear(0.3);
             }
-            var c_width = o.canvas.width();
-            var c_height = o.canvas.height();
+            let c_width = o.canvas.width();
+            let c_height = o.canvas.height();
             o.area('#000000', [{x: 0, y: 0}, {x: c_width, y: 0},
                                {x: c_width, y: o.edges.top}, {x: 0, y: o.edges.top}]);
             o.area('#000000', [{x: 0, y: o.edges.top + o.height}, {x: c_width, y: o.edges.top + o.height},
@@ -464,7 +453,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
         // Leagues.
         
-        for (var i = 0; i < leagues.length; ++i) {
+        for (let i = 0; i < leagues.length; ++i) {
             o.ctx.drawImage(document.getElementById('league' + leagues[i].league), leagues[i].x - 8, leagues[i].y - 8);
         }
     };
@@ -475,8 +464,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                 + " (" + (rank / count * 100).toFixed(2) + "%)";
         }
         
-        var r = o.rankings[m];
-        var season = seasons.by_id[r.season_id];
+        let r = o.rankings[m];
+        let season = seasons.by_id[r.season_id];
         $('.date', o.tooltip).text(new Date(r.data_time * 1000).toLocaleDateString());
         $('.version', o.tooltip).text(enums_info.version_name_by_ids[r.version]);
         $('.world_rank', o.tooltip).text(format_rank(r.world_rank, r.world_count));
@@ -516,7 +505,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                    url: dynamic_url + 'team/' + team_id + '/rankings/',
                    success: function(data) {
                        o.rankings = data;
-                       if (o.rankings.length == 0) {
+                       if (o.rankings.length === 0) {
                            o.init = function() { o.container.removeClass('wait'); }
                        }
                    }}),
