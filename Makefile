@@ -187,5 +187,5 @@ clean-test-data:
 	done
 
 todo:
-	@grep -irn todo | grep -v -E -e '(\.git|Makefile)' -e .idea | grep -v /jquery | sort; echo ""
+	@grep -irn todo | grep -v -E -e '(\.git|Makefile)' -e .idea | grep -v -e node_modules -e site/static/site.js | sort; echo ""
 

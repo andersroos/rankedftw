@@ -4,8 +4,7 @@ import {seasons} from './seasons.js';
 import * as team from './team.js';
 import * as stats from './stats_graph.js';
 
-// TODO
-window.sc3 = {
+window.sc2 = {
     settings,
     seasons,
     team,

@@ -121,8 +121,8 @@
 
 {% block body_js %}
   {% if mode_got_race_stats %}
-    sc3.seasons.deferred_init({{ seasons | safe }});
-    sc3.stats.RaceDistributionTable({{ mode_id }});
-    sc3.stats.RaceDistributionGraph({{ mode_id }});
+    sc2.seasons.deferred_init({{ seasons | safe }});
+    sc2.stats.RaceDistributionTable({{ mode_id }});
+    sc2.stats.RaceDistributionGraph({{ mode_id }});
   {% endif %}
 {% endblock body_js %}
