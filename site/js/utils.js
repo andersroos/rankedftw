@@ -96,3 +96,12 @@ export let min_max = function(min, value, max) {
     return Math.min(Math.max(min, value), max);
 };
 
+//
+// Like each but reverse.
+//
+export let rev_each = function(list, fun) {
+    for (var i = list.length - 1; i >= 0; --i) {
+        fun(list[i], i);
+    }
+};
+

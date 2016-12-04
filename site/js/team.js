@@ -1,9 +1,79 @@
+import {GraphBase} from "./graph";
+import {static_url, enums_info} from "./settings";
+import {dynamic_url} from "./settings";
+import {seasons} from "./seasons";
+import {images} from "./images";
+import {Radio} from "./controls";
+import {deferred_doc_ready} from "./utils";
+import {stats_data} from "./stats";
+import {rev_each} from "./utils";
+import {Mode} from "./stats";
+import {format_int} from "./utils";
+
 
 //
-// Graph related code.
+// Add classes to container.
 //
+let conf_container = function(jq_container) {
+    jq_container.addClass('data-container wait');
+};
 
+//
+// Add controls to container and returns of controls container.
+//
+let add_controls_div = function(jq_container) {
+    var controls = $('<div class="controls">');
+    var content = $('<div class="content">');
+    controls.append(content);
+    jq_container.append(controls);
+    return content;
+};
+
+//
+// Add a control to controls. Buttons is a list of {value: <value>, tooltip:
+// <tooltip>, heading: <heading>, src: <optional heading img source>}.
+//
+let add_control = function(jq_controls, name, heading, options) {
+    var ul = $("<ul ctrl-name='" + name + "'>");
+    ul.append("<span>" + heading + "</span>");
+    for (var i = 0; i < options.length; ++i) {
+        var a = $("<a ctrl-value='" + options[i].value + "' title='" + options[i].tooltip + "'>");
+        a.append("<span>" + options[i].heading + "</span>");
+        if (options[i].src) {
+            a.append("<img src='" + options[i].src + "'>");
+        }
+        ul.append(a);
+    }
+    jq_controls.append(ul);
+};
+
+//
+// Add canvas element to container.
+//
+let add_canvas = function(jq_container) {
+    jq_container.append('<canvas class="graph">');
+};
+
+//
+// Add tooltip element to container. Table is a list of <heading, data-class>.
+//
+let add_tooltip = function(jq_container, data) {
+    var tooltip = $('<div class="tooltip">');
+    var table = $('<table>');
+    for (var i = 0; i < data.length; ++i) {
+        var tr = $('<tr>');
+        tr.append("<th>" + data[i][0] + "</th>");
+        tr.append("<td class='" + data[i][1] + "'></td>");
+        table.append(tr);
+    }
+    tooltip.append(table);
+    jq_container.append(tooltip);
+};
+
+
+//
 // The ranking graph object.
+//
 export let RankingGraph = function(container_id, team_id, region_id, league_id, mode_id) {
     
     //
@@ -12,27 +82,27 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
     var container = $('#' + container_id);
     
-    sc2.html.conf_container(container);
+    conf_container(container);
     
-    var controls = sc2.html.add_controls_div(container);
+    var controls = add_controls_div(container);
 
-    sc2.html.add_control(
+    add_control(
         controls, 'td', 'Data:', [
             {'value': 'world',
              'heading': 'World',
              'tooltip': 'Show world ranking for team.',
-             'src': sc2.static_url + 'img/regions/world-16x16.png'},
+             'src': static_url + 'img/regions/world-16x16.png'},
             {'value': 'region',
              'heading': 'Region',
              'tooltip': 'Show region ranking for team.',
-             'src': sc2.static_url + 'img/regions/' + sc2.enums_info.region_key_by_ids[region_id] + '-16x16.png'},
+             'src': static_url + 'img/regions/' + enums_info.region_key_by_ids[region_id] + '-16x16.png'},
             {'value': 'league',
              'heading': 'League',
              'tooltip': 'Show league ranking (in region) for team.',
-             'src': sc2.static_url + 'img/leagues/' + sc2.enums_info.league_key_by_ids[league_id] + '-16x16.png'},
+             'src': static_url + 'img/leagues/' + enums_info.league_key_by_ids[league_id] + '-16x16.png'},
         ]);
 
-    sc2.html.add_control(
+    add_control(
         controls, 'ty', 'Y-Axis:', [
             {'value': 'c',
              'heading': 'Percent',
@@ -45,7 +115,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
              'tooltip': 'Absolute rank on y-axis, no 1 at the top. The grey area (or league distribution area) indicates all ranked teams from the top to the bottom at that point in time.'},
         ]);
 
-    sc2.html.add_control(
+    add_control(
         controls, 'tyz', 'Y-Zoom:', [
             {'value': '0',
              'heading': 'Off',
@@ -55,7 +125,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
              'tooltip': 'This will cause the graph to zoom in to make the graph line fill the y-space.'},
         ]);
 
-    sc2.html.add_control(
+    add_control(
         controls, 'tx', 'X-Axis:', [
             {'value': 'a',
              'heading': 'All',
@@ -68,7 +138,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
              'tooltip': 'Show last 60 days.'},
         ]);
 
-    sc2.html.add_control(
+    add_control(
         controls, 'tl', 'Leagues:', [
             {'value': '0',
              'heading': 'Off',
@@ -78,9 +148,9 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
              'tooltip': 'League distribution background on, there will be no league background for "league" graph or if "points" is selected since that would not make any sense.'},
         ]);
 
-    sc2.html.add_canvas(container);
+    add_canvas(container);
 
-    sc2.html.add_tooltip(container, [
+    add_tooltip(container, [
         ['Date:',   'date'],
         ['Version', 'version'],
         ['World:',  'world_rank'],
@@ -97,7 +167,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Init graph base.
     //
     
-    var o = sc2.graph.GraphBase('#' + container_id);
+    var o = GraphBase('#' + container_id);
 
     //
     // Calculated units by settings and size.
@@ -160,11 +230,11 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         
         start_season_index = -1;
         end_season_index = -1;
-        for (var i = 0; i < sc2.seasons.sorted.length; ++i) {
-            if (sc2.seasons.sorted[i].start <= o.x_ax.left_value && o.x_ax.left_value <= sc2.seasons.sorted[i].end) {
+        for (var i = 0; i < seasons.sorted.length; ++i) {
+            if (seasons.sorted[i].start <= o.x_ax.left_value && o.x_ax.left_value <= seasons.sorted[i].end) {
                 start_season_index = i;
             }
-            if (sc2.seasons.sorted[i].start <= o.x_ax.right_value && o.x_ax.right_value <= sc2.seasons.sorted[i].end) {
+            if (seasons.sorted[i].start <= o.x_ax.right_value && o.x_ax.right_value <= seasons.sorted[i].end) {
                 end_season_index = i;
             }
         }
@@ -317,11 +387,11 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                 floor.push({x: x, y: o.y_value(count, count)});
             }
             if (o.settings.bg == 'leagues') {
-                var stat = sc2.stats.Mode(mode_id).get(ranking.id);
+                var stat = Mode(mode_id).get(ranking.id);
                 filters.versions = [ranking.version];
                 var agg = stat.filter_aggregate(filters, ['league']);
                 var ly = 0;
-                sc2.utils.rev_each(sc2.enums_info.league_ranking_ids, function(league_id) {
+                rev_each(enums_info.league_ranking_ids, function(league_id) {
                     league_areas[league_id] = league_areas[league_id] || [];
                     league_areas[league_id].push({x: x, y: o.y_value(ly, count)});
                     ly += agg.count(league_id);
@@ -340,7 +410,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         }
         else if (o.settings.bg == 'leagues') {
             floor.reverse();
-                sc2.utils.rev_each(sc2.enums_info.league_ranking_ids, function(league_id) {
+                rev_each(enums_info.league_ranking_ids, function(league_id) {
                     $.merge(league_areas[league_id], floor);
             });
             $.merge(floor, [{x: 0, y: o.height}, {x: o.width, y: o.height}]);
@@ -365,7 +435,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
             }
             if (o.settings.bg == 'leagues') {
                 o.setup_league_styles();
-                sc2.utils.rev_each(sc2.enums_info.league_ranking_ids, function(league_id, i) {
+                rev_each(enums_info.league_ranking_ids, function(league_id, i) {
                     o.garea(o.league_styles[i], league_areas[league_id]);
                 });
                 o.garea('#000000', floor);
@@ -401,14 +471,14 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
     o.update_tooltip = function(m) {
         function format_rank(rank, count) {
-            return sc2.utils.format_int(rank) + " / " + sc2.utils.format_int(count)
+            return format_int(rank) + " / " + format_int(count)
                 + " (" + (rank / count * 100).toFixed(2) + "%)";
-        };
+        }
         
         var r = o.rankings[m];
-        var season = sc2.seasons.by_id[r.season_id];
+        var season = seasons.by_id[r.season_id];
         $('.date', o.tooltip).text(new Date(r.data_time * 1000).toLocaleDateString());
-        $('.version', o.tooltip).text(sc2.enums_info.version_name_by_ids[r.version]);
+        $('.version', o.tooltip).text(enums_info.version_name_by_ids[r.version]);
         $('.world_rank', o.tooltip).text(format_rank(r.world_rank, r.world_count));
         $('.region_rank', o.tooltip).text(format_rank(r.region_rank, r.region_count));
         $('.league_rank', o.tooltip).text(format_rank(r.league_rank, r.league_count));
@@ -428,11 +498,11 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Init everything.
     o.init = _.wrap(o.init, function(wrapped) {
 
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='td']"), 'region', o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='ty']"), 'c', o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='tyz']"), '0', o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='tx']"), 'a', o.controls_change);
-        sc2.controls.Radio(o.container.find("ul[ctrl-name='tl']"), '1', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='td']"), 'region', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='ty']"), 'c', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='tyz']"), '0', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='tx']"), 'a', o.controls_change);
+        Radio(o.container.find("ul[ctrl-name='tl']"), '1', o.controls_change);
         
         wrapped();
     });
@@ -441,18 +511,18 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Load resources and add init trigger when complete.
     //
 
-    $.when(sc2.utils.doc_ready(),
+    $.when(deferred_doc_ready(),
            $.ajax({dataType: "json",
-                   url: sc2.dynamic_url + 'team/' + team_id + '/rankings/',
+                   url: dynamic_url + 'team/' + team_id + '/rankings/',
                    success: function(data) {
                        o.rankings = data;
                        if (o.rankings.length == 0) {
                            o.init = function() { o.container.removeClass('wait'); }
                        }
                    }}),
-           sc2.seasons.load(),
-           sc2.stats.load_all_for_mode(mode_id),
-           sc2.images.load_leagues())
+           seasons.deferred_load(),  // TODO
+           stats_data.deferred_fetch_mode(mode_id),
+           images.deferred_load_leagues())
         .done(function() { o.init(); });
             
     return o;

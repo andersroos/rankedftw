@@ -7,13 +7,6 @@ let sc2 = {};
 
 sc2.utils = {};
 
-// // Reverse each of func.
-// sc2.utils.rev_each = function(list, fun) {
-//     for (var i = list.length - 1; i >= 0; --i) {
-//         fun(list[i], i);
-//     }
-// };
-
 //
 // HTML
 //

@@ -220,7 +220,7 @@ export let GraphBase = function(container_selector, edges, x_margin) {
                     var label_width = o.ctx.measureText(label).width;
                     var width = x_to - x_from;
                     if (width > label_width) {
-                        var x = sc2.utils.min_max(width / 2, x_from + width / 2, o.width - label_width / 2);
+                        var x = min_max(width / 2, x_from + width / 2, o.width - label_width / 2);
                         o.text(label, o.edges.left + x, o.edges.top + o.height + 3, 'center', 'top');
                     }
                 }
@@ -266,7 +266,6 @@ export let GraphBase = function(container_selector, edges, x_margin) {
             // Draw lotv release line.
 
             var lotv_label = "LotV Release";
-            var lotv_label_width = o.ctx.measureText(lotv_label).width;
             var lotv_release_x = o.date_to_pixels(2015, 10, 9);
             if (lotv_release_x - 10 > 0 && lotv_release_x + 10 < o.width) {
                 o.gline('#ffff00', 2, [{x: lotv_release_x, y: o.height + 5}, {x: lotv_release_x, y: o.height - 5}]);

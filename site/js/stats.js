@@ -1,7 +1,7 @@
 import {dynamic_url, enums_info} from "./settings";
 
 //
-// Handling fetching and storing of stats data.
+// Singleton for handling fetching of stats data.
 //
 class StatsData {
     

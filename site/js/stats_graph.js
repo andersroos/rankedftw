@@ -8,7 +8,10 @@ import {images} from "./images";
 import {format_int} from "./utils";
 import {default_version, enums_info} from "./settings";
 
-// Abstraction of league distribution table.
+
+//
+// League distribution table.
+//
 export let LeagueDistributionTable = function(mode_id) {
 
     var o = {};
@@ -57,7 +60,9 @@ export let LeagueDistributionTable = function(mode_id) {
     return o;
 };
 
-// Abstraction of league distribution graph.
+//
+// League distribution graph.
+//
 export let LeagueDistributionGraph = function(mode_id) {
 
     var o = GraphBase('#leagues-graph-container');
@@ -209,8 +214,9 @@ export let LeagueDistributionGraph = function(mode_id) {
     return o;
 };
 
-
-// Abstraction of the population table.
+//
+// Population table.
+//
 export let PopulationTable = function(mode_id) {
 
     var o = {};
@@ -245,7 +251,9 @@ export let PopulationTable = function(mode_id) {
     return o;
 };
 
-// Abstraction of a population graph.
+//
+// Population graph.
+//
 export let PopulationGraph = function(mode_id) {
 
     var o = GraphBase('#pop-graph-container');
@@ -397,7 +405,9 @@ export let PopulationGraph = function(mode_id) {
 };
 
 
-// Abstraction of race distribution graph.
+//
+// Rrace distribution graph.
+//
 export let RaceDistributionGraph = function(mode_id) {
 
     var o = GraphBase('#races-graph-container');
@@ -557,7 +567,9 @@ export let RaceDistributionGraph = function(mode_id) {
     return o;
 };
 
-// Abstraction of race distribution table.
+//
+// Race distribution table.
+//
 export let RaceDistributionTable = function(mode_id) {
 
     var o = {};
