@@ -10,7 +10,7 @@ class Images {
         this.league_deferred = $.Deferred();
         this.races_deferred = $.Deferred();
         this.bank = $('#' + bank_id);
-        if (this.bank.length == 0) {
+        if (this.bank.length === 0) {
             this.bank = $("<div id=bank_id style='display: none;'>");
             this.bank.appendTo('body');
         }

@@ -20,7 +20,7 @@ class Seasons {
     }
 
     deferred_load() {
-        if (typeof this.sorted == 'undefined') {
+        if (typeof this.sorted === 'undefined') {
             $.ajax({
                        dataType: "json",
                        url: dynamic_url + 'team/seasons/',
@@ -30,7 +30,7 @@ class Seasons {
                    });
         }
         return this.deferred;
-    };
+    }
 
 }
 export let seasons = new Seasons();

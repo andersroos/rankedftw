@@ -71,11 +71,11 @@ export let Aggregate = function(mode_id, filters, group_by, raw) {
 //
 export let Stat = function(mode_id, raw) {
 
-    function copy_non_data(raw) {
+    function copy_non_data(raw_) {
         var o = {};
-        Object.keys(raw).forEach(function (key) {
+        Object.keys(raw_).forEach(function (key) {
             if (key !== 'data') {
-                o[key] = raw[key];
+                o[key] = raw_[key];
             }
         });
         return o;
@@ -128,7 +128,7 @@ export let Stat = function(mode_id, raw) {
         // include a TOT which is the total in that region. The region_ids map
         // will also include a TOT which is a total of everything.
 
-        if (group_by.length == 0) {
+        if (group_by.length === 0) {
             return filter_sum(filters);
         }
 

@@ -31,9 +31,9 @@
 <div id="pop-table-container" class="data-container wait"> 
   <div class="controls">
     <div class="content">
-      <ul ctrl-name="v">
+      <ul data-ctrl-name="v">
         <span>Version:</span>
-        {% for version in versions %}<a ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
+        {% for version in versions %}<a data-ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
       </ul>
     </div>
   </div>
@@ -69,31 +69,31 @@
 <div id="pop-graph-container" class="data-container wait">
   <div class="controls">
     <div class="content">
-      <ul ctrl-name="v">
+      <ul data-ctrl-name="v">
         <span>Version:</span>
-        {% for version in versions %}<a ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
+        {% for version in versions %}<a data-ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
       </ul>
 
-      <ul ctrl-name="r">
+      <ul data-ctrl-name="r">
         <span>Region:</span>
-        {% for region in regions %}<a ctrl-value="{{ region }}" title="Show {{ region | region_name }}."><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></a>{% endfor %}
+        {% for region in regions %}<a data-ctrl-value="{{ region }}" title="Show {{ region | region_name }}."><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></a>{% endfor %}
       </ul>
 
-      <ul ctrl-name="sy">
+      <ul data-ctrl-name="sy">
         <span>Y-Axis:</span>
-        <a ctrl-value="c" title="Number of ranked teams of the season."
+        <a data-ctrl-value="c" title="Number of ranked teams of the season."
         ><span>Teams</span></a
         
-        ><a ctrl-value="g" title="Average number of played games per day."
+        ><a data-ctrl-value="g" title="Average number of played games per day."
         ><span>Games/Day</span></a>
       </ul>
       
-      <ul ctrl-name="sx">
+      <ul data-ctrl-name="sx">
         <span>X-Axis:</span>
-        <a ctrl-value="a" title="Show all data."
+        <a data-ctrl-value="a" title="Show all data."
         ><span>All</span></a
         
-        ><a ctrl-value="sl" title="Show only one point in graph for each season."
+        ><a data-ctrl-value="sl" title="Show only one point in graph for each season."
         ><span>Season Last</span></a>
       </ul>
     </div>

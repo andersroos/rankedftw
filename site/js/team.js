@@ -34,10 +34,10 @@ let add_controls_div = function(jq_container) {
 // <tooltip>, heading: <heading>, src: <optional heading img source>}.
 //
 let add_control = function(jq_controls, name, heading, options) {
-    let ul = $("<ul ctrl-name='" + name + "'>");
+    let ul = $("<ul data-ctrl-name='" + name + "'>");
     ul.append("<span>" + heading + "</span>");
     for (let i = 0; i < options.length; ++i) {
-        let a = $("<a ctrl-value='" + options[i].value + "' title='" + options[i].tooltip + "'>");
+        let a = $("<a data-ctrl-value='" + options[i].value + "' title='" + options[i].tooltip + "'>");
         a.append("<span>" + options[i].heading + "</span>");
         if (options[i].src) {
             a.append("<img src='" + options[i].src + "'>");
@@ -69,7 +69,6 @@ let add_tooltip = function(jq_container, data) {
     tooltip.append(table);
     jq_container.append(tooltip);
 };
-
 
 //
 // The ranking graph object.
@@ -487,11 +486,11 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Init everything.
     o.init = _.wrap(o.init, function(wrapped) {
 
-        Radio(o.container.find("ul[ctrl-name='td']"), 'region', o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='ty']"), 'c', o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='tyz']"), '0', o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='tx']"), 'a', o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='tl']"), '1', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='td']"), 'region', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='ty']"), 'c', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='tyz']"), '0', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='tx']"), 'a', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='tl']"), '1', o.controls_change);
         
         wrapped();
     });

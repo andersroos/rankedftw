@@ -15,41 +15,41 @@ import {TOT} from "./stats";
 //
 export let LeagueDistributionTable = function(mode_id) {
 
-    var o = {};
+    let o = {};
 
     o.settings = {};
 
     o.controls_change = function(name, value) {
         o.settings[name] = value;
 
-        var stats = Mode(mode_id).get_last();
+        let stats = Mode(mode_id).get_last();
 
-        var filters = {versions: [parseInt(o.settings.v)]};
+        let filters = {versions: [parseInt(o.settings.v)]};
 
-        var leagues_by_region = stats.filter_aggregate(filters, ['region', 'league']);
-        var leagues = stats.filter_aggregate(filters, ['league']);
+        let leagues_by_region = stats.filter_aggregate(filters, ['region', 'league']);
+        let leagues = stats.filter_aggregate(filters, ['league']);
 
         _.each(leagues_by_region.regions, function(region) {
-            var t = leagues_by_region.count(region);
+            let t = leagues_by_region.count(region);
             $("#r" + region + "-pop .number").text(format_int(t));
             _.each(leagues_by_region.leagues, function(league) {
-                var c = leagues_by_region.count(region, league);
+                let c = leagues_by_region.count(region, league);
                 $("#r" + region + "-l" + league + " .number").text(format_int(c));
                 $("#r" + region + "-l" + league + " .percent").text("(" + (c * 100 / t).toFixed(2) + "%)");
             });
         });
 
-        var t = leagues.count();
-        $("#r-2-pop .number").text(format_int(t));
+        let t = leagues.count();
+        $("#r-2-pop").find(".number").text(format_int(t));
         _.each(leagues.leagues, function(league) {
-            var c = leagues.count(league);
+            let c = leagues.count(league);
             $("#r-2-l" + league + " .number").text(format_int(c));
             $("#r-2-l" + league + " .percent").text("(" + (c * 100 / t).toFixed(2) + "%)");
         });
     };
 
     o.init = function() {
-        Radio($("#leagues-table-container ul[ctrl-name='v']"), default_version, o.controls_change);
+        Radio($("#leagues-table-container").find("ul[data-ctrl-name='v']"), default_version, o.controls_change);
         $("#leagues-table-container.wait").removeClass("wait");
     };
 
@@ -66,11 +66,11 @@ export let LeagueDistributionTable = function(mode_id) {
 //
 export let LeagueDistributionGraph = function(mode_id) {
 
-    var o = GraphBase('#leagues-graph-container');
+    let o = GraphBase('#leagues-graph-container');
 
-    var data = [];   // Filtered and aggregated data.
+    let data = [];   // Filtered and aggregated data.
 
-    var lines = {};  // Lines by league key between leagues.
+    let lines = {};  // Lines by league key between leagues.
 
     // Update units based on resize or new settings.
     o.update_units = function() {
@@ -88,14 +88,14 @@ export let LeagueDistributionGraph = function(mode_id) {
 
         o.update_units();
 
-        var new_points = [];
+        let new_points = [];
 
-        var line = [];
-        var last_line;
+        let line = [];
+        let last_line;
 
         // Baseline.
 
-        for (var i = 0; i < data.length; ++i) {
+        for (let i = 0; i < data.length; ++i) {
             line.push({x: o.epoch_to_pixels(data[i].data_time), y: o.height});
         }
 
@@ -104,7 +104,7 @@ export let LeagueDistributionGraph = function(mode_id) {
         _.each(enums_info.league_ranking_ids, function(league) {
             last_line = line;
             line = [];
-            for (var i = 0; i < data.length; ++i) {
+            for (let i = 0; i < data.length; ++i) {
                 // Push the line and use data index as mouse over key.
                 line.push({x: last_line[i].x,
                            y: last_line[i].y - o.y_per_unit * data[i].aggregate.count(league) / data[i].aggregate.count() * 100,
@@ -127,23 +127,23 @@ export let LeagueDistributionGraph = function(mode_id) {
 
         // Get new data.
 
-        var version = parseInt(o.settings.v);
-        var filters = {versions: [version]};
+        let version = parseInt(o.settings.v);
+        let filters = {versions: [version]};
 
         if (parseInt(o.settings.r) !== TOT) {
             filters.regions = [parseInt(o.settings.r)];
         }
 
-        var all = [];
-        var last_season = -1;
-        var stats = Mode(mode_id);
+        let all = [];
+        let last_season = -1;
+        let stats = Mode(mode_id);
         stats.each_reverse(function(stat) {
-            var point = {
+            let point = {
                 season_id: stat.season_id,
                 data_time: stat.data_time,
                 aggregate: stat.filter_aggregate(filters, ['league']),
             };
-            if (o.settings.sx == 'a' || (o.settings.sx == 'sl' && last_season != point.season_id)) {
+            if (o.settings.sx === 'a' || (o.settings.sx === 'sl' && last_season !== point.season_id)) {
                 all.push(point);
                 last_season = point.season_id;
             }
@@ -164,7 +164,7 @@ export let LeagueDistributionGraph = function(mode_id) {
         o.clear();
         o.setup_league_styles();
 
-        for (var li = enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
+        for (let li = enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
             o
                 .garea(o.league_styles[li], [{x: o.width, y: o.height}, {x: 0, y: o.height}]
                 .concat(lines[enums_info.league_ranking_ids[li]]));
@@ -180,13 +180,13 @@ export let LeagueDistributionGraph = function(mode_id) {
             return {n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
         }
 
-        var d = data[m];
-        var season = seasons.by_id[d.season_id];
+        let d = data[m];
+        let season = seasons.by_id[d.season_id];
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
-        var t = d.aggregate.count();
+        let t = d.aggregate.count();
         _.each(d.aggregate.leagues, function(league) {
-            var e = format_tooltip_data(d.aggregate.count(league), t);
+            let e = format_tooltip_data(d.aggregate.count(league), t);
             $('.l' + league + "-n", o.tooltip).text(e.n);
             $('.l' + league + "-p", o.tooltip).text(e.p);
         });
@@ -200,9 +200,9 @@ export let LeagueDistributionGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        Radio(o.container.find("ul[ctrl-name='v']"), default_version, o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='r']"), '-2', o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='sx']"), 'a', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='v']"), default_version, o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='r']"), '-2', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='sx']"), 'a', o.controls_change);
 
         wrapped();
     });
@@ -220,18 +220,18 @@ export let LeagueDistributionGraph = function(mode_id) {
 //
 export let PopulationTable = function(mode_id) {
 
-    var o = {};
+    let o = {};
 
-    o.settings = {v: undefined};
+    o.settings = {v: null};
 
     o.controls_change = function(name, value) {
         o.settings[name] = value;
 
-        var stat = Mode(mode_id).get_last();
+        let stat = Mode(mode_id).get_last();
 
-        var filters = {versions: [parseInt(o.settings.v)]};
+        let filters = {versions: [parseInt(o.settings.v)]};
 
-        var regions = stat.filter_aggregate(filters, ['region']);
+        let regions = stat.filter_aggregate(filters, ['region']);
 
         _.each(regions.regions, function(region) {
             $("#r" + region + " .number").text(format_int(regions.count(region)));
@@ -240,7 +240,7 @@ export let PopulationTable = function(mode_id) {
     };
 
     o.init = function() {
-        Radio($("#pop-table-container ul[ctrl-name='v']"), default_version, o.controls_change);
+        Radio($("#pop-table-container ul[data-ctrl-name='v']"), default_version, o.controls_change);
         $("#pop-table-container.wait").removeClass("wait");
     };
 
@@ -257,10 +257,10 @@ export let PopulationTable = function(mode_id) {
 //
 export let PopulationGraph = function(mode_id) {
 
-    var o = GraphBase('#pop-graph-container');
+    let o = GraphBase('#pop-graph-container');
 
-    var data = [];     // Filtered and aggregated data.
-    var max_y = 0.001;     // Max y value.
+    let data = [];     // Filtered and aggregated data.
+    let max_y = 0.001;     // Max y value.
 
     // Update units based on resize or new settings.
     o.update_units = function() {
@@ -278,9 +278,9 @@ export let PopulationGraph = function(mode_id) {
 
         o.update_units();
 
-        var new_points = [];
+        let new_points = [];
 
-        for (var i = 0; i < data.length; ++i) {
+        for (let i = 0; i < data.length; ++i) {
             new_points.push({x: o.epoch_to_pixels(data[i].data_time),
                              y: o.height + o.y_per_unit * data[i].y_value,
                              m: i});
@@ -297,8 +297,8 @@ export let PopulationGraph = function(mode_id) {
 
         // Get new data.
 
-        var version = parseInt(o.settings.v);
-        var filters = {versions: [version]};
+        let version = parseInt(o.settings.v);
+        let filters = {versions: [version]};
 
         if (parseInt(o.settings.r) !== TOT) {
             filters.regions = [parseInt(o.settings.r)];
@@ -306,30 +306,30 @@ export let PopulationGraph = function(mode_id) {
 
         data = [];
         max_y = 0.001;
-        var last_season = -1;
-        var stats = Mode(mode_id);
+        let last_season = -1;
+        let stats = Mode(mode_id);
         stats.each_reverse(function(stat) {
-            var aggregate = stat.filter_aggregate(filters, []);
-            var season = seasons.by_id[stat.season_id];
-            var point = {
+            let aggregate = stat.filter_aggregate(filters, []);
+            let season = seasons.by_id[stat.season_id];
+            let point = {
                 season_id: season.id,
                 season_age: (stat.data_time - season.start) / (24 * 3600),
                 data_time: stat.data_time,
                 count: aggregate.count(),
                 games: aggregate.wins() + aggregate.losses(),
             };
-            if (o.settings.sx == 'a' || (o.settings.sx == 'sl' && last_season != point.season_id)) {
+            if (o.settings.sx === 'a' || (o.settings.sx === 'sl' && last_season !== point.season_id)) {
                 data.push(point);
                 last_season = point.season_id;
             }
         }, version);
         data.reverse();
-        var first_season = last_season;
+        let first_season = last_season;
 
         last_season = -1;
-        for (var i = 0; i < data.length; ++i) {
-            var point = data[i];
-            if (first_season != last_season) {
+        for (let i = 0; i < data.length; ++i) {
+            let point = data[i];
+            if (first_season !== last_season) {
                 point.d_games = point.games;
                 point.d_age = point.season_age;
             }
@@ -339,10 +339,10 @@ export let PopulationGraph = function(mode_id) {
             }
             point.games_per_day = point.d_games / point.d_age;
 
-            if (o.settings.sy == 'c') {
+            if (o.settings.sy === 'c') {
                 point.y_value = point.count;
             }
-            else if (o.settings.sy == 'g') {
+            else if (o.settings.sy === 'g') {
                 point.y_value = point.games_per_day;
             }
 
@@ -368,8 +368,8 @@ export let PopulationGraph = function(mode_id) {
     };
 
     o.update_tooltip = function(m) {
-        var d = data[m];
-        var season = seasons.by_id[d.season_id];
+        let d = data[m];
+        let season = seasons.by_id[d.season_id];
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
         $('.season-age', o.tooltip).text(Math.round(d.season_age) + " days");
@@ -385,10 +385,10 @@ export let PopulationGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        Radio(o.container.find("ul[ctrl-name='v']"), default_version, o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='r']"), '-2', o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='sx']"), 'a', o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='sy']"), 'c', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='v']"), default_version, o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='r']"), '-2', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='sx']"), 'a', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='sy']"), 'c', o.controls_change);
 
         wrapped();
     });
@@ -407,13 +407,13 @@ export let PopulationGraph = function(mode_id) {
 //
 export let RaceDistributionGraph = function(mode_id) {
 
-    var o = GraphBase('#races-graph-container');
+    let o = GraphBase('#races-graph-container');
 
-    var data = [];   // Filtered and aggregated data.
+    let data = [];   // Filtered and aggregated data.
 
-    var lines = {};  // Lines by race key between races.
+    let lines = {};  // Lines by race key between races.
 
-    var max_value = 1;
+    let max_value = 1;
 
     // Update units based on resize or new settings.
     o.update_units = function() {
@@ -432,12 +432,12 @@ export let RaceDistributionGraph = function(mode_id) {
         o.update_units();
 
         lines = {};
-        var new_points = [];
+        let new_points = [];
 
-        for (var i = 0; i < data.length; ++i) {
-            var x = o.epoch_to_pixels(data[i].data_time);
+        for (let i = 0; i < data.length; ++i) {
+            let x = o.epoch_to_pixels(data[i].data_time);
             _.each(enums_info.race_ranking_ids, function(race_id) {
-                var y = o.y_per_unit * (data[i].aggregate.count(race_id) / data[i].aggregate.count() * 100 - max_value);
+                let y = o.y_per_unit * (data[i].aggregate.count(race_id) / data[i].aggregate.count() * 100 - max_value);
                 lines[race_id] = lines[race_id] || [];
                 lines[race_id].push({x: x, y: y, m: i});
             });
@@ -459,11 +459,11 @@ export let RaceDistributionGraph = function(mode_id) {
     o.new_settings = function() {
 
         // Get new data.
-        var v = parseInt(o.settings.v);
-        var r = parseInt(o.settings.r);
-        var l = parseInt(o.settings.l);
+        let v = parseInt(o.settings.v);
+        let r = parseInt(o.settings.r);
+        let l = parseInt(o.settings.l);
 
-        var filters = {versions: [v]};
+        let filters = {versions: [v]};
 
         if (r !== TOT) {
             filters.regions = [r];
@@ -473,24 +473,24 @@ export let RaceDistributionGraph = function(mode_id) {
             filters.leagues = [l];
         }
 
-        if (l == 6 && v == 0) {
+        if (l === 6 && v === 0) {
             // GM WoL data is totally broken, let's just not show it.
             filters.leagues = [];
         }
 
         max_value = 1;
 
-        var all = [];
-        var stats = Mode(mode_id);
+        let all = [];
+        let stats = Mode(mode_id);
         stats.each(function(stat) {
-            var aggregate = stat.filter_aggregate(filters, ['race']);
-            var point = {
+            let aggregate = stat.filter_aggregate(filters, ['race']);
+            let point = {
                 season_id: stat.season_id,
                 data_time: stat.data_time,
                 aggregate: aggregate,
             };
             all.push(point);
-            var t = point.aggregate.count();
+            let t = point.aggregate.count();
             if (t) {
                 _.each(aggregate.races, function(race) {
                     max_value = Math.max(max_value, point.aggregate.count(race) / t * 100);
@@ -530,13 +530,13 @@ export let RaceDistributionGraph = function(mode_id) {
             return {n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"};
         }
 
-        var d = data[m];
-        var season = seasons.by_id[d.season_id];
+        let d = data[m];
+        let season = seasons.by_id[d.season_id];
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
-        var t = d.aggregate.count();
+        let t = d.aggregate.count();
         _.each(enums_info.race_ranking_ids, function(race) {
-            var e = format_tooltip_data(d.aggregate.count(race), t);
+            let e = format_tooltip_data(d.aggregate.count(race), t);
             $('.r' + race + '-n', o.tooltip).text(e.n);
             $('.r' + race + '-p', o.tooltip).text(e.p);
         });
@@ -549,9 +549,9 @@ export let RaceDistributionGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        Radio(o.container.find("ul[ctrl-name='v']"), default_version, o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='r']"), '-2', o.controls_change);
-        Radio(o.container.find("ul[ctrl-name='l']"), '-2', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='v']"), default_version, o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='r']"), '-2', o.controls_change);
+        Radio(o.container.find("ul[data-ctrl-name='l']"), '-2', o.controls_change);
 
         wrapped();
     });
@@ -569,27 +569,27 @@ export let RaceDistributionGraph = function(mode_id) {
 //
 export let RaceDistributionTable = function(mode_id) {
 
-    var o = {};
+    let o = {};
 
     o.settings = {};
 
     o.controls_change = function(name, value) {
         o.settings[name] = value;
 
-        var stat = Mode(mode_id).get_last();
+        let stat = Mode(mode_id).get_last();
 
-        var filters = {versions: [parseInt(o.settings.v)]};
+        let filters = {versions: [parseInt(o.settings.v)]};
 
         if (!_.isUndefined(o.settings.r) && parseInt(o.settings.r) !== TOT) {
             filters.regions = [parseInt(o.settings.r)];
         }
 
-        var races_by_league = stat.filter_aggregate(filters, ['league', 'race']);
+        let races_by_league = stat.filter_aggregate(filters, ['league', 'race']);
 
         _.each(races_by_league.leagues, function(league) {
-            var t = races_by_league.count(league);
+            let t = races_by_league.count(league);
             _.each(races_by_league.races, function(race) {
-                var c = races_by_league.count(league, race);
+                let c = races_by_league.count(league, race);
                 $("#l" + league + "-r" + race + " .number").text(format_int(c));
                 $("#l" + league + "-r" + race + " .percent").text("(" + (c * 100 / t).toFixed(2) + "%)");
             });
@@ -597,8 +597,8 @@ export let RaceDistributionTable = function(mode_id) {
     };
 
     o.init = function() {
-        Radio($("#races-table-container ul[ctrl-name='v']"), default_version, o.controls_change);
-        Radio($("#races-table-container ul[ctrl-name='r']"), '-2', o.controls_change);
+        Radio($("#races-table-container ul[data-ctrl-name='v']"), default_version, o.controls_change);
+        Radio($("#races-table-container ul[data-ctrl-name='r']"), '-2', o.controls_change);
         $("#races-table-container.wait").removeClass("wait");
     };
 

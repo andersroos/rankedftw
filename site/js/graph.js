@@ -34,16 +34,16 @@ export let GraphBase = function(container_selector, edges, x_margin) {
     o.height = 100;
 
     o.y_ax = {};
-    o.y_ax.top_value;    // The actual value at the top of the graph.
-    o.y_ax.bottom_value; // The actual value at the botttom of the graph.
-    o.y_per_unit;        // Y-pixels per unit whatever it is.
+    o.y_ax.top_value = null;    // The actual value at the top of the graph.
+    o.y_ax.bottom_value = null; // The actual value at the botttom of the graph.
+    o.y_per_unit = null;        // Y-pixels per unit whatever it is.
 
     o.x_ax = {};
-    o.x_ax.left_value;  // The actual leftmost value.
-    o.x_ax.right_value; // The actual rightmost value.
-    o.x_per_unit;       // X-pixels per unit whatever it is.
+    o.x_ax.left_value = null;  // The actual leftmost value.
+    o.x_ax.right_value = null; // The actual rightmost value.
+    o.x_per_unit = null;       // X-pixels per unit whatever it is.
 
-    o.points; // Points on the graph, used for mouse over functionality.
+    o.points = null; // Points on the graph, used for mouse over functionality.
 
     o.race_colors = {};
     o.race_colors[-1] = '#666666'; // Unknown
@@ -150,7 +150,7 @@ export let GraphBase = function(container_selector, edges, x_margin) {
 
             var label;
 
-            if (y_label == 'percent') {
+            if (y_label === 'percent') {
                 if (Math.max(Math.abs(o.y_ax.top_value), Math.abs(o.y_ax.bottom_value)) < 10) {
                     label = value.toFixed(2) + "%"
                 }
@@ -161,8 +161,8 @@ export let GraphBase = function(container_selector, edges, x_margin) {
                     label = Math.round(value) + "%";
                 }
             }
-            else if (y_label == 'int') {
-                if (value == 1) {
+            else if (y_label === 'int') {
+                if (value === 1) {
                     label = "1";
                 }
                 else if (o.y_ax.bottom_value > 100000 || o.y_ax.top_value > 10000) {
@@ -203,24 +203,24 @@ export let GraphBase = function(container_selector, edges, x_margin) {
 
         // Draw season colored base line and labels.
 
-        var y = o.height;
-        var x_from = -o.x_margin; // Start outside actual drawing area.
-        var season;
-        for (var i = 0; i < seasons.sorted.length; ++i) {
+        let y = o.height;
+        let x_from = -o.x_margin; // Start outside actual drawing area.
+        let season;
+        for (let i = 0; i < seasons.sorted.length; ++i) {
             season = seasons.sorted[i];
             if (season.end > o.x_ax.left_value && season.start < o.x_ax.right_value) {
-                var x_to = Math.min(o.epoch_to_pixels(season.end), o.width);
+                let x_to = Math.min(o.epoch_to_pixels(season.end), o.width);
 
                 // Draw the colored season line, add x_margin to the end (all but the last line will be overwritten by
                 // another color causing the last one to be extended just like the first one).
                 o.gline(season.color, 2, [{x: x_from, y: y}, {x: x_to + o.x_margin, y: y}]);
 
-                if (x_label == "season") {
-                    var label = "Season " + season.id + " (" + season.number + " - " + season.year + ")";
-                    var label_width = o.ctx.measureText(label).width;
-                    var width = x_to - x_from;
+                if (x_label === "season") {
+                    let label = "Season " + season.id + " (" + season.number + " - " + season.year + ")";
+                    let label_width = o.ctx.measureText(label).width;
+                    let width = x_to - x_from;
                     if (width > label_width) {
-                        var x = min_max(width / 2, x_from + width / 2, o.width - label_width / 2);
+                        let x = min_max(width / 2, x_from + width / 2, o.width - label_width / 2);
                         o.text(label, o.edges.left + x, o.edges.top + o.height + 3, 'center', 'top');
                     }
                 }
@@ -230,25 +230,25 @@ export let GraphBase = function(container_selector, edges, x_margin) {
 
         // Print years/months and year lines.
         
-        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
         function pixel_to_date(x) {
             return new Date((x / o.x_per_unit + o.x_ax.left_value) * 1000);
         }
         
-        var start_year = pixel_to_date(-o.x_margin).getFullYear();
-        var end_year = pixel_to_date(o.width + o.x_margin).getFullYear();
+        let start_year = pixel_to_date(-o.x_margin).getFullYear();
+        let end_year = pixel_to_date(o.width + o.x_margin).getFullYear();
         
-        for (var year = start_year; year <= end_year; ++year) {
+        for (let year = start_year; year <= end_year; ++year) {
 
-            var year_x = o.date_to_pixels(year);
+            let year_x = o.date_to_pixels(year);
             if (year_x > -o.x_margin && year_x < o.width + o.x_margin) {
                 o.gline("#ffffff", 2, [{x: year_x, y: o.height - 7}, {x: year_x, y: o.height + 7}]);
             }
             
-            for (var month = 0; month < 12; ++month) {
-                var month_start_x = Math.round(o.date_to_pixels(year, month)) + 0.5;
-                var month_end_x = Math.round(o.date_to_pixels(year, month + 1)) + 0.5;
+            for (let month = 0; month < 12; ++month) {
+                let month_start_x = Math.round(o.date_to_pixels(year, month)) + 0.5;
+                let month_end_x = Math.round(o.date_to_pixels(year, month + 1)) + 0.5;
 
                 // Month bar.
                 if (month_start_x > -o.x_margin && month_start_x < o.width + o.x_margin) {
@@ -256,25 +256,25 @@ export let GraphBase = function(container_selector, edges, x_margin) {
                 }
 
                 // Month label.
-                var text_width = o.ctx.measureText(year).width;
-                if (x_label == 'month' && month_end_x > text_width / 2 && month_start_x < o.width - text_width / 2) {
-                    var text_x = min_max(0, (month_end_x - month_start_x) / 2 + month_start_x, o.width);
+                let text_width = o.ctx.measureText(year).width;
+                if (x_label === 'month' && month_end_x > text_width / 2 && month_start_x < o.width - text_width / 2) {
+                    let text_x = min_max(0, (month_end_x - month_start_x) / 2 + month_start_x, o.width);
                     o.text(months[month], o.edges.left + text_x, o.edges.top + o.height + 3, 'center', 'top');
                 }
             }
 
             // Draw lotv release line.
 
-            var lotv_label = "LotV Release";
-            var lotv_release_x = o.date_to_pixels(2015, 10, 9);
+            let lotv_label = "LotV Release";
+            let lotv_release_x = o.date_to_pixels(2015, 10, 9);
             if (lotv_release_x - 10 > 0 && lotv_release_x + 10 < o.width) {
                 o.gline('#ffff00', 2, [{x: lotv_release_x, y: o.height + 5}, {x: lotv_release_x, y: o.height - 5}]);
                 o.text(lotv_label, o.edges.left + lotv_release_x, o.edges.top + o.height + 3 , 'center', 'top', '#ffff00');
             }
         
             // Year label.
-            if (x_label == 'year') {
-                var label_x = min_max(o.ctx.measureText(year).width / 2,
+            if (x_label === 'year') {
+                let label_x = min_max(o.ctx.measureText(year).width / 2,
                                       o.date_to_pixels(year, 6),
                                       o.width - o.ctx.measureText(year).width / 2);
                 o.text(year, o.edges.left + label_x, o.edges.top + o.height + 3, 'center', 'top');
@@ -285,8 +285,8 @@ export let GraphBase = function(container_selector, edges, x_margin) {
     // Draw crosshair.
     o.draw_crosshair = function() {
         if (o.crosshair) {
-            var x = Math.round(o.crosshair.x + o.edges.left) + 0.5;
-            var y = Math.round(o.crosshair.y + o.edges.top) + 0.5;
+            let x = Math.round(o.crosshair.x + o.edges.left) + 0.5;
+            let y = Math.round(o.crosshair.y + o.edges.top) + 0.5;
             o.line("#ffffff", 1, [{x: 0, y: y}, {x: o.canvas.width(), y: y}]);
             o.line("#ffffff", 1, [{x: x, y: 0}, {x: x, y: o.canvas.height()}]);
        }
@@ -304,8 +304,8 @@ export let GraphBase = function(container_selector, edges, x_margin) {
 
     // Show mouse stuff.
     o.mouse_on = function(x, y, m) {
-        var offset = o.canvas.offset();
-        var width = o.update_tooltip(m);
+        let offset = o.canvas.offset();
+        let width = o.update_tooltip(m);
         o.tooltip.show();
         o.tooltip.offset({left: offset.left + Math.min(x + o.edges.left + 20, o.canvas.width() - width - 10),
                           top: offset.top + y + o.edges.top + 20});
@@ -316,19 +316,19 @@ export let GraphBase = function(container_selector, edges, x_margin) {
     };
 
     // Show mouse stuff.
-    o.mouse_off = function(x, y, m) {
+    o.mouse_off = function() {
         o.tooltip.hide();
         if (o.use_crosshair) {
             o.redraw();
         }
-        o.crosshair = undefined;
+        o.crosshair = null;
     };
     
     // Callback on mouse move.
     o.mouse_move = function(event) {
-        var offset = o.canvas.offset();
-        var mouse_x = event.pageX - offset.left - o.edges.left;
-        var mouse_y = event.pageY - offset.top - o.edges.top;
+        let offset = o.canvas.offset();
+        let mouse_x = event.pageX - offset.left - o.edges.left;
+        let mouse_y = event.pageY - offset.top - o.edges.top;
 
         if (mouse_x < -o.edges.left / 2 || mouse_x > o.width + o.edges.right / 2
             || mouse_y < -o.edges.top / 2 || mouse_y > o.height + o.edges.bottom / 2) {
@@ -338,13 +338,13 @@ export let GraphBase = function(container_selector, edges, x_margin) {
         
         // Find best point.
 
-        var min_distance = 1e9;
-        var x;
-        var y;
-        var m;
-        for (var i = 0; i < o.points.length; ++i) {
-            var point = o.points[i];
-            var distance = Math.pow(point.x - mouse_x, 2) + Math.pow(point.y - mouse_y, 2);
+        let min_distance = 1e9;
+        let x;
+        let y;
+        let m;
+        for (let i = 0; i < o.points.length; ++i) {
+            let point = o.points[i];
+            let distance = Math.pow(point.x - mouse_x, 2) + Math.pow(point.y - mouse_y, 2);
             if (distance < min_distance) {
                 min_distance = distance;
                 x = point.x;
@@ -365,13 +365,13 @@ export let GraphBase = function(container_selector, edges, x_margin) {
     // Callbacks to implement for graphs.
     //
 
-    o.new_settings; // Calculate everyhing needed after new settings. New settings will be set on o.
+    o.new_settings = null; // Calculate everyhing needed after new settings. New settings will be set on o.
 
-    o.new_size; // Calculate everything needed after new size. New size will be set on o.
+    o.new_size = null; // Calculate everything needed after new size. New size will be set on o.
 
-    o.redraw; // Redraw the graph.
+    o.redraw = null; // Redraw the graph.
 
-    o.update_tooltip; // Update the tooltip data.
+    o.update_tooltip = null; // Update the tooltip data.
 
     //
     // Functions.

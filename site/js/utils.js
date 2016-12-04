@@ -1,12 +1,5 @@
 
 //
-// Pretty print data.
-//
-function PP(data) {
-    return JSON.stringify(data);
-}
-
-//
 // Format an int with spaces.
 //
 export let format_int = function(int) {
@@ -36,10 +29,11 @@ export let get_hash = function(key) {
     var vars = window.location.hash.substring(1).split("&");
     for (var i = 0; i < vars.length; ++i) {
         var pair = vars[i].split('=');
-        if (pair[0] == key) {
+        if (pair[0] === key) {
             return pair[1];
         }
     }
+    return null;
 };
 
 //
@@ -50,9 +44,9 @@ export let set_hash = function(key, value) {
     var item = key + '=' + value;
     for (var i = 0; i < vars.length; ++i) {
         var pair = vars[i].split('=');
-        if (pair[0] == key) {
+        if (pair[0] === key) {
             vars[i] = item;
-            item = undefined;
+            item = null;
             break;
         }
     }
@@ -79,7 +73,7 @@ export let get_cookie = function(name) {
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+            var cookie = $.trim(cookies[i]);
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 value = decodeURIComponent(cookie.substring(name.length + 1));
                 break;

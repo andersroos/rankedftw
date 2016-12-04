@@ -25,7 +25,7 @@ let get_persistent_initial_value = function(name, allowed_values, default_value)
     }
 
     for (var i = 0; i < allowed_values.length; ++i) {
-        if (value == allowed_values[i]) {
+        if (value === allowed_values[i]) {
             set_persistent_value(name, value, true);
             return value;
         }
@@ -73,17 +73,17 @@ export let registry = new Registry();
 //
 export let Radio = function(control, default_value, select_callback) {
 
-    if (control.length != 1) { throw "Control is not length 1 was " + control.length + "."; }
+    if (control.length !== 1) { throw new Error("Control is not length 1 was " + control.length + "."); }
 
     var o = {};
-    o.name = control.attr('ctrl-name');
+    o.name = control.attr('data-ctrl-name');
 
     o.selects = control.find('a');
     o.allowed_values = [];
     o.value = null;
     o.container = null;
 
-    o.selects.each(function() { o.allowed_values.push($(this).attr('ctrl-value')); });
+    o.selects.each(function() { o.allowed_values.push($(this).attr('data-ctrl-value')); });
 
     registry.register(o);
 
@@ -94,7 +94,7 @@ export let Radio = function(control, default_value, select_callback) {
         // Highlight selected.
         o.selects.each(function(_, element) {
             var e = $(element);
-            if (e.attr('ctrl-value') == o.value) {
+            if (e.attr('data-ctrl-value') === o.value) {
                 e.addClass('selected');
             }
             else {
@@ -109,7 +109,7 @@ export let Radio = function(control, default_value, select_callback) {
     // Setup click callback.
     o.selects.each(function(_, element) {
         $(element).click(function(event) {
-            registry.selected(o.name, $(event.delegateTarget).attr('ctrl-value'));
+            registry.selected(o.name, $(event.delegateTarget).attr('data-ctrl-value'));
         });
     });
 
