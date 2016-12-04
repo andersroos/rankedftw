@@ -25,8 +25,8 @@ class Test(DjangoTestCase):
         # Given this, the ranker will have to rank ladders in fetch order to prevent overwriting data when teams
         # change ladder due to promotion/demotion.
 
-        self.process_ladder(fetch_time=self.datetime(days=-200),
-                            league=League.PLATINUM,
+        self.process_ladder(league=League.PLATINUM,
+                            fetch_time=self.datetime(days=-200),
                             members=[
                                 gen_member(bid=301,
                                            join_time=int(self.unix_time(days=-410))),

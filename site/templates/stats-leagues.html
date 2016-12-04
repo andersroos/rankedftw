@@ -137,7 +137,6 @@
 
 
 {% block body_js %}
-  sc2.seasons.deferred_init({{ seasons | safe }});
   sc2.stats.LeagueDistributionTable({{ mode_id }});
   sc2.stats.LeagueDistributionGraph({{ mode_id }});
 {% endblock body_js %}

@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse_lazy
 
 from common.settings import config
 from main.views.clan import ClanOverviewView, ClanView
-from main.views.team import TeamView, TeamRankingsData, TeamSeasonsData, TeamId
+from main.views.team import TeamView, TeamRankingsData, TeamId
 from main.views.search import SearchView, PlayerView
 from main.views.stats import StatsRaw, StatsView
 from main.views.main import MainView, sitemap_view
@@ -24,8 +24,6 @@ urlpatterns = \
         url(r'^team/(?P<team_id>\d+)/rankings/$', TeamRankingsData.as_view()),
 
         url(r'^team/id/$', TeamId.as_view()),
-
-        url(r'^team/seasons/$', TeamSeasonsData.as_view()),
 
         url(r'^ladder/(?P<version>\w+)'
             '/(?P<mode>[\w-]+)'

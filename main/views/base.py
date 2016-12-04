@@ -5,7 +5,7 @@ from django.conf import settings
 import gc
 from lib import sc2
 from common.cache import cache_control, cache_value
-from common.utils import to_unix, date_to_datetime_utc, utcnow
+from common.utils import to_unix, utcnow
 from django.db.models import Max
 from main.models import Season, Ranking, Cache, Mode, Version, Enums
 from django.views.generic.base import TemplateView, RedirectView

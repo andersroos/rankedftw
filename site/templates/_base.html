@@ -60,6 +60,9 @@
       sc2.settings.static_url = "{{ STATIC_URL }}";
       sc2.settings.dynamic_url = window.location.protocol + '//' + window.location.host + '/';
       sc2.settings.enums_info = {{ enums_info | safe }};
+      {% if seasons %}
+        sc2.seasons.init({{ seasons | safe }});
+      {%  endif %}
 
       {% block body_js %}
       {% endblock body_js %}

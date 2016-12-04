@@ -44,7 +44,6 @@
 {% endblock page %}
 
 {% block body_js %}
-  sc2.seasons.deferred_init({{ seasons | safe }});
   sc2.team.RankingGraph("graph-container", {{ team.id }}, {{ team.member0.region }}, {{ team.member0.league }}, {{ team.mode }});
 {% endblock body_js %}
 

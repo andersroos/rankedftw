@@ -52,13 +52,6 @@ class TeamRankingsData(View):
         return HttpResponse(json.dumps(rankings), content_type="application/json", status=200)
 
         
-class TeamSeasonsData(View):
-    
-    @cache_control("max-age=3600")
-    def get(self, request):
-        return HttpResponse(get_season_list(), content_type="application/json", status=200)
-
-    
 class TeamId(View):
 
     @staticmethod

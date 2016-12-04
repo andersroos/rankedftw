@@ -508,7 +508,6 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                            o.init = function() { o.container.removeClass('wait'); }
                        }
                    }}),
-           seasons.deferred_load(),  // TODO
            stats_data.deferred_fetch_mode(mode_id),
            images.deferred_load_leagues())
         .done(function() { o.init(); });
