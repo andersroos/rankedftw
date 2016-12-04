@@ -156,6 +156,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         ['League:', 'league_rank'],
         ['Ladder:', 'ladder_rank'],
         ['Season:', 'season'],
+        ['MMR:', 'mmr'],
         ['Points:', 'points'],
         ['Wins:',   'wins'],
         ['Losses:', 'losses'],
@@ -471,9 +472,10 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         $('.league_rank', o.tooltip).text(format_rank(r.league_rank, r.league_count));
         $('.ladder_rank', o.tooltip).text(format_rank(r.ladder_rank, r.ladder_count));
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
-        $('.points', o.tooltip).text(r.points + " (season " + season.id + ")");
-        $('.wins', o.tooltip).text(r.wins +  " (season " + season.id + ")");
-        $('.losses', o.tooltip).text(r.losses + " (season " + season.id + ")");
+        $('.mmr', o.tooltip).text(typeof r.mmr === 'undefined' ? 'N/A': r.mmr);
+        $('.points', o.tooltip).text(r.points);
+        $('.wins', o.tooltip).text(r.wins);
+        $('.losses', o.tooltip).text(r.losses);
 
         return 218;
     };
