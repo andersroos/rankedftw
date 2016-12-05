@@ -64,7 +64,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
          enum_t mode = *mode_i;
          
          world_count = 0;
-         
+
          // Loop over all regions.
          for (vector<enum_t>::iterator region_i = regions.begin(); region_i != regions.end(); ++region_i) {
             enum_t region = *region_i;
@@ -136,6 +136,20 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
                tr->world_rank = rank;
                tr->world_count = world_count;
                ++pos;
+            }
+         }
+
+         // Set best rank for 1v1 where different ranks per race is possible.
+         std::set<id_t> team_ids;
+         if (mode == TEAM_1V1) {
+            for (auto& tr : _team_ranks) {
+               if (team_ids.find(tr.team_id) == team_ids.end()) {
+                  tr.race3 = RACE_BEST;
+                  team_ids.insert(tr.team_id);
+               }
+               else {
+                  tr.race3 = RACE_ANY;
+               }
             }
          }
       }
@@ -257,11 +271,19 @@ bool update_player(player_t& old_player, const player_t& new_player)
    }
    else if (old_player.mode == TEAM_1V1 or new_player.mode == TEAM_1V1) {
       // Handle 1v1 as a special case that will always be displayed if played.
-      if (new_player.mode == TEAM_1V1 and
-          (new_player.mode != old_player.mode
-           or new_player.race != old_player.race
-           or new_player.league != old_player.league)) {
+      
+      if (new_player.mode != TEAM_1V1) {
+         // Never change from 1v1.
+      }
+      else if (old_player.mode != TEAM_1V1) {
+         // Always update this.
          old_player.mode = new_player.mode;
+         old_player.race = new_player.race;
+         old_player.league = new_player.league;
+         updated = true;
+      }
+      else if (old_player.league < new_player.league) {
+         // Only update on better league, don't update on race since a player can have several races in same league.
          old_player.race = new_player.race;
          old_player.league = new_player.league;
          updated = true;
@@ -292,6 +314,7 @@ bool update_team(team_t& old_team, const team_t& new_team)
    bool updated = false;
 
    if (old_team.season_id < new_team.season_id) {
+      // Always update if new data is later season.
       old_team.season_id = new_team.season_id;
       old_team.version = new_team.version;
       old_team.league = new_team.league;
@@ -302,6 +325,7 @@ bool update_team(team_t& old_team, const team_t& new_team)
       updated = true;
    }
    else if (old_team.season_id == new_team.season_id and old_team.version < new_team.version) {
+      // Always update if later version.
       old_team.version = new_team.version;
       old_team.league = new_team.league;
       old_team.r0 = new_team.r0;
@@ -311,8 +335,18 @@ bool update_team(team_t& old_team, const team_t& new_team)
       updated = true;
    }
    else if (old_team.season_id == new_team.season_id and old_team.version == new_team.version and
+            new_team.mode == TEAM_1V1) {
+      // Handle 1v1 separatly to avoid excessive updates form separate race mmr, only update if better league.
+      if (old_team.league < new_team.league) {
+         old_team.league = new_team.league;
+         old_team.r0 = new_team.r0;
+         updated = true;
+      }      
+   }
+   else if (old_team.season_id == new_team.season_id and old_team.version == new_team.version and
             (old_team.league != new_team.league or old_team.r0 != new_team.r0 or old_team.r1 != new_team.r1
              or old_team.r2 != new_team.r2 or old_team.r3 != new_team.r3)) {
+      // Update if something changed.
       old_team.league = new_team.league;
       old_team.r0 = new_team.r0;
       old_team.r1 = new_team.r1;

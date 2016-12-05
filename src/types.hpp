@@ -24,6 +24,9 @@ typedef uint32_t bid_t;
 #define NO_MMR -32768
 #define MMR_SEASON 28
 
+#define RACE_ANY  8
+#define RACE_BEST 9
+
 //
 // Team rank data.
 //
@@ -177,8 +180,8 @@ struct team_rank_v2_t {
    enum_t race0;
    enum_t race1;
    enum_t race2;
-   enum_t race3;
-
+   enum_t race3; // Best race for 1v1 is coded here, only in c++.
+   
    uint32_t ladder_rank;
    uint32_t ladder_count;
    uint32_t league_rank;
