@@ -61,7 +61,7 @@ void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_t& tr)
 }
 
 boost::python::list
-get::rankings_for_team(id_t team_id)
+get::rankings_for_team(id_t team_id, uint32_t mode)
 {
    boost::python::list res;
    
@@ -83,6 +83,8 @@ get::rankings_for_team(id_t team_id)
          tr["season_id"] = rankings[i].season_id;
          tr["race0"] = team_rank.race0;
 
+         tr["best_race"] = mode != TEAM_1V1 or team_rank.race3 == RACE_BEST;
+         
          if (team_rank.mmr != NO_MMR) {
             tr["mmr"] = team_rank.mmr;
          }

@@ -48,8 +48,13 @@ class TeamRankingsData(View):
     @cache_control("max-age=3600")
     def get(self, request, team_id=None):
         team_id = int(team_id)
-        rankings = rankings_view_client('rankings_for_team', team_id)
-        return HttpResponse(json.dumps(rankings), content_type="application/json", status=200)
+        try:
+            team = Team.objects.get(id=team_id)
+            rankings = rankings_view_client('rankings_for_team', team_id, team.mode)
+            return HttpResponse(json.dumps(rankings), content_type="application/json", status=200)
+        except Team.DoesNotExist:
+            raise Http404('Could not find team %d.' % team_id)
+        
 
         
 class TeamId(View):
