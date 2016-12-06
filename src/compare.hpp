@@ -269,6 +269,16 @@ inline bool compare_team_id_version(const team_rank_t& x, const team_rank_t& y)
 }
 
 //
+// Alternative to compare_team_id_version to use for 1v1 where separate race mmr is a thing.
+//
+inline bool compare_team_id_version_race(const team_rank_t& x, const team_rank_t& y)
+{
+   return (x.team_id < y.team_id
+           or (x.team_id == y.team_id and x.version < y.version)
+           or (x.team_id == y.team_id and x.version == y.version and x.race0 < y.race0));
+}
+
+//
 // This is used before summarizing stats version 1.
 //
 inline bool compare_for_ranking_stats_v1(const team_rank_t& x, const team_rank_t& y)

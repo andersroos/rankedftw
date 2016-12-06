@@ -157,7 +157,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
    
    // Write new team_ranks to database.
    
-   stable_sort(_team_ranks.begin(), _team_ranks.end(), compare_team_id_version);
+   stable_sort(_team_ranks.begin(), _team_ranks.end(), compare_team_id_version_race);
 
    db::transaction_block tb(_db);   
    _db.save_team_ranks(id, now, _team_ranks);
@@ -217,7 +217,7 @@ void ranking_data::save_stats(id_t id, float now)
    }
 
    // Sort it back for more inserts.
-   stable_sort(_team_ranks.begin(), _team_ranks.end(), compare_team_id_version);
+   stable_sort(_team_ranks.begin(), _team_ranks.end(), compare_team_id_version_race);
 }
 
 boost::python::list ranking_data::min_max_data_time()
@@ -559,7 +559,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
 
       {
          team_ranks_t new_team_ranks;
-         stable_sort(ladder.begin(), ladder.end(), compare_team_id_version);
+         stable_sort(ladder.begin(), ladder.end(), compare_team_id_version_race);
 
          auto source = ladder.begin();
          for (auto target = _team_ranks.begin(); target != _team_ranks.end() and source != ladder.end();) {
@@ -599,7 +599,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
          if (new_team_ranks.size()) {
             // Adding out of order teams.
             _team_ranks.insert(_team_ranks.end(), new_team_ranks.begin(), new_team_ranks.end());
-            stable_sort(_team_ranks.begin(), _team_ranks.end(), compare_team_id_version);
+            stable_sort(_team_ranks.begin(), _team_ranks.end(), compare_team_id_version_race);
          }
       }
       
