@@ -109,27 +109,76 @@ class Test(DjangoTestCase):
         self.assertEqual(League.MASTER, p1.league)
         self.assertEqual(Race.ZERG, p1.race)
 
-    def test_player_several_times_in_same_ladder_with_different_races(self):
-        self.db.create_ranking()
-        self.process_ladder(save=True,
-                            mode=Mode.TEAM_1V1,
-                            league=League.MASTER,
+    def test_same_1v1_can_have_multiple_rankings_with_different_races(self):
+        self.process_ladder(league=League.SILVER,
                             members=[
-                                gen_member(bid=301, mmr=5090, race=Race.ZERG),
-                                gen_member(bid=301, mmr=5080, race=Race.TERRAN),
-                                gen_member(bid=301, mmr=5070, race=Race.PROTOSS),
-                                gen_member(bid=301, mmr=5060, race=Race.RANDOM),
+                                gen_member(bid=1, mmr=50, race=Race.TERRAN),
+                                gen_member(bid=1, mmr=40, race=Race.ZERG),
+                                gen_member(bid=1, mmr=30, race=Race.RANDOM),
                             ])
 
-        p1 = self.db.get(Player, bid=301)
-        t1 = self.db.get(Team, member0=p1)
+        self.process_ladder(league=League.GOLD,
+                            members=[
+                                gen_member(bid=1, mmr=90, race=Race.TERRAN),
+                                gen_member(bid=1, mmr=80, race=Race.PROTOSS),
+                                gen_member(bid=1, mmr=70, race=Race.ZERG),
+                            ])
 
-        self.assertEqual(League.MASTER, t1.league)
-        self.assertEqual(Race.ZERG, t1.race0)
-        self.assertEqual(League.MASTER, p1.league)
-        self.assertEqual(Race.ZERG, p1.race)
+        self.save_to_ranking()
 
-        self.assert_team_ranks(self.db.ranking.id,
-                               dict(team_id=t1.id, mmr=5090, race0=Race.ZERG, league=League.MASTER),
-                               )
+        self.assert_team_ranks(
+            self.db.ranking.id,
+            dict(region_count=4, region_rank=1, mmr=90, race0=Race.TERRAN,  race3=9, league=League.GOLD),
+            dict(region_count=4, region_rank=2, mmr=80, race0=Race.PROTOSS, race3=8, league=League.GOLD),
+            dict(region_count=4, region_rank=3, mmr=70, race0=Race.ZERG,    race3=8, league=League.GOLD),
+            dict(region_count=4, region_rank=4, mmr=30, race0=Race.RANDOM,  race3=8, league=League.SILVER),
+        )
+
+    def test_same_1v1_can_have_multiple_rankings_with_different_races_among_other_players(self):
+        self.process_ladder(league=League.SILVER,
+                            members=[
+                                gen_member(bid=2, mmr=50, race=Race.ZERG),
+                                gen_member(bid=1, mmr=40, race=Race.TERRAN),
+                                gen_member(bid=3, mmr=30, race=Race.RANDOM),
+                            ])
+
+        self.process_ladder(league=League.GOLD,
+                            members=[
+                                gen_member(bid=1, mmr=90, race=Race.ZERG),
+                                gen_member(bid=4, mmr=80, race=Race.PROTOSS),
+                                gen_member(bid=5, mmr=70, race=Race.TERRAN),
+                            ])
+
+        self.save_to_ranking()
+
+        self.assert_team_ranks(
+            self.db.ranking.id,
+            dict(region_count=6, region_rank=1, mmr=90, race0=Race.ZERG,    race3=9, league=League.GOLD),
+            dict(region_count=6, region_rank=2, mmr=80, race0=Race.PROTOSS, race3=9, league=League.GOLD),
+            dict(region_count=6, region_rank=3, mmr=70, race0=Race.TERRAN,  race3=9, league=League.GOLD),
+            dict(region_count=6, region_rank=4, mmr=50, race0=Race.ZERG,    race3=9, league=League.SILVER),
+            dict(region_count=6, region_rank=5, mmr=40, race0=Race.TERRAN,  race3=8, league=League.SILVER),
+            dict(region_count=6, region_rank=6, mmr=30, race0=Race.RANDOM,  race3=9, league=League.SILVER),
+        )
+
+    def test_same_random_2v2__can_not_have_multiple_rankings_with_different_races(self):
+        
+        self.process_ladder(league=League.SILVER,
+                            mode=Mode.RANDOM_2V2,
+                            members=[
+                                gen_member(bid=1, mmr=40, race=Race.TERRAN),
+                            ])
+
+        self.process_ladder(league=League.GOLD,
+                            mode=Mode.RANDOM_2V2,
+                            members=[
+                                gen_member(bid=1, mmr=90, race=Race.ZERG),
+                            ])
+
+        self.save_to_ranking()
+
+        self.assert_team_ranks(
+            self.db.ranking.id,
+            dict(region_count=1, region_rank=1, mmr=90, race0=Race.ZERG, league=League.GOLD),
+        )
 

@@ -132,6 +132,7 @@ class DjangoTestCase(TestCase):
 
         team_ranks = sc2.get_team_ranks(self.db.db_name, ranking_id, sort)
 
+        all_keys = {key for rank in ranks for key in rank}
         try:
             if not skip_len:
                 self.assertEqual(len(team_ranks), len(ranks))
@@ -141,7 +142,8 @@ class DjangoTestCase(TestCase):
                                      (key, i, r, {key: team_rank.get(key, None) for key in r.keys()}))
         except AssertionError:
             print("Expected:\n%s" % "\n".join([repr(tr) for tr in ranks]))
-            print("Actual:\n%s" % "\n".join([repr(tr) for tr in team_ranks]))
+            print("Actual:\n%s" % "\n".join([repr({k: v for k, v in tr.items() if k in all_keys})
+                                             for tr in team_ranks]))
             raise
 
 

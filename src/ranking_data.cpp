@@ -36,10 +36,11 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
    // Sort the team ranks in global order within version and mode to be able to calculate the rest of the rankings.
 
    enum_t sort_key = get_sort_key(season_id);
-   
+
    cmp_tr cmp_inner(NOT_REVERSED, NOT_SET, NOT_SET, NOT_SET, sort_key, STRICT);
    stable_sort(_team_ranks.begin(), _team_ranks.end(), cmp_tr_version_mode(cmp_inner));
 
+   
    // Calcualte ranks, possible to do this smarter, but who cares, saving this in database
    // will take infinite more time anyways.
 
@@ -154,7 +155,7 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
          }
       }
    }
-   
+
    // Write new team_ranks to database.
    
    stable_sort(_team_ranks.begin(), _team_ranks.end(), compare_team_id_version_race);
@@ -487,7 +488,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
       }
       
       //
-      // Extract ladder from members, but skip duplicates when inserting in ladder.
+      // Extract ladder from members.
       //
     
       uint32_t rank = 0;
@@ -504,10 +505,8 @@ ranking_data::update_with_ladder(id_t ladder_id,
             object member = members[i];
             auto& team = teams[i / team_size];
 
-            if (not team_map.insert(make_pair(team.id, team)).second) {
-               // No insert, skip duplicates for race mmr (first occurance will be the higher ranked).
-               continue;
-            }
+            // Insert first team occurance will be the highest ranked.
+            team_map.insert(make_pair(team.id, team));
             
             team_rank_t team_rank;
             team_rank.team_id = team.id;
@@ -559,34 +558,28 @@ ranking_data::update_with_ladder(id_t ladder_id,
 
       {
          team_ranks_t new_team_ranks;
-         stable_sort(ladder.begin(), ladder.end(), compare_team_id_version_race);
+         auto team_merge_cmp = compare_team_id_version;
+         if (mode == TEAM_1V1 and season_id >= SEPARATE_RACE_MMR_SEASON) {
+            team_merge_cmp = compare_team_id_version_race;
+         }
+         stable_sort(ladder.begin(), ladder.end(), team_merge_cmp);
 
          auto source = ladder.begin();
          for (auto target = _team_ranks.begin(); target != _team_ranks.end() and source != ladder.end();) {
 
-            if (compare_team_id_version(*source, *target)) {
+            if (team_merge_cmp(*source, *target)) {
                // We passed source's place in target, adding later.
                new_team_ranks.push_back(*source);
                ++source;
             }
-            else if (not compare_team_id_version(*target, *source)) {
-               // Equal, replace target with source. One mmr per race for 1v1 is handled here. Always replace if same
-               // race. Otherwise only replace if better ladder position effectivly making a ladder using only the best
-               // race for each team. If not using for update, mark the team by zeroing the id. Mode and version is
-               // always the same for source and target here.
-               if (season_id < 29
-                   or mode != TEAM_1V1
-                   or target->race0 == source->race0
-                   or cmp(*source, *target)) {
-                  *target = *source;
-               }
-               else {
-                  source->team_id = 0;
-               }
+            else if (not team_merge_cmp(*target, *source)) {
+               // Equal, replace target with source.
+               *target = *source;
                ++target;
                ++source;
             }
             else {
+               // Not there yet move to next.
                ++target;
             }
          }
@@ -597,7 +590,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
          _team_ranks.insert(_team_ranks.end(), source, ladder.end());
 
          if (new_team_ranks.size()) {
-            // Adding out of order teams.
+            // Adding new team ranks (unordered, so sorting is needed) at end.
             _team_ranks.insert(_team_ranks.end(), new_team_ranks.begin(), new_team_ranks.end());
             stable_sort(_team_ranks.begin(), _team_ranks.end(), compare_team_id_version_race);
          }

@@ -23,6 +23,7 @@ typedef uint32_t bid_t;
 #define KR 2
 #define NO_MMR -32768
 #define MMR_SEASON 28
+#define SEPARATE_RACE_MMR_SEASON 29
 
 #define RACE_ANY  8
 #define RACE_BEST 9
