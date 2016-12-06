@@ -189,7 +189,32 @@ class Test(DjangoTestCase):
         self.assertEqual(Race.UNKNOWN, t2.race2)
         self.assertEqual(Race.UNKNOWN, t2.race3)
 
-    def test_existent_1v1_team_is_updated_on_league_change(self):
+    def test_existent_1v1_team_is_updated_on_league_change_to_better_league(self):
+        p1 = self.db.create_player(bid=301)
+        t1 = self.db.create_team(mode=Mode.TEAM_1V1,
+                                 season=self.db.season,
+                                 member0=p1,
+                                 league=League.GOLD)
+
+        self.process_ladder(mode=Mode.TEAM_1V1, league=League.PLATINUM, bid=301, race=Race.ZERG)
+
+        self.assertEqual(1, len(Team.objects.all()))
+
+        p1 = self.db.get(Player, bid=301)
+        t1 = self.db.get(Team, id=t1.pk)
+        self.assertEqual(1, len(Team.objects.all()))
+        self.assertEqual(Mode.TEAM_1V1, t1.mode)
+        self.assertEqual(p1.id, t1.member0_id)
+        self.assertEqual(None,  t1.member1_id)
+        self.assertEqual(None,  t1.member2_id)
+        self.assertEqual(None,  t1.member3_id)
+        self.assertEqual(League.PLATINUM, t1.league)
+        self.assertEqual(Race.ZERG, t1.race0)
+        self.assertEqual(Race.UNKNOWN, t1.race1)
+        self.assertEqual(Race.UNKNOWN, t1.race2)
+        self.assertEqual(Race.UNKNOWN, t1.race3)
+
+    def test_existent_1v1_team_is_not_updated_on_league_change_to_worse(self):
         p1 = self.db.create_player(bid=301)
         t1 = self.db.create_team(mode=Mode.TEAM_1V1,
                                  season=self.db.season,
@@ -208,7 +233,7 @@ class Test(DjangoTestCase):
         self.assertEqual(None,  t1.member1_id)
         self.assertEqual(None,  t1.member2_id)
         self.assertEqual(None,  t1.member3_id)
-        self.assertEqual(League.SILVER, t1.league)
+        self.assertEqual(League.GOLD, t1.league)
         self.assertEqual(Race.ZERG, t1.race0)
         self.assertEqual(Race.UNKNOWN, t1.race1)
         self.assertEqual(Race.UNKNOWN, t1.race2)

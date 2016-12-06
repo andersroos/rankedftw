@@ -119,6 +119,36 @@ class Test(DjangoTestCase):
                               season=self.s1,
                               race=Race.TERRAN,
                               league=League.GOLD,
+                              mode=Mode.RANDOM_2V2)
+
+        self.process_ladder(mode=Mode.RANDOM_2V2,
+                            league=League.GOLD,
+                            season=self.s1,
+                            bid=301,
+                            name="arne1",
+                            tag="arne1",
+                            clan="arne1",
+                            race=Race.ZERG)
+
+        self.assertEqual(1, len(Player.objects.all()))
+
+        p = self.db.get(Player, bid=301)
+        self.assertEqual("arne1", p.name)
+        self.assertEqual("arne1", p.clan)
+        self.assertEqual("arne1", p.tag)
+        self.assertEqual(Race.ZERG, p.race)
+        self.assertEqual(League.GOLD, p.league)
+        self.assertEqual(Mode.RANDOM_2V2, p.mode)
+        self.assertEqual(self.s1.id, p.season_id)
+
+    def test_race_is_updated_if_everything_else_is_the_same__but_not_if_1v1(self):
+        self.db.create_player(bid=301,
+                              name='arne1',
+                              clan='arne1',
+                              tag='arne1',
+                              season=self.s1,
+                              race=Race.TERRAN,
+                              league=League.GOLD,
                               mode=Mode.TEAM_1V1)
 
         self.process_ladder(mode=Mode.TEAM_1V1,
@@ -136,7 +166,7 @@ class Test(DjangoTestCase):
         self.assertEqual("arne1", p.name)
         self.assertEqual("arne1", p.clan)
         self.assertEqual("arne1", p.tag)
-        self.assertEqual(Race.ZERG, p.race)
+        self.assertEqual(Race.TERRAN, p.race)
         self.assertEqual(League.GOLD, p.league)
         self.assertEqual(Mode.TEAM_1V1, p.mode)
         self.assertEqual(self.s1.id, p.season_id)

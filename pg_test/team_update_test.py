@@ -129,14 +129,14 @@ class Test(DjangoTestCase):
         p1 = self.db.create_player(bid=301,
                                    race=Race.ZERG)
 
-        t1 = self.db.create_team(mode=Mode.TEAM_1V1,
+        t1 = self.db.create_team(mode=Mode.RANDOM_2V2,
                                  season=self.s1,
                                  version=Version.HOTS,
                                  league=League.PLATINUM,
                                  member0=p1,
                                  race0=Race.ZERG)
 
-        self.process_ladder(mode=Mode.TEAM_1V1,
+        self.process_ladder(mode=Mode.RANDOM_2V2,
                             season=self.s1,
                             version=Version.HOTS,
                             league=League.GRANDMASTER,
@@ -154,14 +154,14 @@ class Test(DjangoTestCase):
         p1 = self.db.create_player(bid=301,
                                    race=Race.ZERG)
 
-        t1 = self.db.create_team(mode=Mode.TEAM_1V1,
+        t1 = self.db.create_team(mode=Mode.RANDOM_2V2,
                                  season=self.s1,
                                  version=Version.HOTS,
                                  league=League.GRANDMASTER,
                                  member0=p1,
                                  race0=Race.ZERG)
 
-        self.process_ladder(mode=Mode.TEAM_1V1,
+        self.process_ladder(mode=Mode.RANDOM_2V2,
                             season=self.s1,
                             version=Version.HOTS,
                             league=League.PLATINUM,
