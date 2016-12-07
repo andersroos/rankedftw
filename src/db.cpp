@@ -483,8 +483,7 @@ db::get_latest_ranking()
 }
 
 void
-db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index,
-                   team_rank_t& tr, team_rank_t& tr_plus_1, team_rank_t& tr_plus_2)
+db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index, array<team_rank_t, 4>& trs)
 {
    uint32_t tr_size;
    if (tr_version == 2) 
@@ -496,12 +495,10 @@ db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index,
       
    
    exec(fmt("SELECT substring(data from %u for %u) FROM ranking_data WHERE ranking_id = %d;",
-            TEAM_RANKS_HEADER_SIZE + tr_size * index + 1, tr_size * 3, ranking_id),
+            TEAM_RANKS_HEADER_SIZE + tr_size * index + 1, tr_size * trs.size(), ranking_id),
         {}, {}, {});
 
-   tr.team_id = 0;
-   tr_plus_1.team_id = 0;
-   tr_plus_2.team_id = 0;
+   for (auto& tr : trs) tr.team_id = 0;
    
    size_t size = res_value_size(0, 0);
    if (size == 0) {
@@ -510,17 +507,9 @@ db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index,
 
    string s(res_value(0, 0), size);
    stringstream ss(s);
-   
-   if (size >= tr_size * 1) {
-      read_tr(ss, tr_version, tr);
-   }
 
-   if (size >= tr_size * 2) {
-      read_tr(ss, tr_version, tr_plus_1);
-   }
-   
-   if (size >= tr_size * 3) {
-      read_tr(ss, tr_version, tr_plus_2);
+   for (uint32_t i = 0; i < trs.size() && i * tr_size <= size; ++i) {
+      read_tr(ss, tr_version, trs[i]);
    }
 }
 

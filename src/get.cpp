@@ -10,47 +10,50 @@
 using namespace boost::python;
 using namespace std;
 
+
 void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_t& tr)
 {
+   // Binary search getting four team ranks at a time because that will be enough for the common case.
+   
    team_ranks_header trh;
    db.load_team_ranks_header(ranking_id, trh);
 
    int32_t imin = 0;
    int32_t imax = trh.count - 1;
-   team_rank_t tr_plus_1;
-   team_rank_t tr_plus_2;
+   array<team_rank_t, 4> trs;
 
    while (trh.count > 0 && imax >= imin) {
 
       int32_t imid = imin + ((imax - imin) / 2);
       
-      db.load_team_rank(ranking_id, trh.version, imid, tr, tr_plus_1, tr_plus_2);
-      if (tr.team_id == team_id) {
+      db.load_team_rank(ranking_id, trh.version, imid, trs);
+      if (trs[0].team_id == team_id) {
 
-         if (tr_plus_2.team_id == team_id) {
-            if (tr_plus_2.version <= tr.version) {
+         if (trs[2].team_id == team_id) {
+            if (trs[2].version <= tr.version) {
                THROW(bug_exception, fmt("fatal, bad version (2) for team_id %d.", team_id));
             }
             
             // Return plus 2 this is a later version.
-            tr = tr_plus_2;
+            tr = trs[2];
             return;
          }
          
-         if (tr_plus_1.team_id == team_id) {
-            if (tr_plus_1.version <= tr.version) {
+         if (trs[1].team_id == team_id) {
+            if (trs[1].version <= tr.version) {
                THROW(bug_exception, fmt("fatal, bad version (1) for team_id %d.", team_id));
             }
             
             // Return plus 1 this is a later version.
-            tr = tr_plus_1;
+            tr = trs[1];
             return;
          }
 
          // Return the version we got.
+         tr = trs[0];
          return;
       }
-      else if (tr.team_id < team_id) {
+      else if (trs[0].team_id < team_id) {
          imin = imid + 1;
       }
       else {

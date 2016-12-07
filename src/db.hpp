@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <array>
 
 #include "types.hpp"
 
@@ -45,11 +46,10 @@ struct db
    // Get the lastest ranking (but without data).
    ranking get_latest_ranking();
    
-   // Load a single team rank from ranking with id ranking_id saved into team_rank. If index is out of range the team_id
-   // is set to 0. If used on non unpacked team_ranks the behaviour is undefined. Since we may find the team rank for
-   // wol we also load the team ranks after to be able to get the one for hots or lotv if present.
-   void load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index,
-                       team_rank_t& tr, team_rank_t& tr_plus_1, team_rank_t& tr_plus_2);
+   // Load an array of team ranks from ranking, index points to the start of the sequence to get, if index or any of the
+   // team ranks is is out of range the team_id is set to 0 for that team rank. If used on non unpacked team_ranks the
+   // behaviour is undefined.
+   void load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index, std::array<team_rank_t, 4>& trs);
 
    // Load the team ranks header from the database, it will check the version and the magic number. NOTE Only use
    // ranking.id, not ranking_data.id or ranking_stats.id.
