@@ -11,7 +11,7 @@ using namespace boost::python;
 using namespace std;
 
 
-void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_window_t& trs)
+uint32_t find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_window_t& trs)
 {
    // Binary search getting four team ranks at a time because that will be enough for the common case. Results will be
    // filled in trs from pos 0 for non 1v1 there will only be one result.
@@ -31,16 +31,17 @@ void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_window_
       uint32_t size = db.load_team_rank_window(ranking_id, trh.version, imid, trs, window_size);
   
       if (trs[0].team_id > team_id) {
-         // Go lower.
+         // Search lower.
          imax = imid - 1;
       }
-      else if (trs[count - 1].team_id < team_id) {
-         // Go higher.
+      else if (trs[size - 1].team_id < team_id) {
+         // Search higher.
          imin = imid + count;
       }
       else {
-         // Range should have a hit or none exists, find it.
-        
+         // Range should have a hit or none exists, find it or calculate a window that will contain the answer.
+
+         // Find hits in window.
          int32_t hit_lo = -1;
          int32_t hit_hi = -1;
          for (uint32_t i = 0; i < window_size; ++i) {
@@ -52,23 +53,27 @@ void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_window_
             }
          }
   
+         // Return if nothing was found.
          if (hit_lo == -1) {
-            // Nothing found.
-            trs[0].team_id = 0;
-            return;
+            return 0;
          }
-  
-         if (hit_hi + 1 != window_size) {
+
+         // Set ..
+         if (hit_hi != int32_t(window_size) - 1) {
             // High limit found.
             imax = imid + hit_hi;
          }
   
          if (hit_lo > 0) {
-            // Low level found.
+            // Low limit found.
             imin = imin + hit_lo;
          }
+         
+         
+         
       }
    }
+   return 0;
    
    // while (trh.count > 0 && imax >= imin) {
    // 
@@ -124,10 +129,12 @@ get::rankings_for_team(id_t team_id, uint32_t mode)
    team_rank_window_t trs;
    
    for (uint32_t i = 0; i < rankings.size(); ++i) {
-      find_team_rank(_db, rankings[i].id, team_id, trs);
+      uint32_t found = find_team_rank(_db, rankings[i].id, team_id, trs);
+      
+      if (not found) continue;
+      
       auto& team_rank = trs[0];
-
-      if (team_rank.team_id != 0 and (rankings[i].season_id < MMR_SEASON or team_rank.mmr != NO_MMR)) {
+      if (rankings[i].season_id < MMR_SEASON or team_rank.mmr != NO_MMR) {
          boost::python::dict tr;
          
          tr["league"] = team_rank.league;
