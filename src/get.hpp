@@ -13,10 +13,10 @@ struct get
       _db(db_name), _enums_info(enums_info), _season_filter(season_filter)
    {}
    
-   // Get all team rankings for a team.
+   // Get all team rankings for a team. Uint32_t or strange errors in python call.
    boost::python::list rankings_for_team(id_t team_id, uint32_t mode);
 
-   // Get all rankings stats for one mode. Returs a string json.
+   // Get all rankings stats for one mode. Returs a string json. Uint32_t or strange errors in python call.
    std::string ranking_stats(uint32_t mode_id);
    
    virtual ~get() {}   
