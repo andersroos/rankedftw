@@ -309,19 +309,20 @@ using team_map_t = std::map<id_t, team_t>;
 // Ranking.
 //
 
-struct ranking
+struct ranking_t
 {
-   ranking(id_t id, id_t season_id, float data_time, float updated) :
-      id(id), season_id(season_id), data_time(data_time), updated(updated)
+   ranking_t(id_t id, id_t season_id, enum_t version, float data_time, float updated) :
+      id(id), season_id(season_id), version(version), data_time(data_time), updated(updated)
    {}
 
    id_t id;          // From ranking never ever use ranking_data.id or ranking_stats.id.
    id_t season_id;   // From ranking.
+   enum_t version;   // From season.
    float data_time;  // From ranking.
    float updated;    // From ranking_data.
 };
 
-using rankings_t = std::vector<ranking>;
+using rankings_t = std::vector<ranking_t>;
 
 //
 // Ranking statistics.

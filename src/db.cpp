@@ -460,25 +460,29 @@ rankings_t
 db::get_available_rankings(uint32_t filter_season)
 {
    // Ranking.COMPLETE_WITH_DATA and Ranking.COMPLETE_WITOUT_DATA used here.
-   exec(fmt("SELECT r.id, r.season_id, EXTRACT(epoch FROM r.data_time), EXTRACT(epoch FROM rd.updated)"
-            " FROM ranking_data rd JOIN ranking r ON rd.ranking_id = r.id"
+   exec(fmt("SELECT r.id, s.id, s.version, EXTRACT(epoch FROM r.data_time), EXTRACT(epoch FROM rd.updated)"
+            " FROM ranking_data rd"
+            " JOIN ranking r ON rd.ranking_id = r.id"
+            " JOIN season s ON s.id = r.season_id"
             " WHERE r.status IN (1, 2) AND r.season_id > %d ORDER BY r.data_time", filter_season));
    rankings_t res;
    for (uint32_t i = 0; i < res_size(); ++i) {
-      ranking r(res_int(i, 0), res_int(i, 1), res_float(i, 2), res_float(i, 3));
+      ranking_t r(res_int(i, 0), res_int(i, 1), res_int(i, 2), res_float(i, 3), res_float(i, 4));
       res.push_back(r);
    }
    return res;
 }
 
-ranking
+ranking_t
 db::get_latest_ranking()
 {
    // Ranking.COMPLETE_WITH_DATA and Ranking.COMPLETE_WITOUT_DATA used here.
-   exec("SELECT r.id, r.season_id, EXTRACT(epoch FROM r.data_time), EXTRACT(epoch FROM rd.updated)"
-        " FROM ranking_data rd JOIN ranking r ON rd.ranking_id = r.id"
+   exec("SELECT r.id, s.id, s.version, EXTRACT(epoch FROM r.data_time), EXTRACT(epoch FROM rd.updated)"
+        " FROM ranking_data rd"
+        " JOIN ranking r ON rd.ranking_id = r.id"
+        " JOIN season s ON s.id = r.season_id"
         " WHERE r.status IN (1, 2) ORDER BY r.data_time DESC LIMIT 1");
-   ranking res(res_int(0, 0), res_int(0, 1), res_float(0, 2), res_float(0, 3));
+   ranking_t res(res_int(0, 0), res_int(0, 1), res_int(0, 2), res_float(0, 3), res_float(0, 4));
    return res;
 }
 

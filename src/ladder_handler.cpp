@@ -19,7 +19,7 @@ ladder_handler::refresh_ranking(bool force)
    if (_last_checked == 0 or now > _last_checked + 1e6 * 60 * 1 or force) {
       _last_checked = now;
       db db(_db_name);
-      ranking ranking = db.get_latest_ranking();
+      ranking_t ranking = db.get_latest_ranking();
       
       // Reload if new data.
       if (ranking.id != _ranking.id or ranking.updated > _ranking.updated) {
