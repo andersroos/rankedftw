@@ -85,7 +85,7 @@ Json::Value build_teams_array(const cmp_tr& cmp_op,
       team["points"] = curr->points;
       team["wins"] = curr->wins;
       team["losses"] = curr->losses;
-      team["win_rate"] = float(100 * curr->wins) / (curr->wins + curr->losses);
+      team["win_rate"] = (curr->wins or curr->losses) ? float(100 * curr->wins) / (curr->wins + curr->losses) : 0;
       team["data_time"] = uint32_t(curr->data_time);
       team["m0_race"] = curr->race0;
       team["m1_race"] = curr->race1;
