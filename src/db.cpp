@@ -483,7 +483,7 @@ db::get_latest_ranking()
 }
 
 void
-db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index, array<team_rank_t, 4>& trs)
+db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index, array<team_rank_t, 4>& trs, uint32_t& count)
 {
    uint32_t tr_size;
    if (tr_version == 2) 
@@ -502,6 +502,7 @@ db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index, array<t
    
    size_t size = res_value_size(0, 0);
    if (size == 0) {
+      count = 0;
       return;
    }
 
@@ -509,6 +510,7 @@ db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index, array<t
    stringstream ss(s);
 
    for (uint32_t i = 0; i < trs.size() && i * tr_size <= size; ++i) {
+      count = i + 1;
       read_tr(ss, tr_version, trs[i]);
    }
 }

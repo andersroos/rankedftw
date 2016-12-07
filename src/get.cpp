@@ -11,22 +11,64 @@ using namespace boost::python;
 using namespace std;
 
 
-void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_t& tr)
+void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, array<team_rank_t, 4>& trs)
 {
-   // Binary search getting four team ranks at a time because that will be enough for the common case.
+   // Binary search getting four team ranks at a time because that will be enough for the common case. Results will be
+   // filled in trs from pos 0 for non 1v1 there will only be one result.
    
    team_ranks_header trh;
    db.load_team_ranks_header(ranking_id, trh);
 
-   int32_t imin = 0;
-   int32_t imax = trh.count - 1;
+   int32_t imin = 0;             // Min index of possible hits (response is within this).
+   int32_t imax = trh.count - 1; // Max index of possible hits (response is within this).
+   uint32_t count = 0;
    array<team_rank_t, 4> trs;
 
    while (trh.count > 0 && imax >= imin) {
 
-      int32_t imid = imin + ((imax - imin) / 2);
+      int32_t imid = imin + ((imax - imin) / 2); // This is the index getted from the db.
       
-      db.load_team_rank(ranking_id, trh.version, imid, trs);
+      db.load_team_rank(ranking_id, trh.version, imid, trs, count);
+
+      if (trs[0].team_id > team_id) {
+         // Go lower.
+         imax = imid - 1;
+      }
+      else if (trs[count - 1].team_id < team_id) {
+         // Go higher.
+         imin = imid + count;
+      }
+      else {
+         // Range should have a hit or none exists, find it.
+         
+         int32_t hit_lo = -1;
+         int32_t hit_hi = -1;
+         for (int32_t i = 0; i < trs.size(); ++i) {
+            if (trs[i].team_id == team_id) {
+               if (hit_lo == -1) {
+                  hit_lo = i;
+               }
+               hit_hi = i;
+            }
+         }
+
+         if (hit_lo == -1) {
+            // Nothing found.
+            trs[0].team_id = 0;
+            return;
+         }
+
+         if (hit_hi != trs.size() - 1) {
+            // High limit found.
+            imax = imid + hit_hi;
+         }
+
+         if (hit_lo > 0) {
+            // Low level found.
+            imin = imin + hit_lo;
+         }
+      }
+      
       if (trs[0].team_id == team_id) {
 
          if (trs[2].team_id == team_id) {
@@ -61,8 +103,49 @@ void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_t& tr)
       }
    }
    tr.team_id = 0;
+   
+   // while (trh.count > 0 && imax >= imin) {
+   // 
+   //    int32_t imid = imin + ((imax - imin) / 2);
+   //    
+   //    db.load_team_rank(ranking_id, trh.version, imid, trs);
+   //    if (trs[0].team_id == team_id) {
+   // 
+   //       if (trs[2].team_id == team_id) {
+   //          if (trs[2].version <= tr.version) {
+   //             THROW(bug_exception, fmt("fatal, bad version (2) for team_id %d.", team_id));
+   //          }
+   //          
+   //          // Return plus 2 this is a later version.
+   //          tr = trs[2];
+   //          return;
+   //       }
+   //       
+   //       if (trs[1].team_id == team_id) {
+   //          if (trs[1].version <= tr.version) {
+   //             THROW(bug_exception, fmt("fatal, bad version (1) for team_id %d.", team_id));
+   //          }
+   //          
+   //          // Return plus 1 this is a later version.
+   //          tr = trs[1];
+   //          return;
+   //       }
+   // 
+   //       // Return the version we got.
+   //       tr = trs[0];
+   //       return;
+   //    }
+   //    else if (trs[0].team_id < team_id) {
+   //       imin = imid + 1;
+   //    }
+   //    else {
+   //       imax = imid - 1;
+   //    }
+   // }
+   // tr.team_id = 0;
 }
 
+// TODO Remove mode again, maybe it is not needed?
 boost::python::list
 get::rankings_for_team(id_t team_id, uint32_t mode)
 {
