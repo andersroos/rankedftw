@@ -48,9 +48,10 @@ struct db
    
    // Load an array of team ranks from ranking, index points to the start of the sequence to get, if index or any of the
    // team ranks is is out of range the team_id is set to 0 for that team rank. If used on non unpacked team_ranks the
-   // behaviour is undefined. Count will be set to the number of team ranks returned.
-   void load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index,
-                       std::array<team_rank_t, 4>& trs, uint32_t& count);
+   // behaviour is undefined. Set window_size to the requested number of team ranks to get. Returns number of team ranks
+   // actually loaded.
+   uint32_t load_team_rank_window(id_t ranking_id, uint16_t tr_version, uint32_t index,
+                                  team_rank_window_t& trs, uint32_t window_size);
 
    // Load the team ranks header from the database, it will check the version and the magic number. NOTE Only use
    // ranking.id, not ranking_data.id or ranking_stats.id.

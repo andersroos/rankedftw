@@ -486,8 +486,9 @@ db::get_latest_ranking()
    return res;
 }
 
-void
-db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index, array<team_rank_t, 4>& trs, uint32_t& count)
+uint32_t
+db::load_team_rank_window(id_t ranking_id, uint16_t tr_version, uint32_t index,
+                          team_rank_window_t& trs, uint32_t window_size)
 {
    uint32_t tr_size;
    if (tr_version == 2) 
@@ -496,27 +497,30 @@ db::load_team_rank(id_t ranking_id, uint16_t tr_version, uint32_t index, array<t
       tr_size = TEAM_RANK_V1_SIZE;
    else
       THROW(db_exception, fmt("Unsupported team rank version %d.", tr_version));
-      
+
+   if (trs.size() < window_size) {
+      THROW(db_exception, fmt("Window size %d does not fit array %s.", window_size, trs.size()));
+   }
    
    exec(fmt("SELECT substring(data from %u for %u) FROM ranking_data WHERE ranking_id = %d;",
-            TEAM_RANKS_HEADER_SIZE + tr_size * index + 1, tr_size * trs.size(), ranking_id),
+            TEAM_RANKS_HEADER_SIZE + tr_size * index + 1, tr_size * window_size, ranking_id),
         {}, {}, {});
 
    for (auto& tr : trs) tr.team_id = 0;
    
    size_t size = res_value_size(0, 0);
    if (size == 0) {
-      count = 0;
-      return;
+      return 0;
    }
 
    string s(res_value(0, 0), size);
    stringstream ss(s);
 
-   for (uint32_t i = 0; i < trs.size() && i * tr_size <= size; ++i) {
-      count = i + 1;
+   uint32_t i = 0;
+   for (; i < window_size && i * tr_size <= size; ++i) {
       read_tr(ss, tr_version, trs[i]);
    }
+   return i;
 }
 
 void

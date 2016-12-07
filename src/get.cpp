@@ -11,7 +11,7 @@ using namespace boost::python;
 using namespace std;
 
 
-void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, array<team_rank_t, 4>& trs)
+void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_window_t& trs)
 {
    // Binary search getting four team ranks at a time because that will be enough for the common case. Results will be
    // filled in trs from pos 0 for non 1v1 there will only be one result.
@@ -19,90 +19,56 @@ void find_team_rank(db& db, uint32_t ranking_id, id_t team_id, array<team_rank_t
    team_ranks_header trh;
    db.load_team_ranks_header(ranking_id, trh);
 
-   //int32_t imin = 0;             // Min index of possible hits (response is within this).
-   //int32_t imax = trh.count - 1; // Max index of possible hits (response is within this).
-   //uint32_t count = 0;
-  // array<team_rank_t, 4> trs;
-  // 
-  // while (trh.count > 0 && imax >= imin) {
-  // 
-  //    int32_t imid = imin + ((imax - imin) / 2); // This is the index getted from the db.
-  //    
-  //    db.load_team_rank(ranking_id, trh.version, imid, trs, count);
-  // 
-  //    if (trs[0].team_id > team_id) {
-  //       // Go lower.
-  //       imax = imid - 1;
-  //    }
-  //    else if (trs[count - 1].team_id < team_id) {
-  //       // Go higher.
-  //       imin = imid + count;
-  //    }
-  //    else {
-  //       // Range should have a hit or none exists, find it.
-  //       
-  //       int32_t hit_lo = -1;
-  //       int32_t hit_hi = -1;
-  //       for (int32_t i = 0; i < trs.size(); ++i) {
-  //          if (trs[i].team_id == team_id) {
-  //             if (hit_lo == -1) {
-  //                hit_lo = i;
-  //             }
-  //             hit_hi = i;
-  //          }
-  //       }
-  // 
-  //       if (hit_lo == -1) {
-  //          // Nothing found.
-  //          trs[0].team_id = 0;
-  //          return;
-  //       }
-  // 
-  //       if (hit_hi != trs.size() - 1) {
-  //          // High limit found.
-  //          imax = imid + hit_hi;
-  //       }
-  // 
-  //       if (hit_lo > 0) {
-  //          // Low level found.
-  //          imin = imin + hit_lo;
-  //       }
-  //    }
-  //    
-  //    if (trs[0].team_id == team_id) {
-  // 
-  //       if (trs[2].team_id == team_id) {
-  //          if (trs[2].version <= tr.version) {
-  //             THROW(bug_exception, fmt("fatal, bad version (2) for team_id %d.", team_id));
-  //          }
-  //          
-  //          // Return plus 2 this is a later version.
-  //          tr = trs[2];
-  //          return;
-  //       }
-  //       
-  //       if (trs[1].team_id == team_id) {
-  //          if (trs[1].version <= tr.version) {
-  //             THROW(bug_exception, fmt("fatal, bad version (1) for team_id %d.", team_id));
-  //          }
-  //          
-  //          // Return plus 1 this is a later version.
-  //          tr = trs[1];
-  //          return;
-  //       }
-  // 
-  //       // Return the version we got.
-  //       tr = trs[0];
-  //       return;
-  //    }
-  //    else if (trs[0].team_id < team_id) {
-  //       imin = imid + 1;
-  //    }
-  //    else {
-  //       imax = imid - 1;
-  //    }
-  // }
-  // tr.team_id = 0;
+   int32_t imin = 0;             // Min index of possible hits (response is within this).
+   int32_t imax = trh.count - 1; // Max index of possible hits (response is within this).
+   uint32_t count = 0;
+   uint32_t window_size = 4;
+  
+   while (trh.count > 0 && imax >= imin) {
+  
+      int32_t imid = imin + ((imax - imin) / 2); // This is the index getted from the db.
+     
+      uint32_t size = db.load_team_rank_window(ranking_id, trh.version, imid, trs, window_size);
+  
+      if (trs[0].team_id > team_id) {
+         // Go lower.
+         imax = imid - 1;
+      }
+      else if (trs[count - 1].team_id < team_id) {
+         // Go higher.
+         imin = imid + count;
+      }
+      else {
+         // Range should have a hit or none exists, find it.
+        
+         int32_t hit_lo = -1;
+         int32_t hit_hi = -1;
+         for (uint32_t i = 0; i < window_size; ++i) {
+            if (trs[i].team_id == team_id) {
+               if (hit_lo == -1) {
+                  hit_lo = i;
+               }
+               hit_hi = i;
+            }
+         }
+  
+         if (hit_lo == -1) {
+            // Nothing found.
+            trs[0].team_id = 0;
+            return;
+         }
+  
+         if (hit_hi + 1 != window_size) {
+            // High limit found.
+            imax = imid + hit_hi;
+         }
+  
+         if (hit_lo > 0) {
+            // Low level found.
+            imin = imin + hit_lo;
+         }
+      }
+   }
    
    // while (trh.count > 0 && imax >= imin) {
    // 
@@ -154,9 +120,10 @@ get::rankings_for_team(id_t team_id, uint32_t mode)
    db::transaction_block transaction(_db);
 
    rankings_t rankings = _db.get_available_rankings(_season_filter);
+
+   team_rank_window_t trs;
    
    for (uint32_t i = 0; i < rankings.size(); ++i) {
-      array<team_rank_t, 4> trs;
       find_team_rank(_db, rankings[i].id, team_id, trs);
       auto& team_rank = trs[0];
 

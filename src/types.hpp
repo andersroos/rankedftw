@@ -195,6 +195,8 @@ struct team_rank_v2_t {
 
 using team_rank_t =  team_rank_v2_t;
 using team_ranks_t = std::vector<team_rank_t>;
+using team_rank_window_t = std::array<team_rank_t, 16>;
+
 
 //
 // Player.
