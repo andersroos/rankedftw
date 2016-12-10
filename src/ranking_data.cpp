@@ -141,12 +141,13 @@ void ranking_data::save_data(id_t id, id_t season_id, float now)
          }
 
          // Set best rank for 1v1 where different ranks per race is possible.
-         std::set<id_t> team_ids;
+         set<pair<id_t, enum_t> > team_id_versions;
          if (mode == TEAM_1V1) {
             for (auto& tr : _team_ranks) {
-               if (team_ids.find(tr.team_id) == team_ids.end()) {
+               auto team_id_version = make_pair(tr.team_id, tr.version);
+               if (team_id_versions.find(team_id_version) == team_id_versions.end()) {
                   tr.race3 = RACE_BEST;
-                  team_ids.insert(tr.team_id);
+                  team_id_versions.insert(team_id_version);
                }
                else {
                   tr.race3 = RACE_ANY;

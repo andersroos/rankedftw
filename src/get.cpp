@@ -33,14 +33,7 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
       
       int32_t imid = imin + ((imax - imin) / 2); // This is the index getted from the db.
 
-      cerr << fmt("getting from db imin %d imid %d imax %d\n", imin, imid, imax);
-      
       uint32_t size = db.load_team_rank_window(ranking.id, trh.version, imid, trs, window_size);
-
-      cerr << "got size " << size << endl;
-      for (uint32_t i = 0; i < size; ++i) {
-         cerr << "  " << to_string(trs[i]) << endl;
-      }
 
       if (not size) {
          // Got nothing, can't do anything with that.
@@ -100,8 +93,6 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
          }
          int32_t isize = imax - imin + 1;
          
-         cerr << fmt("imin %d imax %d lo %d hi %d\n", imin, imax, hit_lo, hit_hi);
-         
          // If result is within current window, return it.
          if (imid <= imin and imax < imid + int32_t(size)) {
             int32_t i = 0;
@@ -113,16 +104,11 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
 
          // Get the window needed for returning result.
          size = db.load_team_rank_window(ranking.id, trh.version, imin, trs, isize);
-         cerr << "final load got size " << size << endl;
-         for (uint32_t i = 0; i < size; ++i) {
-            cerr << "  " << to_string(trs[i]) << endl;
-         }
 
          // Find start of return data by searching backwards in window.
          enum_t result_version = -1;
          int32_t start_index = -1;
          for (int32_t i = size - 1; i >= 0; --i) {
-            cerr << "i " << i << endl;
             if (trs[i].team_id == team_id) {
                if (result_version == -1) {
                   result_version = trs[i].version;
@@ -135,9 +121,7 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
                }
             }
          }
-         cerr << "start_index " << start_index << endl;
          if (start_index == -1) {
-            cerr << "sune" << endl;
             THROW(bug_exception, fmt("Found team %d in first load but not second %d in ranking %d.",
                                      team_id, ranking.id));
          }
@@ -147,7 +131,6 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
          for (uint32_t ifrom = start_index; trs[ifrom].version == result_version and ifrom < size; ++i, ++ifrom) {
             trs[i] = trs[start_index + i];
          }
-         cerr << "returning " << i << endl << endl << endl << endl;;
          return i;
       }
    }
