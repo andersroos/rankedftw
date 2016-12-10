@@ -6,18 +6,19 @@
 #include "db.hpp"
 #include "log.hpp"
 #include "exception.hpp"
+#include "io.hpp"
 
 using namespace boost::python;
 using namespace std;
 
 
-uint32_t find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_window_t& trs)
+uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_rank_window_t& trs)
 {
    // Binary search getting four team ranks at a time because that will be enough for the common case. Results will be
    // filled in trs from pos 0 for non 1v1 there will only be one result.
    
    team_ranks_header trh;
-   db.load_team_ranks_header(ranking_id, trh);
+   db.load_team_ranks_header(ranking.id, trh);
 
    int32_t imin = 0;             // Min index of possible hits (response is within this).
    int32_t imax = trh.count - 1; // Max index of possible hits (response is within this).
@@ -25,26 +26,44 @@ uint32_t find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_win
    uint32_t window_size = 4;
   
    while (trh.count > 0 && imax >= imin) {
-  
+
+      if (count++ > 32) {
+         THROW(bug_exception, fmt("could not find team %d after 32 iterations in ranking %d", team_id, ranking.id));
+      }
+      
       int32_t imid = imin + ((imax - imin) / 2); // This is the index getted from the db.
-     
-      uint32_t size = db.load_team_rank_window(ranking_id, trh.version, imid, trs, window_size);
-  
+
+      cerr << fmt("getting count %d form db imin %d imid %d imax %d\n", count, imin, imid, imax);
+      
+      uint32_t size = db.load_team_rank_window(ranking.id, trh.version, imid, trs, window_size);
+
+      cerr << "got size " << size << endl;
+
+      for (uint32_t i = 0; i < size; ++i) {
+         cerr << "  " << to_string(trs[i]) << endl;
+      }
+
+      if (not size) {
+         // Got nothing, can't do anything with that.
+         return 0;
+      }
+            
       if (trs[0].team_id > team_id) {
          // Search lower.
          imax = imid - 1;
       }
       else if (trs[size - 1].team_id < team_id) {
          // Search higher.
-         imin = imid + count;
+         imin = imid + window_size;
       }
       else {
-         // Range should have a hit or none exists, find it or calculate a window that will contain the answer.
+         // Range should have a hit or none exists, find it or calculate a window that will contain the answer, then get
+         // it.
 
          // Find hits in window.
          int32_t hit_lo = -1;
          int32_t hit_hi = -1;
-         for (uint32_t i = 0; i < window_size; ++i) {
+         for (uint32_t i = 0; i < size; ++i) {
             if (trs[i].team_id == team_id) {
                if (hit_lo == -1) {
                   hit_lo = i;
@@ -58,19 +77,39 @@ uint32_t find_team_rank(db& db, uint32_t ranking_id, id_t team_id, team_rank_win
             return 0;
          }
 
-         // Set ..
-         if (hit_hi != int32_t(window_size) - 1) {
-            // High limit found.
+         // Adjust imin and imax if hit boundary inside window.
+         if (hit_lo > 0) {
+            imin = imid + hit_lo;
+         }
+         if (hit_hi < int32_t(size) - 1) {
             imax = imid + hit_hi;
          }
-  
-         if (hit_lo > 0) {
-            // Low limit found.
-            imin = imin + hit_lo;
+
+         auto& hi = trs[hit_hi];
+         
+         // Calculate definitive imax and imin for getting full result, calculation differes depending on if separate
+         // race mmr is possible or not.
+         if (hi.race3 == RACE_BEST or hi.race3 == RACE_ANY) {
+            // Separate mmr possible.
+            imin = max(imin, imid + hit_hi - (hi.race0 - RACE_LO));
+            imax = min(imax, imid + hit_hi + (ranking.version - hi.version) * RACE_COUNT + RACE_HI - hi.race0);
          }
+         else {
+            // Single mmr per team.
+            imin = max(imin, imid + hit_hi);
+            imax = min(imax, imid + hit_hi + (ranking.version - hi.version));
+         }
+
+         cerr << fmt("imin %d imax %d lo %d hi %d\n", imin, imax, hit_lo, hit_hi);
          
-         
-         
+         // If result is within current window, return it.
+         if (imid <= imin and imax < imid + int32_t(size)) {
+            int32_t i = 0;
+            for (; i <= imax - imin; ++i) {
+               trs[i] = trs[i + imin - imid];
+            }
+            return i;
+         }
       }
    }
    return 0;
@@ -128,23 +167,24 @@ get::rankings_for_team(id_t team_id, uint32_t mode)
 
    team_rank_window_t trs;
    
-   for (uint32_t i = 0; i < rankings.size(); ++i) {
-      uint32_t found = find_team_rank(_db, rankings[i].id, team_id, trs);
+   for (auto& ranking : rankings) {
+      uint32_t found = find_team_rank(_db, ranking, team_id, trs);
       
       if (not found) continue;
       
       auto& team_rank = trs[0];
-      if (rankings[i].season_id < MMR_SEASON or team_rank.mmr != NO_MMR) {
+      if (ranking.season_id < MMR_SEASON or team_rank.mmr != NO_MMR) {
          boost::python::dict tr;
          
          tr["league"] = team_rank.league;
          tr["tier"] = team_rank.tier;
          tr["version"] = team_rank.version;
-         tr["data_time"] = rankings[i].data_time;
-         tr["season_id"] = rankings[i].season_id;
+         tr["data_time"] = ranking.data_time;
+         tr["season_id"] = ranking.season_id;
          tr["race0"] = team_rank.race0;
 
-         tr["best_race"] = mode != TEAM_1V1 or team_rank.race3 == RACE_BEST;
+         tr["best_race"] =
+            ranking.season_id < SEPARATE_RACE_MMR_SEASON or mode != TEAM_1V1 or team_rank.race3 == RACE_BEST;
          
          if (team_rank.mmr != NO_MMR) {
             tr["mmr"] = team_rank.mmr;
@@ -165,7 +205,7 @@ get::rankings_for_team(id_t team_id, uint32_t mode)
          tr["ladder_rank"] = team_rank.ladder_rank;
          tr["ladder_count"] = team_rank.ladder_count;
          
-         tr["id"] = rankings[i].id;
+         tr["id"] = ranking.id;
          
          res.attr("append")(tr);
       }

@@ -20,7 +20,7 @@ class Test(DjangoTestCase):
         self.db.create_cache()
         self.db.create_ladder()
 
-        self.db.create_season()
+        self.db.create_season(id=27, version=Version.LOTV)
         self.t1, self.t2, self.t3 = self.db.create_teams(count=3)
 
     def setUp(self):

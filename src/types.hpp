@@ -19,11 +19,15 @@ typedef uint32_t bid_t;
 
 #define TEAM_1V1 11
 #define LOTV 2
-#define GRANDMASTER 6
-#define KR 2
 #define NO_MMR -32768
 #define MMR_SEASON 28
 #define SEPARATE_RACE_MMR_SEASON 29
+
+#define VERSION_COUNT 3
+
+#define RACE_HI 3
+#define RACE_LO -1
+#define RACE_COUNT (RACE_HI - RACE_LO + 1)
 
 #define RACE_ANY  8
 #define RACE_BEST 9
@@ -195,7 +199,7 @@ struct team_rank_v2_t {
 
 using team_rank_t =  team_rank_v2_t;
 using team_ranks_t = std::vector<team_rank_t>;
-using team_rank_window_t = std::array<team_rank_t, 16>;
+using team_rank_window_t = std::array<team_rank_t, RACE_COUNT * VERSION_COUNT>; 
 
 
 //

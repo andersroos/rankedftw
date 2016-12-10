@@ -517,7 +517,7 @@ db::load_team_rank_window(id_t ranking_id, uint16_t tr_version, uint32_t index,
    stringstream ss(s);
 
    uint32_t i = 0;
-   for (; i < window_size && i * tr_size <= size; ++i) {
+   for (; i < window_size and (i + 1) * tr_size <= size; ++i) {
       read_tr(ss, tr_version, trs[i]);
    }
    return i;
