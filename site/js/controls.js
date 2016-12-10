@@ -118,3 +118,42 @@ export let Radio = function(control, default_value, select_callback) {
 
     return o;
 };
+
+
+//
+// Create a Radio control. It will render itself inside jq_container. Options is a list of
+// {value, heading (optional), tooltip, src (optional, for images)}. After creation it will
+// add itself to the registry to be linked with other controls of the same key.
+//
+export class Radio2 {
+
+    // Render and register.
+    constructor(jq_container, key, heading, options, default_value, select_callback) {
+        
+        this.heading = heading;
+        this.ul      = $("<ul data-ctrl-name='" + key + "'>");
+
+        jq_container.append(this.ul);
+
+        this.update(options);
+    }
+
+    // Update with new options.
+    update(options) {
+        // Todo unregister?
+        this.ul.empty();
+        this.ul.append("<span>" + this.heading + "</span>");
+        options.forEach(option => {
+            let a = $("<a data-ctrl-value='" + option.value + "' title='" + option.tooltip + "'>");
+            if (option.heading) {
+                a.append("<span>" + option.heading + "</span>");
+            }
+            if (option.src) {
+                a.append("<img src='" + option.src + "'>");
+            }
+            this.ul.append(a);
+
+        });
+    }
+}
+

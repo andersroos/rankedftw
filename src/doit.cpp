@@ -258,9 +258,30 @@ void count_no_mmr()
    }
 }
 
+void dump_multi_race_teams()
+{
+   db db(DEFAULT_DB);
+   
+   team_ranks_t team_ranks;
+   db.load_team_ranks(1076, team_ranks);
+
+   set<pair<id_t, enum_t> > have_rank;
+   for (auto& tr : team_ranks) {
+      if (tr.mode == TEAM_1V1) {
+         auto team_id_version = make_pair(tr.team_id, tr.version);
+         if (have_rank.find(team_id_version) == have_rank.end()) {
+            have_rank.insert(team_id_version);
+         }
+         else {
+            cout << tr.team_id << endl;
+         }
+      }
+   }
+}
+
 int main()
 {
-   dump_ranking(1075);
+   dump_multi_race_teams();
    
    return 0;
 }

@@ -9,6 +9,7 @@ import {stats_data} from "./stats";
 import {rev_each} from "./utils";
 import {Mode} from "./stats";
 import {format_int} from "./utils";
+import {Radio2} from "./controls";
 
 //
 // Add classes to container.
@@ -112,6 +113,46 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
              'heading': 'Rank',
              'tooltip': 'Absolute rank on y-axis, no 1 at the top. The grey area (or league distribution area) indicates all ranked teams from the top to the bottom at that point in time.'},
         ]);
+
+    if (enums_info.mode_key_by_ids[mode_id] === '1v1') {
+        // TODO Show only available races.
+        let race_control = new Radio2(container.find('.content'), 'r', 'Race:',
+            [
+                {
+                    'value':   'best',
+                    'heading': 'Best',
+                    'tooltip': 'Show ranking for best race at each data point.',
+                },
+                {
+                    'value':   'zerg',
+                    'heading': '',
+                    'tooltip': 'Show only Zerg data points.',
+                    'src':     static_url + 'img/races/zerg-16x16.png'
+                },
+                {
+                    'value':   'terran',
+                    'heading': '',
+                    'tooltip': 'Show only Zerg data points.',
+                    'src':     static_url + 'img/races/terran-16x16.png'
+                },
+                {
+                    'value':   'protoss',
+                    'heading': '',
+                    'tooltip': 'Show only Protoss data points.',
+                    'src':     static_url + 'img/races/protoss-16x16.png'
+                },
+                {
+                    'value':   'random',
+                    'heading': '',
+                    'tooltip': 'Show only Random data points.',
+                    'src':     static_url + 'img/races/random-16x16.png'
+                },
+            ],
+            'best',
+            () => {
+            }
+        );
+    }
 
     add_control(
         controls, 'tyz', 'Y-Zoom:', [
