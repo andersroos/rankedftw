@@ -14,7 +14,7 @@ struct get
    {}
    
    // Get all team rankings for a team. Uint32_t or strange errors in python call.
-   boost::python::list rankings_for_team(id_t team_id, uint32_t mode);
+   boost::python::list rankings_for_team(id_t team_id);
 
    // Get all rankings stats for one mode. Returs a string json. Uint32_t or strange errors in python call.
    std::string ranking_stats(uint32_t mode_id);

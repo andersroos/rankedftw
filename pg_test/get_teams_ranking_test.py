@@ -42,12 +42,12 @@ class Test(DjangoTestCase):
             dict(team_id=self.t1.id, points=8912),
         ])
 
-        rankings = self.c.rankings_for_team(self.t1.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t1.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(8912, rankings[0]["points"])
 
-        rankings = self.c.rankings_for_team(self.t1.id + 1, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t1.id + 1)
 
         self.assertEqual(0, len(rankings))
 
@@ -58,12 +58,12 @@ class Test(DjangoTestCase):
             dict(team_id=self.t2.id, points=1234),
         ])
 
-        rankings = self.c.rankings_for_team(self.t1.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t1.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(8912, rankings[0]["points"])
 
-        rankings = self.c.rankings_for_team(self.t2.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t2.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(1234, rankings[0]["points"])
@@ -75,7 +75,7 @@ class Test(DjangoTestCase):
             dict(team_id=self.t1.id, points=1234, version=Version.HOTS),
         ])
 
-        rankings = self.c.rankings_for_team(self.t1.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t1.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(1234, rankings[0]["points"])
@@ -88,7 +88,7 @@ class Test(DjangoTestCase):
             dict(team_id=self.t1.id, points=1111, version=Version.LOTV),
         ])
 
-        rankings = self.c.rankings_for_team(self.t1.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t1.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(1111, rankings[0]["points"])
@@ -101,7 +101,7 @@ class Test(DjangoTestCase):
             dict(team_id=self.t1.id, points=1111, version=Version.LOTV),
         ])
 
-        rankings = self.c.rankings_for_team(self.t1.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t1.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(1111, rankings[0]["points"])
@@ -115,7 +115,7 @@ class Test(DjangoTestCase):
             dict(team_id=self.t1.id, points=2222, version=Version.LOTV),
         ])
 
-        rankings = self.c.rankings_for_team(self.t1.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t1.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(2222, rankings[0]["points"])
@@ -132,19 +132,19 @@ class Test(DjangoTestCase):
             dict(team_id=self.t3.id, points=6, version=Version.LOTV),
         ])
 
-        rankings = self.c.rankings_for_team(self.t1.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t1.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(Version.WOL, rankings[0]["version"])
         self.assertEqual(1, rankings[0]["points"])
 
-        rankings = self.c.rankings_for_team(self.t2.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t2.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(Version.HOTS, rankings[0]["version"])
         self.assertEqual(4, rankings[0]["points"])
 
-        rankings = self.c.rankings_for_team(self.t3.id, Mode.TEAM_1V1)
+        rankings = self.c.rankings_for_team(self.t3.id)
 
         self.assertEqual(1, len(rankings))
         self.assertEqual(Version.LOTV, rankings[0]["version"])

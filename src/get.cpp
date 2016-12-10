@@ -28,17 +28,16 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
    while (trh.count > 0 && imax >= imin) {
 
       if (count++ > 32) {
-         THROW(bug_exception, fmt("could not find team %d after 32 iterations in ranking %d", team_id, ranking.id));
+         THROW(bug_exception, fmt("Could not find team %d after 32 iterations in ranking %d.", team_id, ranking.id));
       }
       
       int32_t imid = imin + ((imax - imin) / 2); // This is the index getted from the db.
 
-      cerr << fmt("getting count %d form db imin %d imid %d imax %d\n", count, imin, imid, imax);
+      cerr << fmt("getting from db imin %d imid %d imax %d\n", imin, imid, imax);
       
       uint32_t size = db.load_team_rank_window(ranking.id, trh.version, imid, trs, window_size);
 
       cerr << "got size " << size << endl;
-
       for (uint32_t i = 0; i < size; ++i) {
          cerr << "  " << to_string(trs[i]) << endl;
       }
@@ -99,65 +98,64 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
             imin = max(imin, imid + hit_hi);
             imax = min(imax, imid + hit_hi + (ranking.version - hi.version));
          }
-
+         int32_t isize = imax - imin + 1;
+         
          cerr << fmt("imin %d imax %d lo %d hi %d\n", imin, imax, hit_lo, hit_hi);
          
          // If result is within current window, return it.
          if (imid <= imin and imax < imid + int32_t(size)) {
             int32_t i = 0;
-            for (; i <= imax - imin; ++i) {
-               trs[i] = trs[i + imin - imid];
+            for (int32_t ifrom = imin - imid; i < isize; ++i, ++ifrom) {
+               trs[i] = trs[ifrom];
             }
             return i;
          }
+
+         // Get the window needed for returning result.
+         size = db.load_team_rank_window(ranking.id, trh.version, imin, trs, isize);
+         cerr << "final load got size " << size << endl;
+         for (uint32_t i = 0; i < size; ++i) {
+            cerr << "  " << to_string(trs[i]) << endl;
+         }
+
+         // Find start of return data by searching backwards in window.
+         enum_t result_version = -1;
+         int32_t start_index = -1;
+         for (int32_t i = size - 1; i >= 0; --i) {
+            cerr << "i " << i << endl;
+            if (trs[i].team_id == team_id) {
+               if (result_version == -1) {
+                  result_version = trs[i].version;
+               }
+               if (result_version == trs[i].version) {
+                  start_index = i;
+               }
+               else {
+                  break;
+               }
+            }
+         }
+         cerr << "start_index " << start_index << endl;
+         if (start_index == -1) {
+            cerr << "sune" << endl;
+            THROW(bug_exception, fmt("Found team %d in first load but not second %d in ranking %d.",
+                                     team_id, ranking.id));
+         }
+
+         // Return the result.
+         int32_t i = 0;
+         for (uint32_t ifrom = start_index; trs[ifrom].version == result_version and ifrom < size; ++i, ++ifrom) {
+            trs[i] = trs[start_index + i];
+         }
+         cerr << "returning " << i << endl << endl << endl << endl;;
+         return i;
       }
    }
    return 0;
-   
-   // while (trh.count > 0 && imax >= imin) {
-   // 
-   //    int32_t imid = imin + ((imax - imin) / 2);
-   //    
-   //    db.load_team_rank(ranking_id, trh.version, imid, trs);
-   //    if (trs[0].team_id == team_id) {
-   // 
-   //       if (trs[2].team_id == team_id) {
-   //          if (trs[2].version <= tr.version) {
-   //             THROW(bug_exception, fmt("fatal, bad version (2) for team_id %d.", team_id));
-   //          }
-   //          
-   //          // Return plus 2 this is a later version.
-   //          tr = trs[2];
-   //          return;
-   //       }
-   //       
-   //       if (trs[1].team_id == team_id) {
-   //          if (trs[1].version <= tr.version) {
-   //             THROW(bug_exception, fmt("fatal, bad version (1) for team_id %d.", team_id));
-   //          }
-   //          
-   //          // Return plus 1 this is a later version.
-   //          tr = trs[1];
-   //          return;
-   //       }
-   // 
-   //       // Return the version we got.
-   //       tr = trs[0];
-   //       return;
-   //    }
-   //    else if (trs[0].team_id < team_id) {
-   //       imin = imid + 1;
-   //    }
-   //    else {
-   //       imax = imid - 1;
-   //    }
-   // }
-   // tr.team_id = 0;
 }
 
-// TODO Remove mode again, maybe it is not needed?
 boost::python::list
-get::rankings_for_team(id_t team_id, uint32_t mode)
+get::rankings_for_team(id_t team_id)
 {
    boost::python::list res;
    
@@ -169,45 +167,44 @@ get::rankings_for_team(id_t team_id, uint32_t mode)
    
    for (auto& ranking : rankings) {
       uint32_t found = find_team_rank(_db, ranking, team_id, trs);
-      
-      if (not found) continue;
-      
-      auto& team_rank = trs[0];
-      if (ranking.season_id < MMR_SEASON or team_rank.mmr != NO_MMR) {
-         boost::python::dict tr;
-         
-         tr["league"] = team_rank.league;
-         tr["tier"] = team_rank.tier;
-         tr["version"] = team_rank.version;
-         tr["data_time"] = ranking.data_time;
-         tr["season_id"] = ranking.season_id;
-         tr["race0"] = team_rank.race0;
 
-         tr["best_race"] =
-            ranking.season_id < SEPARATE_RACE_MMR_SEASON or mode != TEAM_1V1 or team_rank.race3 == RACE_BEST;
+      for (uint32_t i = 0; i < found; ++i) {
+         auto& team_rank = trs[i];
+         if (ranking.season_id < MMR_SEASON or team_rank.mmr != NO_MMR) {
+            boost::python::dict tr;
          
-         if (team_rank.mmr != NO_MMR) {
-            tr["mmr"] = team_rank.mmr;
+            tr["league"] = team_rank.league;
+            tr["tier"] = team_rank.tier;
+            tr["version"] = team_rank.version;
+            tr["data_time"] = ranking.data_time;
+            tr["season_id"] = ranking.season_id;
+            tr["race0"] = team_rank.race0;
+
+            tr["best_race"] = team_rank.race3 != RACE_ANY;
+         
+            if (team_rank.mmr != NO_MMR) {
+               tr["mmr"] = team_rank.mmr;
+            }
+            tr["points"] = team_rank.points;
+            tr["wins"] = team_rank.wins;
+            tr["losses"] = team_rank.losses;
+         
+            tr["world_rank"] = team_rank.world_rank;
+            tr["world_count"] = team_rank.world_count;
+         
+            tr["region_rank"] = team_rank.region_rank;
+            tr["region_count"] = team_rank.region_count;
+         
+            tr["league_rank"] = team_rank.league_rank;
+            tr["league_count"] = team_rank.league_count;
+
+            tr["ladder_rank"] = team_rank.ladder_rank;
+            tr["ladder_count"] = team_rank.ladder_count;
+         
+            tr["id"] = ranking.id;
+         
+            res.attr("append")(tr);
          }
-         tr["points"] = team_rank.points;
-         tr["wins"] = team_rank.wins;
-         tr["losses"] = team_rank.losses;
-         
-         tr["world_rank"] = team_rank.world_rank;
-         tr["world_count"] = team_rank.world_count;
-         
-         tr["region_rank"] = team_rank.region_rank;
-         tr["region_count"] = team_rank.region_count;
-         
-         tr["league_rank"] = team_rank.league_rank;
-         tr["league_count"] = team_rank.league_count;
-
-         tr["ladder_rank"] = team_rank.ladder_rank;
-         tr["ladder_count"] = team_rank.ladder_count;
-         
-         tr["id"] = ranking.id;
-         
-         res.attr("append")(tr);
       }
    }
    

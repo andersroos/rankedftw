@@ -221,17 +221,24 @@ class Db(object):
         team_rank.setdefault("world_rank", 1)
         team_rank.setdefault("world_count", 1)
 
-    def create_ranking_data(self, **kwargs):
+    def create_ranking_data(self, raw=True, **kwargs):
         kwargs = merge_args(dict(ranking=self.ranking,
                                  updated=utcnow()), kwargs)
         data = kwargs.pop('data', [])
+        ranking = kwargs['ranking']
 
         for team_rank in data:
             self._default_team_rank(team_rank)
-            kwargs['ranking'].sources.add(self.get(Cache, pk=team_rank['source_id']))
+            ranking.sources.add(self.get(Cache, pk=team_rank['source_id']))
 
         self.ranking_data = RankingData.objects.create(**kwargs)
-        sc2.save_ranking_data_raw(self.db_name, kwargs['ranking'].id, 0, data, True)
+        sc2.save_ranking_data_raw(self.db_name, ranking.id, 0, data, True)
+        if not raw:
+            cpp = sc2.RankingData(self.db_name, Enums.INFO)
+            cpp.load(ranking.id)
+            cpp.save_data(ranking.id, ranking.season_id, to_unix(utcnow()))
+            cpp.release()
+
         return self.ranking_data
 
     def update_ranking_stats(self, ranking_id=None):

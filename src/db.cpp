@@ -499,7 +499,8 @@ db::load_team_rank_window(id_t ranking_id, uint16_t tr_version, uint32_t index,
       THROW(db_exception, fmt("Unsupported team rank version %d.", tr_version));
 
    if (trs.size() < window_size) {
-      THROW(db_exception, fmt("Window size %d does not fit array %s.", window_size, trs.size()));
+      THROW(db_exception, fmt("Window size %d does not fit array %s when getting from ranking %d.",
+                              window_size, trs.size(), ranking_id));
    }
    
    exec(fmt("SELECT substring(data from %u for %u) FROM ranking_data WHERE ranking_id = %d;",

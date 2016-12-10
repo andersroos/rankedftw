@@ -55,7 +55,7 @@ test_aid::save_ranking_data_raw(const string& db_name,
       trs.push_back(tr);
    }
    if (sort)
-      stable_sort(trs.begin(), trs.end(), compare_team_id_version);
+      stable_sort(trs.begin(), trs.end(), compare_team_id_version_race);
    
    db.save_team_ranks(ranking_id, now, trs);
 }

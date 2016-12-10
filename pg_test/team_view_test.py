@@ -9,7 +9,7 @@ from aid.test.base import DjangoTestCase
 from django.test import Client
 
 from main.battle_net import NO_MMR
-from main.models import Player, Version, Team, RankingData, Ranking, Cache, Ladder, Season
+from main.models import Version, Cache, Ladder
 from main.views.base import rankings_view_client
 
 
@@ -27,7 +27,7 @@ class Test(DjangoTestCase):
     def setUp(self):
         super().setUp()
         self.db.delete_all(keep=[Cache, Ladder])
-        self.db.create_season()
+        self.db.create_season(id=26, version=Version.LOTV)
         self.c = Client()
 
     def tearDown(self):
@@ -53,8 +53,8 @@ class Test(DjangoTestCase):
                                           dict(team_id=t1.id, ladder_rank=6, version=Version.WOL)])
 
         r4 = self.db.create_ranking()
-        self.db.create_ranking_data(data=[dict(team_id=t1.id, ladder_rank=13, version=Version.LOTV),
-                                          dict(team_id=t1.id, ladder_rank=4, version=Version.HOTS)])
+        self.db.create_ranking_data(data=[dict(team_id=t1.id, ladder_rank=4, version=Version.HOTS),
+                                          dict(team_id=t1.id, ladder_rank=13, version=Version.LOTV)])
 
         response = self.c.get('/team/%d/' % t1.id)
         self.assertEqual(200, response.status_code)
