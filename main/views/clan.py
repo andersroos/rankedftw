@@ -165,7 +165,7 @@ class ClanView(MainNavMixin, TemplateView, LadderCommon):
         LadderCommon.set_nav(context, request, clan_url, paths, args, name='race', values=values)
 
         values = [('All', None)] + [(League.name_by_ids[i], League.key_by_ids[i])
-                                    for i in League.ids if i != League.UNKNOWN]
+                                    for i in League.ids if i not in (League.UNKNOWN, League.ALL)]
         LadderCommon.set_nav(context, request, clan_url, paths, args, name='league', values=values)
 
         values = [(Region.name_by_ids[i], Region.key_by_ids[i])

@@ -344,7 +344,7 @@ class LadderView(MainNavMixin, TemplateView, LadderCommon):
                              name='race', values=values, highlight=Race.key_by_ids.get(filter_race))
 
         values = [('All', None)] + [(League.name_by_ids[i], League.key_by_ids[i])
-                                    for i in League.ids if i != League.UNKNOWN]
+                                    for i in League.ids if i not in (League.UNKNOWN, League.ALL)]
         LadderCommon.set_nav(context, request, ladder_url, paths, args,
                              name='league', values=values)
 
