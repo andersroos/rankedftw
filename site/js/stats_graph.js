@@ -35,8 +35,8 @@ let create_league_control = (graph_jq, cb) => {
         leagues
             .map(lid => ({
                 value: lid,
-                heading: lid == ALL ? enums_info.league_name_by_ids[lid] : null,
-                src: lid == ALL ? null : static_url + 'img/leagues/' + enums_info.league_key_by_ids[lid] + '-16x16.png',
+                heading: lid === ALL ? enums_info.league_name_by_ids[lid] : null,
+                src: lid === ALL ? null : static_url + 'img/leagues/' + enums_info.league_key_by_ids[lid] + '-16x16.png',
                 tooltip: enums_info.league_name_by_ids[lid],
             })),
         ALL, cb);

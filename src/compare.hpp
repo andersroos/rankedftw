@@ -196,7 +196,8 @@ struct cmp_tr
    bool use(const team_rank_t& x) const {
 
       // This is to mitigate a blizzard bug with bogus mmr. This filtering will make bogus mmr players to be filtered
-      // away in ladder when sorting on mmr. They will not get a proper ranking in history so they are filtered in TODO.
+      // away in ladder when sorting on mmr. They will not get a proper ranking in history so they are filtered when
+      // getting from db.
       if (_key == MMR and x.mmr == NO_MMR) {
          return false;
       }

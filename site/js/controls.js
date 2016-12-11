@@ -80,7 +80,7 @@ export class Radio {
 
         this.key = key;
         this.heading = heading;
-        this.ul = $("<ul/>");
+        this.ul = $("<ul class='" + key + "'/>");
         this.on_select = on_select;
 
         jq_container.append(this.ul);

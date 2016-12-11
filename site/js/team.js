@@ -78,6 +78,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         ['Points:', 'points'],
         ['Wins:',   'wins'],
         ['Losses:', 'losses'],
+        ['Race:', 'race'],
+        ['League:', 'league'],
     ]);
 
     //
@@ -160,7 +162,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     //
 
     o.points = [];          // Points {x, y, m} calcualted from rankings (m is the index in o.rankings).
-    let leagues = [];       // List of point plus league data in a map.
+    let leagues = [];       // List of {x, y, league} for when league changes.
     let floor = [];         // Points {x, y} used when there is an absolute floor.
     let league_areas = {};  // Map from leagues to lists of league area points, league areas should be drawn in
                             // backwards order since they overlap (from gm to bronze)
@@ -350,7 +352,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         leagues = [];
         league_areas = {};
 
-        let league = -1;
+        let league = -64;
         for (let i = start_ranking_index; i <= end_ranking_index; ++i) {
             let ranking = f_rankings[i];
             let x = o.epoch_to_pixels(ranking.data_time);
@@ -437,7 +439,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
         o.draw_crosshair();
 
-        // Leagues.
+        // League icons.
         
         for (let i = 0; i < leagues.length; ++i) {
             o.ctx.drawImage(document.getElementById('league' + leagues[i].league), leagues[i].x - 8, leagues[i].y - 8);
@@ -463,7 +465,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         $('.points', o.tooltip).text(r.points);
         $('.wins', o.tooltip).text(r.wins);
         $('.losses', o.tooltip).text(r.losses);
-        // TODO Add race.
+        $('.race', o.tooltip).empty().append('<img src="'+ static_url + 'img/races/' + enums_info.race_key_by_ids[r.race0] + '-16x16.png"/>');
+        $('.league', o.tooltip).empty().append('<img src="'+ static_url + 'img/leagues/' + enums_info.league_key_by_ids[r.league] + '-16x16.png"/>');
 
         return 218;
     };
