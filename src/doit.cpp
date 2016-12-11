@@ -287,7 +287,7 @@ void dump_faulty_team()
    db.load_team_ranks(1074, team_ranks);
 
    for (auto& tr : team_ranks) {
-      if (tr.team_id == 3600712) {
+      if (tr.team_id == 4251187) {
          cout << to_string(tr) << endl;
       }
    }

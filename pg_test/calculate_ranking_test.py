@@ -569,3 +569,19 @@ class Test(DjangoTestCase):
                                dict(world_rank=7,  region_rank=2,  league_rank=2,  ladder_rank=2,
                                     points=10, region=Region.EU))
 
+    def test_race3_is_not_overwritten__this_was_a_bug(self):
+        self.db.create_season(id=29)
+        self.db.create_ranking()
+
+        self.process_ladder(mode=Mode.TEAM_4V4,
+                            members=[
+                                gen_member(race=Race.ZERG),
+                                gen_member(race=Race.ZERG),
+                                gen_member(race=Race.ZERG),
+                                gen_member(race=Race.ZERG),
+                            ])
+
+        self.save_to_ranking()
+
+        self.assert_team_ranks(self.db.ranking.id,
+                               dict(race3=Race.ZERG))
