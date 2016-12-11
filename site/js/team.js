@@ -313,7 +313,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     o.new_settings = function() {
 
         // Start by filtering rankings on race settings, then.
-        if (o.settings.ra === 'best') {
+        if (typeof o.settings.ra === 'undefined' || o.settings.ra === 'best') {
             f_rankings = o.rankings.filter(r => r.best_race);
         }
         else {
@@ -478,11 +478,13 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Init everything.
     o.init = _.wrap(o.init, function(wrapped) {
 
-        o.race_control.update(o.get_race_options(o.rankings));
+        if (o.race_control) {
+            o.race_control.update(o.get_race_options(o.rankings));
+            o.race_control.init();
+        }
 
         o.data_control.init();
         o.y_axis_control.init();
-        o.race_control.init();
         o.y_zoom_control.init();
         o.x_axis_control.init();
         o.background_control.init();
