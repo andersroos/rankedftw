@@ -63,13 +63,6 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     let controls = add_controls_div(container);
 
     //
-    // Init graph base.
-    //
-
-    add_canvas(container);
-    let o = GraphBase('#' + container_id);
-
-    //
     // Add tooltip.
     //
 
@@ -88,14 +81,21 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     ]);
 
     //
+    // Init graph base.
+    //
+
+    add_canvas(container);
+    let o = GraphBase('#' + container_id);
+
+    //
     // Add controls.
     //
 
     // Return race options depending on what is available in rankings.
     o.get_race_options = (rankings) => {
         let options = [{value: 'best', heading: 'Best', tooltip: 'Show ranking for best race in each data point.'}];
-        let races_present = rankings.map(r => r.race);
-        options.concat(enums_info.race_ranking_ids.filter(rid => races_present.includes(rid)).forEach(rid => ({
+        let races_present = rankings.map(r => r.race0);
+        options.push(...enums_info.race_ranking_ids.filter(rid => rid >= 0 && races_present.includes(rid)).map(rid => ({
             value: rid,
             src: static_url + 'img/races/' + enums_info.race_key_by_ids[rid] + '-16x16.png',
             tooltip:'Show only ' + enums_info.race_name_by_ids[rid] + ' data points.',
@@ -139,9 +139,11 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Calculated units by settings and size.
     //
 
-    let start_ranking_index;
-    let end_ranking_index;
-    
+    let start_ranking_index; // Start ranking for time selection, index among f_rankings.
+    let end_ranking_index; // End ranking for time selection, index among f_rankings.
+
+    let f_rankings; // Rankings filtered on race setting.
+
     let max_rank_all; // One value per settings.data.
 
     let max_rank; // One value per settings.data.
@@ -157,7 +159,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Data for the graph.
     //
 
-    o.points = [];          // Points {x, y, m} calcualted from rankings (m is the index in rankings).
+    o.points = [];          // Points {x, y, m} calcualted from rankings (m is the index in o.rankings).
     let leagues = [];       // List of point plus league data in a map.
     let floor = [];         // Points {x, y} used when there is an absolute floor.
     let league_areas = {};  // Map from leagues to lists of league area points, league areas should be drawn in
@@ -167,16 +169,16 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Functions.
     //
     
-    // Updating on units needs to be done after a resize or after settings changed.
+    // Updating of units needs to be done after a resize or after settings changed.
     o.update_units = function() {
         
         let start = 0;
-        end_ranking_index = o.rankings.length - 1;
-        o.x_ax.right_value = o.rankings[end_ranking_index].data_time;
+        end_ranking_index = f_rankings.length - 1;
+        o.x_ax.right_value = f_rankings[end_ranking_index].data_time;
 
         if (o.settings.ty === 'm') {
             for (let i = end_ranking_index; i >= 0; --i) {
-                if  (typeof o.rankings[i].mmr !== 'undefined') {
+                if  (typeof f_rankings[i].mmr !== 'undefined') {
                     start = i;
                 }
             }
@@ -186,21 +188,21 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
             start_ranking_index = start;
         }
         else if (o.settings.tx === 's') {
-            let season_id = o.rankings[end_ranking_index].season_id;
+            let season_id = f_rankings[end_ranking_index].season_id;
             for (let i = end_ranking_index; i >= start; --i) {
-                if (season_id === o.rankings[i].season_id) {
+                if (season_id === f_rankings[i].season_id) {
                     start_ranking_index = i;
                 }
             }
         }
         else if (o.settings.tx === '60') {
             for (let i = end_ranking_index; i >= start; --i) {
-                if (o.x_ax.right_value - o.rankings[i].data_time < 3600 * 24 * 60) {
+                if (o.x_ax.right_value - f_rankings[i].data_time < 3600 * 24 * 60) {
                     start_ranking_index = i;
                 }
             }
         }
-        o.x_ax.left_value = o.rankings[start_ranking_index].data_time;
+        o.x_ax.left_value = f_rankings[start_ranking_index].data_time;
         
         max_rank_all = {world: 0, region: 0, league: 0};
         max_rank = {world: 0, region: 0, league: 0};
@@ -212,8 +214,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         
         for (let i = start_ranking_index; i <= end_ranking_index; ++i) {
             $.each(['world', 'region', 'league'], function(j, key) {
-                let count = o.rankings[i][key + "_count"];
-                let rank =  o.rankings[i][key + "_rank"];
+                let count = f_rankings[i][key + "_count"];
+                let rank =  f_rankings[i][key + "_rank"];
 
                 max_rank_all[key] = Math.max(max_rank_all[key], count);
                 
@@ -223,8 +225,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                 min_percent[key] = Math.max(Math.min(min_percent[key], 100 * rank / count - 0.001), 0);
                 max_percent[key] = Math.min(Math.max(max_percent[key], 100 * rank / count + 0.001), 100);
             });
-            min_mmr = Math.min(min_mmr, o.rankings[i].mmr);
-            max_mmr = Math.max(max_mmr, o.rankings[i].mmr);
+            min_mmr = Math.min(min_mmr, f_rankings[i].mmr);
+            max_mmr = Math.max(max_mmr, f_rankings[i].mmr);
         }
         
         o.x_per_unit = o.width / (o.x_ax.right_value - o.x_ax.left_value + 0.01);
@@ -308,6 +310,15 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
     o.new_settings = function() {
 
+        // Start by filtering rankings on race settings, then.
+        if (o.settings.ra === 'best') {
+            f_rankings = o.rankings.filter(r => r.best_race);
+        }
+        else {
+            let race = parseInt(o.settings.ra);
+            f_rankings = o.rankings.filter(r => r.race0 === race);
+        }
+
         o.update_units();
 
         // Calculate if floor or leagues background should be drawn.
@@ -341,11 +352,11 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
         let league = -1;
         for (let i = start_ranking_index; i <= end_ranking_index; ++i) {
-            let ranking = o.rankings[i];
+            let ranking = f_rankings[i];
             let x = o.epoch_to_pixels(ranking.data_time);
             let y = o.ranking_y_value(ranking);
             let count = ranking[o.settings.td + "_count"];
-            o.points.push({x: x, y: y, m: i});
+            o.points.push({x: x, y: y, m: ranking.index});
             
             if (o.settings.bg) {
                 floor.push({x: x, y: o.y_value(count, count)});
@@ -452,6 +463,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         $('.points', o.tooltip).text(r.points);
         $('.wins', o.tooltip).text(r.wins);
         $('.losses', o.tooltip).text(r.losses);
+        // TODO Add race.
 
         return 218;
     };
@@ -462,6 +474,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     
     // Init everything.
     o.init = _.wrap(o.init, function(wrapped) {
+
+        o.race_control.update(o.get_race_options(o.rankings));
 
         o.data_control.init();
         o.y_axis_control.init();
@@ -482,12 +496,18 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                    url: dynamic_url + 'team/' + team_id + '/rankings/',
                    success: function(data) {
                        o.rankings = data;
+
+                       // Add index to each ranking to be able to find it in global list after filtering.
+                       o.rankings.forEach((r, i) => r.index = i);
+
+                       // Handle empty ranking.
                        if (o.rankings.length === 0) {
                            o.init = function() { o.container.removeClass('wait'); }
                        }
                    }}),
            stats_data.deferred_fetch_mode(mode_id),
-           images.deferred_load_leagues())
+           images.deferred_load_leagues(),
+           images.deferred_load_races())
         .done(function() { o.init(); });
             
     return o;
