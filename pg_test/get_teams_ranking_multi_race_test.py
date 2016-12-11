@@ -158,3 +158,27 @@ class Test(DjangoTestCase):
         self.assertEqual(120, rankings[0]["mmr"])
         self.assertEqual(Version.WOL, rankings[0]["version"])
         self.assertEqual(True, rankings[0]["best_race"])
+
+    def test_finds_one_among_many_of_same_version__this_was_a_bug(self):
+        self.db.create_ranking()
+        self.db.create_ranking_data(raw=False, data=[
+            dict(team_id=self.t1.id, race0=Race.UNKNOWN),
+            dict(team_id=self.t1.id, race0=Race.ZERG),
+            dict(team_id=self.t1.id, race0=Race.PROTOSS),
+            dict(team_id=self.t1.id, race0=Race.RANDOM),
+            dict(team_id=self.t1.id, race0=Race.TERRAN),
+            dict(team_id=self.t2.id, race0=Race.UNKNOWN),
+            dict(team_id=self.t2.id, race0=Race.ZERG),
+            dict(team_id=self.t2.id, race0=Race.PROTOSS),
+            dict(team_id=self.t2.id, race0=Race.RANDOM),
+            dict(team_id=self.t2.id, race0=Race.TERRAN),
+            dict(team_id=self.t3.id, race0=Race.UNKNOWN),
+            dict(team_id=self.t4.id, race0=Race.UNKNOWN),
+            dict(team_id=self.t4.id, race0=Race.ZERG),
+            dict(team_id=self.t4.id, race0=Race.PROTOSS),
+            dict(team_id=self.t4.id, race0=Race.RANDOM),
+        ])
+
+        rankings = self.c.rankings_for_team(self.t3.id)
+
+        self.assertEqual(1, len(rankings))

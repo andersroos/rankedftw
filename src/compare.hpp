@@ -270,7 +270,7 @@ inline bool compare_team_id_version(const team_rank_t& x, const team_rank_t& y)
 }
 
 //
-// Alternative to compare_team_id_version to use for 1v1 where separate race mmr is a thing.
+// Alternative to compare_team_id_version to use for where separate race mmr is a thing.
 //
 inline bool compare_team_id_version_race(const team_rank_t& x, const team_rank_t& y)
 {

@@ -567,7 +567,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
 
          auto source = ladder.begin();
          for (auto target = _team_ranks.begin(); target != _team_ranks.end() and source != ladder.end();) {
-
+            
             if (team_merge_cmp(*source, *target)) {
                // We passed source's place in target, adding later.
                new_team_ranks.push_back(*source);

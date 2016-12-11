@@ -279,9 +279,23 @@ void dump_multi_race_teams()
    }
 }
 
+void dump_faulty_team()
+{
+   db db(DEFAULT_DB);
+   
+   team_ranks_t team_ranks;
+   db.load_team_ranks(1074, team_ranks);
+
+   for (auto& tr : team_ranks) {
+      if (tr.team_id == 3600712) {
+         cout << to_string(tr) << endl;
+      }
+   }
+}
+
 int main()
 {
-   dump_multi_race_teams();
+   dump_faulty_team();
    
    return 0;
 }

@@ -24,7 +24,7 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
    int32_t imax = trh.count - 1; // Max index of possible hits (response is within this).
    uint32_t count = 0;
    uint32_t window_size = 4;
-  
+
    while (trh.count > 0 && imax >= imin) {
 
       if (count++ > 32) {
@@ -128,8 +128,10 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
 
          // Return the result.
          int32_t i = 0;
-         for (uint32_t ifrom = start_index; trs[ifrom].version == result_version and ifrom < size; ++i, ++ifrom) {
-            trs[i] = trs[start_index + i];
+         for (uint32_t ifrom = start_index;
+              trs[ifrom].version == result_version and trs[ifrom].team_id == team_id and ifrom < size;
+              ++i, ++ifrom) {
+            trs[i] = trs[ifrom];
          }
          return i;
       }
@@ -155,7 +157,7 @@ get::rankings_for_team(id_t team_id)
          auto& team_rank = trs[i];
          if (ranking.season_id < MMR_SEASON or team_rank.mmr != NO_MMR) {
             boost::python::dict tr;
-         
+
             tr["league"] = team_rank.league;
             tr["tier"] = team_rank.tier;
             tr["version"] = team_rank.version;
@@ -164,7 +166,7 @@ get::rankings_for_team(id_t team_id)
             tr["race0"] = team_rank.race0;
 
             tr["best_race"] = team_rank.race3 != RACE_ANY;
-         
+
             if (team_rank.mmr != NO_MMR) {
                tr["mmr"] = team_rank.mmr;
             }
