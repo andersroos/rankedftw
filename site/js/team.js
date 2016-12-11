@@ -1,15 +1,10 @@
 import {GraphBase} from "./graph";
-import {static_url, enums_info} from "./settings";
-import {dynamic_url} from "./settings";
+import {static_url, enums_info, dynamic_url} from "./settings";
 import {seasons} from "./seasons";
 import {images} from "./images";
-import {Radio} from "./controls";
-import {deferred_doc_ready} from "./utils";
-import {stats_data} from "./stats";
-import {rev_each} from "./utils";
-import {Mode} from "./stats";
-import {format_int} from "./utils";
-import {Radio2} from "./controls";
+import {Radio, Radio2} from "./controls";
+import {deferred_doc_ready, rev_each, format_int} from "./utils";
+import {stats_data, Mode} from "./stats";
 
 //
 // Add classes to container.
@@ -27,24 +22,6 @@ let add_controls_div = function(jq_container) {
     controls.append(content);
     jq_container.append(controls);
     return content;
-};
-
-//
-// Add a control to controls. Buttons is a list of {value: <value>, tooltip:
-// <tooltip>, heading: <heading>, src: <optional heading img source>}.
-//
-let add_control = function(jq_controls, name, heading, options) {
-    let ul = $("<ul data-ctrl-name='" + name + "'>");
-    ul.append("<span>" + heading + "</span>");
-    for (let i = 0; i < options.length; ++i) {
-        let a = $("<a data-ctrl-value='" + options[i].value + "' title='" + options[i].tooltip + "'>");
-        a.append("<span>" + options[i].heading + "</span>");
-        if (options[i].src) {
-            a.append("<img src='" + options[i].src + "'>");
-        }
-        ul.append(a);
-    }
-    jq_controls.append(ul);
 };
 
 //
@@ -76,118 +53,25 @@ let add_tooltip = function(jq_container, data) {
 export let RankingGraph = function(container_id, team_id, region_id, league_id, mode_id) {
     
     //
-    // Set up html for container canvas and controls.
+    // Set up basic html for container canvas and controls.
     //
 
     let container = $('#' + container_id);
     
     conf_container(container);
-    
+
     let controls = add_controls_div(container);
 
-    add_control(
-        controls, 'td', 'Data:', [
-            {'value': 'world',
-             'heading': 'World',
-             'tooltip': 'Show world ranking for team.',
-             'src': static_url + 'img/regions/world-16x16.png'},
-            {'value': 'region',
-             'heading': 'Region',
-             'tooltip': 'Show region ranking for team.',
-             'src': static_url + 'img/regions/' + enums_info.region_key_by_ids[region_id] + '-16x16.png'},
-            {'value': 'league',
-             'heading': 'League',
-             'tooltip': 'Show league ranking (in region) for team.',
-             'src': static_url + 'img/leagues/' + enums_info.league_key_by_ids[league_id] + '-16x16.png'},
-        ]);
-
-    add_control(
-        controls, 'ty', 'Y-Axis:', [
-            {'value': 'c',
-             'heading': 'Percent',
-             'tooltip': 'Percent on y-axis, % of teams ranked above team.'},
-            {'value': 'm',
-             'heading': 'MMR',
-             'tooltip': 'MMR on y-axis, 0 at the bottom. Note that this graph does not change for different types of data since the points are always the same. This will hide all parts of the graph where mmr was not avaiable.'},
-            {'value': 'r',
-             'heading': 'Rank',
-             'tooltip': 'Absolute rank on y-axis, no 1 at the top. The grey area (or league distribution area) indicates all ranked teams from the top to the bottom at that point in time.'},
-        ]);
-
-    if (enums_info.mode_key_by_ids[mode_id] === '1v1') {
-        // TODO Show only available races.
-        let race_control = new Radio2(container.find('.content'), 'r', 'Race:',
-            [
-                {
-                    'value':   'best',
-                    'heading': 'Best',
-                    'tooltip': 'Show ranking for best race at each data point.',
-                },
-                {
-                    'value':   'zerg',
-                    'heading': '',
-                    'tooltip': 'Show only Zerg data points.',
-                    'src':     static_url + 'img/races/zerg-16x16.png'
-                },
-                {
-                    'value':   'terran',
-                    'heading': '',
-                    'tooltip': 'Show only Zerg data points.',
-                    'src':     static_url + 'img/races/terran-16x16.png'
-                },
-                {
-                    'value':   'protoss',
-                    'heading': '',
-                    'tooltip': 'Show only Protoss data points.',
-                    'src':     static_url + 'img/races/protoss-16x16.png'
-                },
-                {
-                    'value':   'random',
-                    'heading': '',
-                    'tooltip': 'Show only Random data points.',
-                    'src':     static_url + 'img/races/random-16x16.png'
-                },
-            ],
-            'best',
-            () => {
-            }
-        );
-    }
-
-    add_control(
-        controls, 'tyz', 'Y-Zoom:', [
-            {'value': '0',
-             'heading': 'Off',
-             'tooltip': 'No zoom, show full scale to see teams position relative to everyone.'},
-            {'value': '1',
-             'heading': 'On',
-             'tooltip': 'This will cause the graph to zoom in to make the graph line fill the y-space.'},
-        ]);
-
-    add_control(
-        controls, 'tx', 'X-Axis:', [
-            {'value': 'a',
-             'heading': 'All',
-             'tooltip': 'Show all data.'},
-            {'value': 's',
-             'heading': 'Season',
-             'tooltip': 'Show current/last available season for this player.'},
-            {'value': '60',
-             'heading': '60-Days',
-             'tooltip': 'Show last 60 days.'},
-        ]);
-
-    add_control(
-        controls, 'tl', 'Leagues:', [
-            {'value': '0',
-             'heading': 'Off',
-             'tooltip': 'League distribution background off.'},
-            {'value': '1',
-             'heading': 'On',
-             'tooltip': 'League distribution background on, there will be no league background for "league" graph.'},
-        ]);
+    //
+    // Init graph base.
+    //
 
     add_canvas(container);
+    let o = GraphBase('#' + container_id);
+
+    //
+    // Add tooltip.
+    //
 
     add_tooltip(container, [
         ['Date:',   'date'],
@@ -204,10 +88,47 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     ]);
 
     //
-    // Init graph base.
+    // Add controls.
     //
-    
-    let o = GraphBase('#' + container_id);
+
+    new Radio2(controls, 'td', 'Data:', [
+            {'value': 'world', 'heading': 'World', 'src': static_url + 'img/regions/world-16x16.png', 'tooltip': 'Show world ranking for team.'},
+            {'value': 'region', 'heading': 'Region', 'src': static_url + 'img/regions/' + enums_info.region_key_by_ids[region_id] + '-16x16.png', 'tooltip': 'Show region ranking for team.'},
+            {'value': 'league', 'heading': 'League', 'src': static_url + 'img/leagues/' + enums_info.league_key_by_ids[league_id] + '-16x16.png', 'tooltip': 'Show league ranking (in region) for team.'},
+        ], 'world', o.controls_change);
+
+    new Radio2(controls, 'ty', 'Y-Axis:', [
+        {'value': 'c', 'heading': 'Percent', 'tooltip': 'Percent on y-axis, % of teams ranked above team.'},
+        {'value': 'm', 'heading': 'MMR', 'tooltip': 'MMR on y-axis, 0 at the bottom. Note that this graph does not change for different types of data since the points are always the same. This will hide all parts of the graph where mmr was not avaiable.'},
+        {'value': 'r', 'heading': 'Rank', 'tooltip': 'Absolute rank on y-axis, no 1 at the top. The grey area (or league distribution area) indicates all ranked teams from the top to the bottom at that point in time.'},
+    ], 'c', o.controls_change);
+
+    if (enums_info.mode_key_by_ids[mode_id] === '1v1') {
+        // TODO Show only available races.
+        new Radio2(controls, 'ra', 'Race:', [
+            {'value': 'best','heading': 'Best', 'tooltip': 'Show ranking for best race at each data point.'},
+            {'value': 'zerg', 'src': static_url + 'img/races/zerg-16x16.png','tooltip': 'Show only Zerg data points.'},
+            {'value': 'terran','src': static_url + 'img/races/terran-16x16.png', 'tooltip': 'Show only Zerg data points.'},
+            {'value': 'protoss', 'src': static_url + 'img/races/protoss-16x16.png', 'tooltip': 'Show only Protoss data points.'},
+            {'value':   'random', 'src': static_url + 'img/races/random-16x16.png', 'tooltip': 'Show only Random data points.'},
+        ], 'best', o.controls_change);
+    }
+
+    new Radio2(controls, 'tyz', 'Y-Zoom:', [
+        {'value': '0', 'heading': 'Off', 'tooltip': 'No zoom, show full scale to see teams position relative to everyone.'},
+        {'value': '1', 'heading': 'On', 'tooltip': 'This will cause the graph to zoom in to make the graph line fill the y-space.'},
+    ], 0, o.controls_change);
+
+    new Radio2(controls, 'tx', 'X-Axis:', [
+        {'value': 'a', 'heading': 'All', 'tooltip': 'Show all data.'},
+        {'value': 's', 'heading': 'Season', 'tooltip': 'Show current/last available season for this player.'},
+        {'value': '60', 'heading': '60-Days', 'tooltip': 'Show last 60 days.'},
+    ], 'a', o.controls_change);
+
+    new Radio2(controls, 'tl', 'Leagues:', [
+        {'value': '0', 'heading': 'Off', 'tooltip': 'League distribution background off.'},
+        {'value': '1', 'heading': 'On', 'tooltip': 'League distribution background on, there will be no league background for "league" graph.'},
+    ], '0', o.controls_change);
 
     //
     // Calculated units by settings and size.
@@ -529,22 +450,6 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
         return 218;
     };
-
-    //
-    // Major control functions.
-    //
-    
-    // Init everything.
-    o.init = _.wrap(o.init, function(wrapped) {
-
-        Radio(o.container.find("ul[data-ctrl-name='td']"), 'region', o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='ty']"), 'c', o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='tyz']"), '0', o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='tx']"), 'a', o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='tl']"), '1', o.controls_change);
-        
-        wrapped();
-    });
 
     //
     // Load resources and add init trigger when complete.
