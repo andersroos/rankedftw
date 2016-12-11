@@ -91,6 +91,18 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Add controls.
     //
 
+    // Return race options depending on what is available in rankings.
+    o.get_race_options = (rankings) => {
+        let options = [{value: 'best', heading: 'Best', tooltip: 'Show ranking for best race in each data point.'}];
+        let races_present = rankings.map(r => r.race);
+        options.concat(enums_info.race_ranking_ids.filter(rid => races_present.includes(rid)).forEach(rid => ({
+            value: rid,
+            src: static_url + 'img/races/' + enums_info.race_key_by_ids[rid] + '-16x16.png',
+            tooltip:'Show only ' + enums_info.race_name_by_ids[rid] + ' data points.',
+        })));
+        return options;
+    };
+
     o.data_control = new Radio(controls, 'td', 'Data:', [
             {value: 'world', heading: 'World', src: static_url + 'img/regions/world-16x16.png', tooltip: 'Show world ranking for team.'},
             {value: 'region', heading: 'Region', src: static_url + 'img/regions/' + enums_info.region_key_by_ids[region_id] + '-16x16.png', tooltip: 'Show region ranking for team.'},
@@ -104,14 +116,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     ], 'c', o.controls_change);
 
     if (enums_info.mode_key_by_ids[mode_id] === '1v1') {
-        // TODO Show only available races.
-        o.race_control = new Radio(controls, 'ra', 'Race:', [
-            {value: 'best',heading: 'Best', tooltip: 'Show ranking for best race at each data point.'},
-            {value: 'zerg', src: static_url + 'img/races/zerg-16x16.png',tooltip: 'Show only Zerg data points.'},
-            {value: 'terran',src: static_url + 'img/races/terran-16x16.png', tooltip: 'Show only Zerg data points.'},
-            {value: 'protoss', src: static_url + 'img/races/protoss-16x16.png', tooltip: 'Show only Protoss data points.'},
-            {value:   'random', src: static_url + 'img/races/random-16x16.png', tooltip: 'Show only Random data points.'},
-        ], 'best', o.controls_change);
+        o.race_control = new Radio(controls, 'ra', 'Race:', o.get_race_options([]), 'best', o.controls_change);
     }
 
     o.y_zoom_control = new Radio(controls, 'tyz', 'Y-Zoom:', [
