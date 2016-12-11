@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from collections import Mapping
 from datetime import datetime, time, timezone
+from pprint import pprint
+
 from django.conf import settings
 
 from django.db import models
@@ -113,6 +115,7 @@ class League(EnumBase):
 
     # Columns: constant base, id, key, cased name, default, index, included in stat version
     mapping = [
+        ('ALL',        -2, 'all',         'All',         False, None, None),
         ('UNKNOWN',    -1, 'unknown',     'Unknown',     False, None, None),
         ('BRONZE',      0, 'bronze',      'Bronze',      False,    0,    0),
         ('SILVER',      1, 'silver',      'Silver',      False,    1,    0),

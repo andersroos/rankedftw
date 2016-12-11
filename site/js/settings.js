@@ -12,4 +12,6 @@ export let static_url = 'http://www.rankedftw.com/static/latest/';
 
 export let dynamic_url = 'http://www.rankedftw.com/';
 
+export let UNKWNON = -1;
 
+export let ALL = -2;

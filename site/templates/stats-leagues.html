@@ -29,12 +29,7 @@
 
 <div id="leagues-table-container" class="data-container wait"> 
   <div class="controls">
-    <div class="content">
-      <ul data-ctrl-name="v">
-        <span>Version:</span>
-        {% for version in versions %}<a data-ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
-      </ul>
-    </div>
+    <div class="content"></div>
   </div>
   <div class="content">
     <table>
@@ -75,24 +70,7 @@
 
 <div id="leagues-graph-container" class="data-container wait">
   <div class="controls">
-    <div class="content">
-      <ul data-ctrl-name="v">
-        <span>Version:</span>
-        {% for version in versions %}<a data-ctrl-value="{{ version }}" title="Show {{ version | version_name }}."><span>{{ version | version_name }}</span></a>{% endfor %}
-      </ul>
-      <ul data-ctrl-name="r">
-        <span>Region:</span>
-        {% for region in regions %}<a data-ctrl-value="{{ region }}" title="Show {{ region | region_name }}."><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></a>{% endfor %}
-      </ul>
-      <ul data-ctrl-name="sx">
-        <span>X-Axis:</span>
-        <a data-ctrl-value="a" title="Show all data."
-        ><span>All</span></a
-        
-        ><a data-ctrl-value="sl" title="Show only one point in graph for each season."
-        ><span>Season Last</span></a>
-      </ul>
-    </div>
+    <div class="content"></div>
   </div>
   <canvas class="graph"></canvas>
   <div class="tooltip">

@@ -2,7 +2,7 @@ import {GraphBase} from "./graph";
 import {static_url, enums_info, dynamic_url} from "./settings";
 import {seasons} from "./seasons";
 import {images} from "./images";
-import {Radio, Radio2} from "./controls";
+import {Radio} from "./controls";
 import {deferred_doc_ready, rev_each, format_int} from "./utils";
 import {stats_data, Mode} from "./stats";
 
@@ -91,44 +91,44 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Add controls.
     //
 
-    new Radio2(controls, 'td', 'Data:', [
-            {'value': 'world', 'heading': 'World', 'src': static_url + 'img/regions/world-16x16.png', 'tooltip': 'Show world ranking for team.'},
-            {'value': 'region', 'heading': 'Region', 'src': static_url + 'img/regions/' + enums_info.region_key_by_ids[region_id] + '-16x16.png', 'tooltip': 'Show region ranking for team.'},
-            {'value': 'league', 'heading': 'League', 'src': static_url + 'img/leagues/' + enums_info.league_key_by_ids[league_id] + '-16x16.png', 'tooltip': 'Show league ranking (in region) for team.'},
+    o.data_control = new Radio(controls, 'td', 'Data:', [
+            {value: 'world', heading: 'World', src: static_url + 'img/regions/world-16x16.png', tooltip: 'Show world ranking for team.'},
+            {value: 'region', heading: 'Region', src: static_url + 'img/regions/' + enums_info.region_key_by_ids[region_id] + '-16x16.png', tooltip: 'Show region ranking for team.'},
+            {value: 'league', heading: 'League', src: static_url + 'img/leagues/' + enums_info.league_key_by_ids[league_id] + '-16x16.png', tooltip: 'Show league ranking (in region) for team.'},
         ], 'world', o.controls_change);
 
-    new Radio2(controls, 'ty', 'Y-Axis:', [
-        {'value': 'c', 'heading': 'Percent', 'tooltip': 'Percent on y-axis, % of teams ranked above team.'},
-        {'value': 'm', 'heading': 'MMR', 'tooltip': 'MMR on y-axis, 0 at the bottom. Note that this graph does not change for different types of data since the points are always the same. This will hide all parts of the graph where mmr was not avaiable.'},
-        {'value': 'r', 'heading': 'Rank', 'tooltip': 'Absolute rank on y-axis, no 1 at the top. The grey area (or league distribution area) indicates all ranked teams from the top to the bottom at that point in time.'},
+    o.y_axis_control = new Radio(controls, 'ty', 'Y-Axis:', [
+        {value: 'c', heading: 'Percent', tooltip: 'Percent on y-axis, % of teams ranked above team.'},
+        {value: 'm', heading: 'MMR', tooltip: 'MMR on y-axis, 0 at the bottom. Note that this graph does not change for different types of data since the points are always the same. This will hide all parts of the graph where mmr was not avaiable.'},
+        {value: 'r', heading: 'Rank', tooltip: 'Absolute rank on y-axis, no 1 at the top. The grey area (or league distribution area) indicates all ranked teams from the top to the bottom at that point in time.'},
     ], 'c', o.controls_change);
 
     if (enums_info.mode_key_by_ids[mode_id] === '1v1') {
         // TODO Show only available races.
-        new Radio2(controls, 'ra', 'Race:', [
-            {'value': 'best','heading': 'Best', 'tooltip': 'Show ranking for best race at each data point.'},
-            {'value': 'zerg', 'src': static_url + 'img/races/zerg-16x16.png','tooltip': 'Show only Zerg data points.'},
-            {'value': 'terran','src': static_url + 'img/races/terran-16x16.png', 'tooltip': 'Show only Zerg data points.'},
-            {'value': 'protoss', 'src': static_url + 'img/races/protoss-16x16.png', 'tooltip': 'Show only Protoss data points.'},
-            {'value':   'random', 'src': static_url + 'img/races/random-16x16.png', 'tooltip': 'Show only Random data points.'},
+        o.race_control = new Radio(controls, 'ra', 'Race:', [
+            {value: 'best',heading: 'Best', tooltip: 'Show ranking for best race at each data point.'},
+            {value: 'zerg', src: static_url + 'img/races/zerg-16x16.png',tooltip: 'Show only Zerg data points.'},
+            {value: 'terran',src: static_url + 'img/races/terran-16x16.png', tooltip: 'Show only Zerg data points.'},
+            {value: 'protoss', src: static_url + 'img/races/protoss-16x16.png', tooltip: 'Show only Protoss data points.'},
+            {value:   'random', src: static_url + 'img/races/random-16x16.png', tooltip: 'Show only Random data points.'},
         ], 'best', o.controls_change);
     }
 
-    new Radio2(controls, 'tyz', 'Y-Zoom:', [
-        {'value': '0', 'heading': 'Off', 'tooltip': 'No zoom, show full scale to see teams position relative to everyone.'},
-        {'value': '1', 'heading': 'On', 'tooltip': 'This will cause the graph to zoom in to make the graph line fill the y-space.'},
+    o.y_zoom_control = new Radio(controls, 'tyz', 'Y-Zoom:', [
+        {value: '0', heading: 'Off', tooltip: 'No zoom, show full scale to see teams position relative to everyone.'},
+        {value: '1', heading: 'On', tooltip: 'This will cause the graph to zoom in to make the graph line fill the y-space.'},
     ], 0, o.controls_change);
 
-    new Radio2(controls, 'tx', 'X-Axis:', [
-        {'value': 'a', 'heading': 'All', 'tooltip': 'Show all data.'},
-        {'value': 's', 'heading': 'Season', 'tooltip': 'Show current/last available season for this player.'},
-        {'value': '60', 'heading': '60-Days', 'tooltip': 'Show last 60 days.'},
+    o.x_axis_control = new Radio(controls, 'tx', 'X-Axis:', [
+        {value: 'a', heading: 'All', tooltip: 'Show all data.'},
+        {value: 's', heading: 'Season', tooltip: 'Show current/last available season for this player.'},
+        {value: '60', heading: '60-Days', tooltip: 'Show last 60 days.'},
     ], 'a', o.controls_change);
 
-    new Radio2(controls, 'tl', 'Leagues:', [
-        {'value': '0', 'heading': 'Off', 'tooltip': 'League distribution background off.'},
-        {'value': '1', 'heading': 'On', 'tooltip': 'League distribution background on, there will be no league background for "league" graph.'},
-    ], '0', o.controls_change);
+    o.background_control = new Radio(controls, 'tl', 'Leagues:', [
+        {value: '0', heading: 'Off', tooltip: 'League distribution background off.'},
+        {value: '1', heading: 'On', tooltip: 'League distribution background on, there will be no league background for "league" graph.'},
+    ], 1, o.controls_change);
 
     //
     // Calculated units by settings and size.
@@ -450,6 +450,23 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
         return 218;
     };
+
+    //
+    // Major control functions.
+    //
+    
+    // Init everything.
+    o.init = _.wrap(o.init, function(wrapped) {
+
+        o.data_control.init();
+        o.y_axis_control.init();
+        o.race_control.init();
+        o.y_zoom_control.init();
+        o.x_axis_control.init();
+        o.background_control.init();
+
+        wrapped();
+    });
 
     //
     // Load resources and add init trigger when complete.

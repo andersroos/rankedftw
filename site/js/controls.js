@@ -45,100 +45,15 @@ class Registry {
     }
 
     //
-    // During init of a control, the control should register itself. The control will be called with initial the value.
+    // During init of a control, the control should register itself. The control will be called with initial the
+    // value.
     //
     register(control) {
-        this.by_name[control.name] = this.by_name[control.name] || [];
-        this.by_name[control.name].push(control);
-    }
-
-    //
-    // Will be called by click events on the controls.
-    //
-    selected(name, value) {
-        set_persistent_value(name, value);
-        var controls = this.by_name[name];
-        for (var i = 0; i < controls.length; ++i) {
-            controls[i].change_selected_value(value);
-        }
-    }
-}
-export let registry = new Registry();
-
-
-//
-// Radio control. The control should be a jq of the control
-// ul with ctr-name. The callback gets called with name and value when
-// the value changes.
-//
-export let Radio = function(control, default_value, select_callback) {
-
-    if (control.length !== 1) { throw new Error("Control is not length 1 was " + control.length + "."); }
-
-    var o = {};
-    o.name = control.attr('data-ctrl-name');
-
-    o.selects = control.find('a');
-    o.allowed_values = [];
-    o.value = null;
-    o.container = null;
-
-    o.selects.each(function() { o.allowed_values.push($(this).attr('data-ctrl-value')); });
-
-    registry.register(o);
-
-    o.change_selected_value = function(new_value) {
-
-        o.value = new_value;
-
-        // Highlight selected.
-        o.selects.each(function(_, element) {
-            var e = $(element);
-            if (e.attr('data-ctrl-value') === o.value) {
-                e.addClass('selected');
-            }
-            else {
-                $(element).removeClass('selected');
-            }
-        });
-
-        // Callback to change graph etc.
-        select_callback(o.name, o.value)
-    };
-
-    // Setup click callback.
-    o.selects.each(function(_, element) {
-        $(element).click(function(event) {
-            registry.selected(o.name, $(event.delegateTarget).attr('data-ctrl-value'));
-        });
-    });
-
-    // Set initial value.
-    o.change_selected_value(get_persistent_initial_value(o.name, o.allowed_values, default_value));
-
-    return o;
-};
-
-
-//
-// Controls registry, singleton for handling page global settings (like version and region).
-//
-class Registry2 {
-
-    constructor() {
-        this.by_name = {};  // Controls with the same name will be linked.
-    }
-
-    //
-    // During init of a control, the control should register itself. The control will be called with initial the
-    // value. A control can safely be re-registered.
-    //
-    register(control, allowed_values, default_value) {
         let controls = this.by_name[control.key] = this.by_name[control.key] || [];
         if (!controls.includes(control)) {
             this.by_name[control.key].push(control);
         }
-        control.set_value(get_persistent_initial_value(control.key, allowed_values, default_value))
+        control.set_value(get_persistent_initial_value(control.key, control.allowed_values, control.default_value))
     }
 
     //
@@ -149,15 +64,16 @@ class Registry2 {
         this.by_name[key].forEach(control => { control.set_value(value) });
     }
 }
-let registry2 = new Registry2();
+let registry = new Registry();
 
 
 //
 // Create a Radio control. It will render itself inside jq_container. Options is a list of
 // {value, heading (optional), tooltip, src (optional, for images)}. After creation it will
-// add itself to the registry to be linked with other controls of the same key.
+// add itself to the registry to be linked with other controls of the same key. Option values will be
+// converted to strings and on_select will be called with a string.
 //
-export class Radio2 {
+export class Radio {
 
     // Render and register.
     constructor(jq_container, key, heading, options, default_value, on_select) {
@@ -174,11 +90,13 @@ export class Radio2 {
 
     // Update with new options.
     update(options, default_value) {
+        this.default_value = String(default_value);
+        this.allowed_values = options.map(o => String(o.value));
 
         this.ul.empty();
         this.ul.append("<span>" + this.heading + "</span>");
         options.forEach(option => {
-            let a = $("<a data-ctrl-value='" + option.value + "' title='" + option.tooltip + "'>");
+            let a = $("<a data-ctrl-value='" + option.value + "' title='" + (option.tooltip || '') + "'>");
             if (option.heading) {
                 a.append("<span>" + option.heading + "</span>");
             }
@@ -191,11 +109,14 @@ export class Radio2 {
         // Setup click callback.
         this.ul.find('a').each((_, e) => {
             $(e).click(event => {
-                registry2.set_value(this.key, $(event.delegateTarget).attr('data-ctrl-value'));
+                registry.set_value(this.key, $(event.delegateTarget).attr('data-ctrl-value'));
             });
         });
+    }
 
-        registry2.register(this, options.map(o => o.value), default_value);
+    // Get initial value from persistent store and set it, or set default.
+    init() {
+        registry.register(this);
     }
 
     // On change callback from registry.

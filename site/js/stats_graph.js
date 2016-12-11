@@ -1,13 +1,54 @@
-import {deferred_doc_ready} from "./utils";
-import {stats_data} from "./stats";
+import {deferred_doc_ready, format_int} from "./utils";
+import {stats_data, Mode, TOT} from "./stats";
 import {GraphBase} from "./graph";
 import {Radio} from "./controls";
-import {Mode} from "./stats";
 import {seasons} from "./seasons";
 import {images} from "./images";
-import {format_int} from "./utils";
-import {default_version, enums_info} from "./settings";
-import {TOT} from "./stats";
+import {default_version, enums_info, static_url, ALL} from "./settings";
+
+
+let create_version_control = (graph_jq, cb) => {
+    return new Radio(graph_jq.find(".controls").find(".content"), 'v', 'Version:',
+        enums_info.version_ranking_ids
+                  .map(vid => ({value: vid, heading: enums_info.version_name_by_ids[vid]}))
+                  .reverse(),
+        default_version, cb);
+};
+
+
+let create_region_control = (graph_jq, cb) => {
+    let regions = [ALL].concat(enums_info.region_ranking_ids);
+    return new Radio(graph_jq.find(".controls").find(".content"), 'r', 'Regions:',
+        regions
+            .map(rid => ({
+                value: rid,
+                heading: enums_info.region_name_by_ids[rid],
+                src: static_url + 'img/regions/' + enums_info.region_key_by_ids[rid] + '-16x16.png'
+            })),
+        ALL, cb)
+};
+
+
+let create_league_control = (graph_jq, cb) => {
+    let leagues = [ALL].concat(enums_info.league_ranking_ids.reverse());
+    return new Radio(graph_jq.find(".controls").find(".content"), 'l', 'League:',
+        leagues
+            .map(lid => ({
+                value: lid,
+                heading: lid == ALL ? enums_info.league_name_by_ids[lid] : null,
+                src: lid == ALL ? null : static_url + 'img/leagues/' + enums_info.league_key_by_ids[lid] + '-16x16.png',
+                tooltip: enums_info.league_name_by_ids[lid],
+            })),
+        ALL, cb);
+};
+
+
+let create_x_axis_control = (graph_jq, cb) => {
+    return new Radio(graph_jq.find(".controls").find(".content"), 'sx', 'X-Axis:', [
+            {value: 'a', heading: 'All', tooltip: 'Show all data'},
+            {value: 'sl', heading: 'Season Last', tooltip: 'Show only one point in graph for each season.'},
+    ], 'a', cb)
+};
 
 
 //
@@ -16,6 +57,8 @@ import {TOT} from "./stats";
 export let LeagueDistributionTable = function(mode_id) {
 
     let o = {};
+
+    let container = $("#leagues-table-container");
 
     o.settings = {};
 
@@ -48,9 +91,11 @@ export let LeagueDistributionTable = function(mode_id) {
         });
     };
 
+    o.version_control = create_version_control(container, o.controls_change);
+
     o.init = function() {
-        Radio($("#leagues-table-container").find("ul[data-ctrl-name='v']"), default_version, o.controls_change);
-        $("#leagues-table-container.wait").removeClass("wait");
+        o.version_control.init();
+        container.removeClass("wait");
     };
 
     $.when(
@@ -67,6 +112,10 @@ export let LeagueDistributionTable = function(mode_id) {
 export let LeagueDistributionGraph = function(mode_id) {
 
     let o = GraphBase('#leagues-graph-container');
+
+    o.version_control = create_version_control(o.container, o.controls_change);
+    o.region_control = create_region_control(o.container, o.controls_change);
+    o.x_axis_control = create_x_axis_control(o.container, o.controls_change);
 
     let data = [];   // Filtered and aggregated data.
 
@@ -200,10 +249,9 @@ export let LeagueDistributionGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        Radio(o.container.find("ul[data-ctrl-name='v']"), default_version, o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='r']"), '-2', o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='sx']"), 'a', o.controls_change);
-
+        o.version_control.init();
+        o.region_control.init();
+        o.x_axis_control.init();
         wrapped();
     });
 
@@ -222,6 +270,8 @@ export let PopulationTable = function(mode_id) {
 
     let o = {};
 
+    let container = $("#pop-table-container");
+
     o.settings = {v: null};
 
     o.controls_change = function(name, value) {
@@ -239,9 +289,11 @@ export let PopulationTable = function(mode_id) {
         $("#r-2 .number").text(format_int(regions.count()));
     };
 
+    o.version_control = create_version_control(container, o.controls_change);
+
     o.init = function() {
-        Radio($("#pop-table-container ul[data-ctrl-name='v']"), default_version, o.controls_change);
-        $("#pop-table-container.wait").removeClass("wait");
+        o.version_control.init();
+        container.removeClass("wait");
     };
 
     $.when(
@@ -258,6 +310,14 @@ export let PopulationTable = function(mode_id) {
 export let PopulationGraph = function(mode_id) {
 
     let o = GraphBase('#pop-graph-container');
+
+    o.version_control = create_version_control(o.container, o.controls_change);
+    o.region_control = create_region_control(o.container, o.controls_change);
+    o.y_axis_control = new Radio(o.container.find(".controls").find(".content"), 'sy', 'Y-Axis:', [
+        {value: 'c', heading: 'Teams', tooltip: 'Number of ranked teams in the season.'},
+        {value: 'g', heading: 'Games/Day', tooltip: 'Average number of played games per day.'},
+    ], 'c', o.controls_change);
+    o.x_axis_control = create_x_axis_control(o.container, o.controls_change);
 
     let data = [];     // Filtered and aggregated data.
     let max_y = 0.001;     // Max y value.
@@ -385,10 +445,10 @@ export let PopulationGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        Radio(o.container.find("ul[data-ctrl-name='v']"), default_version, o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='r']"), '-2', o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='sx']"), 'a', o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='sy']"), 'c', o.controls_change);
+        o.version_control.init();
+        o.region_control.init();
+        o.y_axis_control.init();
+        o.x_axis_control.init();
 
         wrapped();
     });
@@ -414,6 +474,10 @@ export let RaceDistributionGraph = function(mode_id) {
     let lines = {};  // Lines by race key between races.
 
     let max_value = 1;
+
+    o.version_control = create_version_control(o.container, o.controls_change);
+    o.region_control = create_region_control(o.container, o.controls_change);
+    o.league_control = create_league_control(o.container, o.controls_change);
 
     // Update units based on resize or new settings.
     o.update_units = function() {
@@ -549,10 +613,9 @@ export let RaceDistributionGraph = function(mode_id) {
     //
 
     o.init = _.wrap(o.init, function(wrapped) {
-        Radio(o.container.find("ul[data-ctrl-name='v']"), default_version, o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='r']"), '-2', o.controls_change);
-        Radio(o.container.find("ul[data-ctrl-name='l']"), '-2', o.controls_change);
-
+        o.version_control.init();
+        o.region_control.init();
+        o.league_control.init();
         wrapped();
     });
 
@@ -572,6 +635,8 @@ export let RaceDistributionTable = function(mode_id) {
     let o = {};
 
     o.settings = {};
+
+    let container = $("#races-table-container");
 
     o.controls_change = function(name, value) {
         o.settings[name] = value;
@@ -596,10 +661,13 @@ export let RaceDistributionTable = function(mode_id) {
         });
     };
 
+    o.version_control = create_version_control(container, o.controls_change);
+    o.region_control = create_region_control(container, o.controls_change);
+
     o.init = function() {
-        Radio($("#races-table-container ul[data-ctrl-name='v']"), default_version, o.controls_change);
-        Radio($("#races-table-container ul[data-ctrl-name='r']"), '-2', o.controls_change);
-        $("#races-table-container.wait").removeClass("wait");
+        o.version_control.init();
+        o.region_control.init();
+        container.removeClass("wait");
     };
 
     $.when(
