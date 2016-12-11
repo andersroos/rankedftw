@@ -18,6 +18,7 @@ let set_persistent_value = function(name, value) {
 // should have the same allowed_values.
 //
 let get_persistent_initial_value = function(name, allowed_values, default_value) {
+
     var value = get_hash(name);
 
     if (!value) {
@@ -90,7 +91,7 @@ export class Radio {
 
     // Update with new options.
     update(options, default_value) {
-        this.default_value = String(default_value);
+        this.default_value = typeof default_value === "undefined" ? this.default_value : String(default_value);
         this.allowed_values = options.map(o => String(o.value));
 
         this.ul.empty();

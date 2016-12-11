@@ -478,13 +478,9 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     // Init everything.
     o.init = _.wrap(o.init, function(wrapped) {
 
-        if (o.race_control) {
-            o.race_control.update(o.get_race_options(o.rankings));
-            o.race_control.init();
-        }
-
         o.data_control.init();
         o.y_axis_control.init();
+        if (o.race_control) o.race_control.init();
         o.y_zoom_control.init();
         o.x_axis_control.init();
         o.background_control.init();
@@ -504,6 +500,9 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
 
                        // Add index to each ranking to be able to find it in global list after filtering.
                        o.rankings.forEach((r, i) => r.index = i);
+
+                       // Update race control based on actual data.
+                       if (o.race_control) o.race_control.update(o.get_race_options(o.rankings));
 
                        // Handle empty ranking.
                        if (o.rankings.length === 0) {
