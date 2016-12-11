@@ -84,6 +84,5 @@ A few things will work (not crash) without data but most things wont.
 Gettting Data
 =============
 
-**TBD**
-
-Plase contact me if you get this far and want some real world data.
+If you get this far and want a sample db from the world please contact
+me here or at rankedftw.com@gmail.com.
