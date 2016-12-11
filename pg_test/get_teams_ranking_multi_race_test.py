@@ -7,7 +7,7 @@ from aid.test.base import DjangoTestCase
 from lib import sc2
 from django.conf import settings
 
-from main.models import Race, Ladder, Season, Cache, Version, Enums
+from main.models import Race, Ladder, Season, Cache, Version, Enums, Mode
 
 
 class Test(DjangoTestCase):
@@ -159,7 +159,7 @@ class Test(DjangoTestCase):
         self.assertEqual(Version.WOL, rankings[0]["version"])
         self.assertEqual(True, rankings[0]["best_race"])
 
-    def test_finds_one_among_many_of_same_version__this_was_a_bug(self):
+    def test_finds_one_among_many_of_same_version__this_was_a_bug__returned_teams_after(self):
         self.db.create_ranking()
         self.db.create_ranking_data(raw=False, data=[
             dict(team_id=self.t1.id, race0=Race.UNKNOWN),
@@ -177,6 +177,20 @@ class Test(DjangoTestCase):
             dict(team_id=self.t4.id, race0=Race.ZERG),
             dict(team_id=self.t4.id, race0=Race.PROTOSS),
             dict(team_id=self.t4.id, race0=Race.RANDOM),
+        ])
+
+        rankings = self.c.rankings_for_team(self.t3.id)
+
+        self.assertEqual(1, len(rankings))
+
+    def test_find_latest_version_in_same_window__this_was_a_bug_returned_both_versions(self):
+        self.db.create_ranking()
+        self.db.create_ranking_data(raw=False, data=[
+            dict(team_id=self.t1.id, mode=Mode.RANDOM_2V2, version=Version.WOL),
+            dict(team_id=self.t2.id, mode=Mode.RANDOM_2V2, version=Version.WOL),
+            dict(team_id=self.t3.id, mode=Mode.RANDOM_2V2, version=Version.WOL),
+            dict(team_id=self.t3.id, mode=Mode.RANDOM_2V2, version=Version.LOTV),
+            dict(team_id=self.t4.id, mode=Mode.RANDOM_2V2, version=Version.WOL),
         ])
 
         rankings = self.c.rankings_for_team(self.t3.id)

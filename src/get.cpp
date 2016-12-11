@@ -92,19 +92,12 @@ uint32_t find_team_rank(db& db, const ranking_t& ranking, id_t team_id, team_ran
             imax = min(imax, imid + hit_hi + (ranking.version - hi.version));
          }
          int32_t isize = imax - imin + 1;
-         
-         // If result is within current window, return it.
-         if (imid <= imin and imax < imid + int32_t(size)) {
-            int32_t i = 0;
-            for (int32_t ifrom = imin - imid; i < isize; ++i, ++ifrom) {
-               trs[i] = trs[ifrom];
-            }
-            return i;
+
+         // If result can be outisde window fetch it.
+         if (imin < imid or imid + int32_t(size) <= imax) {
+            size = db.load_team_rank_window(ranking.id, trh.version, imin, trs, isize);
          }
-
-         // Get the window needed for returning result.
-         size = db.load_team_rank_window(ranking.id, trh.version, imin, trs, isize);
-
+         
          // Find start of return data by searching backwards in window.
          enum_t result_version = -1;
          int32_t start_index = -1;
