@@ -4,7 +4,7 @@ psycopg2
 psutil
 uwsgi
 requests
-rocky>=0.0.0.dev0
+rocky>=0.0.0.b0
 
 # Build/Install
 

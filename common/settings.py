@@ -4,7 +4,7 @@ from copy import copy
 from logging import INFO
 from os import environ
 from os.path import join, basename, abspath, dirname, exists
-from rocky.config import PyFileSrc, Config, EnvSrc, FileContent
+from rocky.config import PyFile, Config, Env, FileContent
 
 topdir = abspath(join(dirname(__file__), '..'))
 
@@ -12,9 +12,9 @@ topdir = abspath(join(dirname(__file__), '..'))
 DEV_SECRET_KEY = 'change-me-in-prod'
 
 
-env = EnvSrc()
-local_py = PyFileSrc(join(dirname(__file__), '../local.py'), fail_on_not_found=False)
-config_py = PyFileSrc('/etc/rankedftw.py', fail_on_not_found=False)
+env = Env()
+local_py = PyFile(join(dirname(__file__), '../local.py'), fail_on_not_found=False)
+config_py = PyFile('/etc/rankedftw.py', fail_on_not_found=False)
 
 config = Config(env, local_py, config_py, log_level=INFO)
 

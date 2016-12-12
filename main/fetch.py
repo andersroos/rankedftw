@@ -7,7 +7,7 @@ from django.db import transaction
 from main.models import Cache, Ladder, Mode, League, Version
 from common.utils import to_unix
 from lib import sc2
-from rocky import Stop
+
 
 logger = getLogger('django')
 sc2.set_logger(logger)
@@ -69,7 +69,7 @@ def fetch_new_ladder(bnet_client, season, region, version, mode, league, tier, b
 
     if res.status == 503:
         logger.error("got 503 from %s, exiting" % al.url)
-        raise Stop()
+        raise SystemExit()
 
     ladder = Ladder(region=region, bid=bid, created=res.fetch_time, updated=res.fetch_time)
     ladder.season = season
@@ -116,7 +116,7 @@ def fetch_new_in_league(check_stop, bnet_client, region, season, version, mode, 
 
         if res.status == 503:
             logger.error("got 503 from %s, exiting" % api_league.url)
-            raise Stop()
+            raise SystemExit()
 
         if res.status == 404 and league == League.GRANDMASTER:
             return

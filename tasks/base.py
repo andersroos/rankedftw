@@ -7,8 +7,7 @@ from rocky.process import stoppable
 from common.settings import config
 from main.models import Region
 from rocky.argparse import log_args
-from rocky.pid_file import pid_file
-from rocky.process import log_exception
+from rocky.process import log_exception, pid_file
 
 
 class Command(object):

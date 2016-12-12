@@ -8,8 +8,6 @@ import base64
 
 from django.utils import timezone
 
-from rocky import Stop
-
 epoch = datetime.utcfromtimestamp(0).replace(tzinfo=timezone.utc)
 
 
@@ -129,6 +127,10 @@ def human_i_split(number):
             num += ' '
         num += c
     return num[::-1].strip()
+    
+
+class Stop(Exception):
+    pass
     
     
 class StoppableThread(Thread):

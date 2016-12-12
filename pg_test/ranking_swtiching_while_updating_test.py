@@ -5,7 +5,6 @@ from aid.test.data import gen_member
 from common.utils import utcnow
 from main.models import Region, Version
 from main.update import countinously_update, UpdateManager
-from rocky import Stop
 
 
 class MockUpdateManager(UpdateManager):
@@ -92,9 +91,9 @@ class Test(DjangoTestCase):
                                    dict(team_id=t1.id, points=20),
                                    dict(team_id=t2.id, points=10))
 
-            raise Stop()
+            raise SystemExit()
 
-        with self.assertRaises(Stop):
+        with self.assertRaises(SystemExit):
             self.countinously_update(update_manager=MockUpdateManager(update_until=update_until))
 
     def test_ranking_is_craeted_fresh_when_switching_ranking_and_season(self):
@@ -127,9 +126,9 @@ class Test(DjangoTestCase):
             self.assertEqual({100, 101}, {c.bid for c in r.sources.all()})
             self.assert_team_ranks(ranking.id)
 
-            raise Stop()
+            raise SystemExit()
 
-        with self.assertRaises(Stop):
+        with self.assertRaises(SystemExit):
             self.countinously_update(update_manager=MockUpdateManager(update_until=update_until))
 
     def test_update_continues_with_current_ranking_if_created_lt_12_hours_ago(self):
@@ -142,9 +141,9 @@ class Test(DjangoTestCase):
             self.assertEqual(r.id, ranking.id)
             self.assertEqual(self.s16, ranking.season)
             self.assertTrue(self.now < until)
-            raise Stop()
+            raise SystemExit()
 
-        with self.assertRaises(Stop):
+        with self.assertRaises(SystemExit):
             self.countinously_update(update_manager=MockUpdateManager(update_until=update_until),
                                      switch_hour=self.now.hour)
 
@@ -160,9 +159,9 @@ class Test(DjangoTestCase):
             self.assertEqual(r.id, ranking.id)
             self.assertEqual(self.s16, ranking.season)
             self.assertTrue(self.now < until)
-            raise Stop()
+            raise SystemExit()
 
-        with self.assertRaises(Stop):
+        with self.assertRaises(SystemExit):
             self.countinously_update(update_manager=MockUpdateManager(update_until=update_until),
                                      switch_hour=self.now.hour)
             
@@ -180,9 +179,9 @@ class Test(DjangoTestCase):
             self.assertNotEqual(r.id, ranking.id)
             self.assertEqual(self.s16, ranking.season)
             self.assertTrue(self.now < until)
-            raise Stop()
+            raise SystemExit()
 
-        with self.assertRaises(Stop):
+        with self.assertRaises(SystemExit):
             self.countinously_update(update_manager=MockUpdateManager(update_until=update_until),
                                      switch_hour=self.now.hour)
 
@@ -196,9 +195,9 @@ class Test(DjangoTestCase):
             self.assertEqual(r.id, ranking.id)
             self.assertEqual(self.s16, ranking.season)
             self.assertTrue(self.now < until)
-            raise Stop()
+            raise SystemExit()
 
-        with self.assertRaises(Stop):
+        with self.assertRaises(SystemExit):
             self.countinously_update(update_manager=MockUpdateManager(update_until=update_until))
 
     def test_update_switches_to_new_ranking_if_older_than_48_hours(self):
@@ -211,9 +210,9 @@ class Test(DjangoTestCase):
             self.assertNotEqual(r.id, ranking.id)
             self.assertEqual(self.s16, ranking.season)
             self.assertTrue(self.now < until)
-            raise Stop()
+            raise SystemExit()
 
-        with self.assertRaises(Stop):
+        with self.assertRaises(SystemExit):
             self.countinously_update(update_manager=MockUpdateManager(update_until=update_until))
 
     def test_update_switches_to_new_ranking_regardless_of_age_if_new_seaaon_is_available(self):
@@ -226,7 +225,7 @@ class Test(DjangoTestCase):
             self.assertNotEqual(r.id, ranking.id)
             self.assertEqual(self.s16, ranking.season)
             self.assertTrue(self.now < until)
-            raise Stop()
+            raise SystemExit()
 
-        with self.assertRaises(Stop):
+        with self.assertRaises(SystemExit):
             self.countinously_update(update_manager=MockUpdateManager(update_until=update_until))

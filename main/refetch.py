@@ -8,7 +8,7 @@ from main.battle_net import BnetClient
 from common.utils import utcnow, to_unix
 from common.logging import log_context, LogContext
 from lib import sc2
-from rocky import Stop
+
 
 logger = getLogger('django')
 sc2.set_logger(logger)
@@ -122,7 +122,7 @@ def refetch_past_season(season, now, check_stop, bnet_client):
 
                 if status == 503:
                     logger.warning("got 503, skipping refetch past for rest of this season")
-                    raise Stop()
+                    raise SystemExit()
 
                 if status != 200:
                     logger.info("refetching %d returned %d, skipping" % (ladder.id, status))
@@ -132,7 +132,7 @@ def refetch_past_season(season, now, check_stop, bnet_client):
 
                 logger.info("saved updated ladder %d and added data to ranking %d" % (ladder.id, ranking.id))
 
-    except Stop:
+    except SystemExit:
         pass
 
     except Exception as e:
