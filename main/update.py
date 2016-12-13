@@ -172,8 +172,10 @@ class UpdateManager(object):
     pause to check for new ranking or new season.
     """
 
-    @staticmethod
-    def save_ranking(cpp, ranking, queue_length):
+    server_ping_timeout = 5.0
+    
+    @classmethod
+    def save_ranking(self, cpp, ranking, queue_length):
         ranking.set_data_time(ranking.season.reload(), cpp)
 
         logger.info("saving ranking %d, %d updates left in queue not included, new data_time is %s" %
@@ -186,7 +188,9 @@ class UpdateManager(object):
 
         # Ping server to reload ranking.
         try:
-            raw = request_udp('localhost', 4747, json.dumps({'cmd': 'refresh'}).encode('utf-8'))
+            raw = request_udp('localhost', 4747,
+                              json.dumps({'cmd': 'refresh'}).encode('utf-8'),
+                              timeout=self.server_ping_timeout)
             response = json.loads(raw.decode('utf-8'))
             code = response.get('code')
             if code == 'ok':

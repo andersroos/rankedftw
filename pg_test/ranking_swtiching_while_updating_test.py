@@ -9,6 +9,8 @@ from main.update import countinously_update, UpdateManager
 
 class MockUpdateManager(UpdateManager):
 
+    server_ping_timeout = 0.01
+
     def __init__(self, update_until):
         self.update_until = update_until
 
