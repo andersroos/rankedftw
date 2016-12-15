@@ -51,7 +51,7 @@ class Test(DjangoTestCase):
         switch_hour = switch_hour or self.datetime(hours=2).hour
         
         def check_stop(throw=False):
-            return True
+            return False
 
         countinously_update(regions=[Region.EU], check_stop=check_stop, update_manager=update_manager,
                             switch_hour=switch_hour)

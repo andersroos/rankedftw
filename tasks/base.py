@@ -44,7 +44,7 @@ class Command(object):
     def check_stop(self, throw=True):
         if self._stoppable_instance:
             return self._stoppable_instance.check_stop(throw=throw)
-        return True
+        return False
 
     def run(self, args, logger):
         return 1

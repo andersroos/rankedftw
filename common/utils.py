@@ -137,17 +137,15 @@ class StoppableThread(Thread):
 
     def __init__(self):
         super().__init__()
-        self.do_continue = True
+        self.__stop = False
 
     def stop(self):
-        self.do_continue = False
+        self.__stop = True
 
     def check_stop(self, throw=True):
-        if not throw:
-            return self.do_continue
-
-        if not self.do_continue:
+        if throw and self.__stop:
             raise Stop()
+        return self.__stop
 
     def run(self):
         try:

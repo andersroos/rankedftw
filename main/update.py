@@ -70,7 +70,7 @@ class FetcherThread(StoppableThread):
     def do_run(self):
 
         delay = 1
-        while self.check_stop(throw=False):
+        while not self.check_stop(throw=False):
             for ladder in self:
                 self.check_stop()
 
@@ -221,7 +221,7 @@ class UpdateManager(object):
             last_plat = utcnow(days=-20)
             last_rest = utcnow(days=-20)
 
-            while check_stop(throw=False):
+            while not check_stop(throw=False):
 
                 now = utcnow()
 
@@ -298,7 +298,7 @@ def countinously_update(regions=None, check_stop=None, update_manager=None, swit
 
     cpp = sc2.RankingData(get_db_name(), Enums.INFO)
 
-    while check_stop(throw=False):
+    while not check_stop(throw=False):
 
         # Check if we want to switch to new season.
 
