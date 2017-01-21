@@ -9,7 +9,7 @@ addons:
   apt:
     packages:
       - make
-      - gcc
+      - g++-5
       - libboost-python-dev
       - libboost-system-dev
       - libboost-serialization-dev
