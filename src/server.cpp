@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
+#include <atomic>
 #include <iostream>
 #include <boost/thread.hpp>
 #include <boost/program_options.hpp>
 #include <jsoncpp/json/json.h>
 #include <fstream>
+#include <glo.hpp>
 
 #include "udp_handler.hpp"
 #include "exception.hpp"
@@ -13,6 +15,7 @@
 #include "ladder_handler.hpp"
 
 using namespace std;
+using namespace glo;
 namespace po = boost::program_options;
 
 struct signal_handler
@@ -55,11 +58,6 @@ struct signal_handler
          LOG_WARNING("signal listening thread got interrupted, it will now die");
       }
    }
-
-   void start()
-   {
-      boost::thread(boost::ref(*this));
-   }
 };
 
 int main(int argc, char *argv[])
@@ -90,11 +88,19 @@ int main(int argc, char *argv[])
       }
       
       signal_handler signal_handler;
-      signal_handler.start();
+      boost::thread signal_handler_thread(signal_handler);
       
       udp_handler udp_handler(4747);
       ladder_handler ladder_handler(vm["db"].as<string>());
 
+      glo::status_server status_server("/server", 22200);
+      
+      atomic<uint32_t> request_count(0);
+      status_server.add(cref(request_count), "/request", {tag::COUNT}, level::MEDIUM, "Number of requests to the server.");
+ 
+      status_server.start();
+      LOG_INFO("started status server on port %d", status_server.port());
+    
       // Dispatcher loop.
       while (true) {
          request request = udp_handler.recv();
@@ -102,6 +108,8 @@ int main(int argc, char *argv[])
          
          Json::Value request_data = request.json();
          string command = request_data["cmd"].asString();
+         
+         ++request_count;
          
          Json::Value response_data;
          if (command == "ladder") {

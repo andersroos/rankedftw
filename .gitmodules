@@ -1,0 +1,3 @@
+[submodule "contrib/glo-cpplib"]
+	path = contrib/glo-cpplib
+	url = git@github.com:andersroos/glo-cpplib.git

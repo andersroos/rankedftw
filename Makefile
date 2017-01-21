@@ -22,6 +22,8 @@ PYTHON_INCLUDE := /usr/include/python3.4
 LIB_PYTHON := :libpython3.4m.so
 LIB_BOOST_PYTHON := boost_python-py34
 
+GLO_INCLUDE := $(BASE_DIR)/contrib/glo-cpplib/include
+
 # Testing
 
 NOSE := nosetests-3.4
@@ -45,7 +47,8 @@ SITE_MANAGE = $(BASE_DIR)/site/manage.py
 SITE_CSS = $(BASE_DIR)/site/static/site.css
 SITE_JS = $(BASE_DIR)/site/static/site.js
 
-CXXFLAGS = -fPIC -g -O2 -DDEFAULT_DB=\"$(DEFAULT_DB)\" -I$(SRC_DIR) -I$(PYTHON_INCLUDE) -I/usr/include/postgresql -std=c++11 -Wall
+CXXFLAGS = -fPIC -g -O2 -DDEFAULT_DB=\"$(DEFAULT_DB)\" -std=c++14 -Wall \
+           -I$(SRC_DIR) -I$(PYTHON_INCLUDE) -I$(GLO_INCLUDE) -I/usr/include/postgresql
 
 COMMON_OBJS = $(SRC_DIR)/io.o $(SRC_DIR)/db.o $(SRC_DIR)/exception.o $(SRC_DIR)/util.o
 
@@ -83,6 +86,7 @@ rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subs
 default: build
 
 init:
+	git submodule update
 	$(PIP) install --upgrade -r $(BASE_DIR)/requirements.txt
 	$(NPM) install
 
@@ -113,6 +117,12 @@ lib/migrate: $(MIGRATE_OBJS)
 
 run: build
 	./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch" "./lib/server"
+
+run-web: build
+	./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch"
+
+run-server: build
+	./aid/tools/run.py "./lib/server"
 
 create-migration:
 	$(SITE_MANAGE) makemigrations
