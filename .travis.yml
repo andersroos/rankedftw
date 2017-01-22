@@ -15,5 +15,7 @@ install:
   - "make docker-test-image"
   
 script:
+  - "sudo -u postgres createuser root"
+  - "sudo -u postgres psql -c 'alter user root with createdb;'"
   - "make docker-test-run"
 
