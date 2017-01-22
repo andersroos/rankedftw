@@ -85,10 +85,14 @@ rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subs
 
 default: build
 
-init:
+init-submodules:
 	git submodule update
+
+init-dependencies:
 	$(PIP) install --upgrade -r $(BASE_DIR)/requirements.txt
 	$(NPM) install
+
+init: init-submodules init-dependencies
 
 pep8:
 	pep8 --ignore=W602,W391,W293,E701,E241,E201,E402,W503,E116 --max-line-length=120 --exclude=./main/migrations .
@@ -190,6 +194,7 @@ clean:
 	\rm -f lib/sc2.so
 	\rm -f src/*.o
 	\rm -f $(SITE_JS)* $(SITE_CSS)*
+	\rm -f dist/*/build
 
 clean-test-data:
 	@for i in `psql -A -t -X -c "SELECT datname FROM pg_database WHERE datname like 'test_rankedftw-%'" postgres`; do\
@@ -199,3 +204,16 @@ clean-test-data:
 todo:
 	@grep -irn todo | grep -v -E -e '(\.git|Makefile)' -e .idea | grep -v -e node_modules -e site/static/site.js | sort; echo ""
 
+# Build a docker image for running unittests.
+docker-test-image: init-submodules
+	mkdir -p dist/travis/build
+	sudo rsync \
+		--exclude-from=$(BASE_DIR)/dist/travis/exclude \
+		-av \
+		--delete \
+		$(BASE_DIR)/ \
+		$(BASE_DIR)/dist/travis/build
+	docker build dist/travis -t travis
+
+docker-test-run: 
+	docker run -v /var/run/postgresql:/var/run/postgresql -it travis make test

@@ -1,0 +1,14 @@
+*.po
+*.pyc
+*.o
+*~
+.*
+.keepdir
+local.mk
+local.py
+.git/
+dist/
+.build/
+site/static/site.js*
+site/static/site.css*
+node_modules/

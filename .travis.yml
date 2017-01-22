@@ -5,26 +5,15 @@ sudo: true
 python:
   - "3.4"
 
-addons:
-  apt:
-    packages:
-      - make
-      - g++-5
-      - libboost-python-dev
-      - libboost-system-dev
-      - libboost-serialization-dev
-      - libboost-iostreams-dev
-      - libboost-thread-dev
-      - libboost-program-options-dev
-      - libpq-dev
-      - libjsoncpp-dev
-      # Disabling postgresql install becuase it breaks travis, but it is needed.
-      # - postgresql
-
+services:
+  - docker
+  - postgresql
+  
 language: python
 
 install:
-  - "make init build"
+  - "make docker-test-image"
   
 script:
-  - "make test"
+  - "make docker-test-run"
+
