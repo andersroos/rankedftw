@@ -86,7 +86,7 @@ rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subs
 default: build
 
 init-submodules:
-	git submodule update
+	git submodule update --init
 
 init-dependencies:
 	$(PIP) install --upgrade -r $(BASE_DIR)/requirements.txt
