@@ -1,10 +1,10 @@
 from datetime import datetime, timezone
 
-from logging import getLogger
+from logging import getLogger, INFO, WARNING
 
 from django.db import transaction
 
-from main.models import Cache, Ladder, Mode, League, Version
+from main.models import Cache, Ladder, Mode, League, Version, Region
 from common.utils import to_unix
 from lib import sc2
 
@@ -125,7 +125,8 @@ def fetch_new_in_league(check_stop, bnet_client, region, season, version, mode, 
             break
 
     else:
-        logger.warning("fetched league %s after %d tries, status %s, skipping" % (api_league.url, count, res.status))
+        level = INFO if region == Region.CN else WARNING
+        logger.log(level, "fetched league %s after %d tries, status %s, skipping" % (api_league.url, count, res.status))
         return
 
     logger.info("fetched league %s, bid %s, season %s, %s, %s, %s, %s ladders" %
