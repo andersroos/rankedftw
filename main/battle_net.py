@@ -270,6 +270,9 @@ class ApiSeason(object):
         self.url = url
 
     def season_id(self):
+        # API returns 32 instead of 33 for kr.
+        if hasattr(self, 'url') and 'kr.api.battle.net' in self.url and self.data['id'] == 32:
+            return 33
         return self.data['id']
 
     def start_date(self):
