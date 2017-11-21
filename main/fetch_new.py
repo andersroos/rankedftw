@@ -1,5 +1,5 @@
 from datetime import timedelta
-from logging import getLogger
+from logging import getLogger, INFO, WARNING
 from django.db import transaction
 
 from common.logging import log_context
@@ -85,8 +85,9 @@ def fetch_new(region=None, check_stop=lambda: None, bnet_client=None):
                 break
 
         else:
-            logger.warning("could not get season info from %s after %d tries, status %s, bailing" %
-                           (api_season.url, count, res.status))
+            level = INFO if region == Region.CN else WARNING
+            logger.log(level, "could not get season info from %s after %d tries, status %s, bailing" %
+                       (api_season.url, count, res.status))
             return
 
         # Update or create the season cache, just for bookkeeping.

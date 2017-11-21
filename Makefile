@@ -194,7 +194,7 @@ clean:
 	\rm -f lib/sc2.so
 	\rm -f src/*.o
 	\rm -f $(SITE_JS)* $(SITE_CSS)*
-	\rm -f dist/*/build
+	\rm -fr dist/*/build
 
 clean-test-data:
 	@for i in `psql -A -t -X -c "SELECT datname FROM pg_database WHERE datname like 'test_rankedftw-%'" postgres`; do\

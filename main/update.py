@@ -2,7 +2,7 @@ import json
 import socket
 from collections import deque
 from datetime import timedelta
-from logging import getLogger
+from logging import getLogger, INFO, WARNING
 from time import sleep
 from django.db import transaction
 from common.utils import utcnow, to_unix, StoppableThread
@@ -93,10 +93,10 @@ class FetcherThread(StoppableThread):
                 if status != 200 or len(self.fetched_queue) > 20:
                     delay = min(self.DELAY_MAX + 1, delay * 2)
                     if delay == self.DELAY_MAX:
-                        if not (self.region == Region.CN and status == 600):
-                            # Tired of CN timeouts, only warn about stuff I need to do something about.
-                            logger.warning("delay hit %ds, got many bad statuses (status now %d) or queue is too big "
-                                           "(now %d)" % (self.DELAY_MAX, status, len(self.fetched_queue)))
+
+                        level = INFO if self.region == Region.CN else WARNING
+                        logger.log(level, "delay hit %ds, got many bad statuses (status now %d) or queue is too big "
+                                          "(now %d)" % (self.DELAY_MAX, status, len(self.fetched_queue)))
                     for i in range(min(self.DELAY_MAX, delay)):
                         self.check_stop()
                         sleep(1)
