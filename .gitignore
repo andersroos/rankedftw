@@ -21,3 +21,4 @@ site/static/*.js*
 .idea
 node_modules
 dist/*/build
+.envrc

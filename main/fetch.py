@@ -170,7 +170,7 @@ def fetch_new_in_league(check_stop, bnet_client, region, season, version, mode, 
 def fetch_new_in_region(check_stop=lambda: None, bnet_client=None, season=None, region=None):
     """ Fetch all leagues for season and region, fetch new ladders if needed. """
 
-    for version in reversed(Version.ranking_ids):
+    for version in [Version.LOTV]:
         for mode in Mode.ranking_ids:
             for league in reversed(League.ranking_ids):
                 if version != Version.LOTV and mode == Mode.ARCHON:
