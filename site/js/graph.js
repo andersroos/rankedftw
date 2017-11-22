@@ -283,6 +283,7 @@ export let GraphBase = function(container_selector, edges, x_margin) {
 
         draw_event_line("LotV", 2015, 10, 9);
         draw_event_line("MMR", 2016, 6, 17);
+        draw_event_line("f2p", 2017, 11, 15);
     };
 
     // Draw crosshair.
