@@ -275,15 +275,15 @@ export let GraphBase = function(container_selector, edges, x_margin) {
 
         let draw_event_line = function(label, yr, m, d) {
             let x = o.date_to_pixels(yr, m, d);
-            if (x - 10 > 0 && x + 10 < o.width) {
-                o.gline('#ffff00', 2, [{x: x, y: o.height + 5}, {x: x, y: o.height - 5}]);
-                o.text(label, o.edges.left + x, o.edges.top + o.height - 5 , 'center', 'bottom', '#ffff00');
-            }
+            //if (x - 10 > 0 && x + 10 < o.width) {
+            o.gline('#ffff00', 2, [{x: x, y: o.height + 5}, {x: x, y: o.height - 5}]);
+            o.text(label, o.edges.left + x, o.edges.top + o.height - 5 , 'center', 'bottom', '#ffff00');
+            //}
         };
 
         draw_event_line("LotV", 2015, 10, 9);
         draw_event_line("MMR", 2016, 6, 17);
-        draw_event_line("f2p", 2017, 11, 15);
+        draw_event_line("f2p", 2017, 10, 15);
     };
 
     // Draw crosshair.
