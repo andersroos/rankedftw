@@ -107,6 +107,54 @@ class Test(DjangoTestCase):
         self.assertRaises(Ranking.DoesNotExist, Ranking.objects.get, pk=rr6.id)
         self.assertRaises(Ranking.DoesNotExist, Ranking.objects.get, pk=rr7.id)
         self.assertRaises(Ranking.DoesNotExist, Ranking.objects.get, pk=rr8.id)
+
+    def test_keep_with_intervals_of_7_days_from_kept_but_28_days_if_older_than_1_year(self):
+
+        def create(days, minutes):
+            return self.db.create_ranking(created=self.now,
+                                          status=Ranking.COMPLETE_WITOUT_DATA,
+                                          data_time=self.datetime(days=days, minutes=minutes),
+                                          season=self.s1)
+
+        rr1 = create(-7 * 0,   -1)  # keep
+        rr2 = create(-7 * 51,  -2)  # keep
+        rr3 = create(-7 * 52,  -3)  # keep
+        rr4 = create(-7 * 53,  -4)
+        rr5 = create(-7 * 54,  -5)  # keep
+        rr6 = create(-7 * 55,  -6)
+        rr7 = create(-7 * 56,  -7)
+        rr8 = create(-7 * 57,  -8)
+        rr9 = create(-7 * 58,  -9)  # keep
+        rr10 = create(-7 * 59, -10)
+        rr11 = create(-7 * 60, -11)
+        rr12 = create(-7 * 61, -12)
+        rr13 = create(-7 * 62, -13)  # keep
+        
+        self.delete(keep_last=0, dry_run=False)
+
+        self.assertCountEqual([r.pk for r in (rr1, rr2, rr3, rr5, rr9, rr13)], [r.pk for r in Ranking.objects.all()])
+
+    def test_interval_of_28_is_not_used_when_complete_with_data(self):
+
+        def create(days, minutes):
+            return self.db.create_ranking(created=self.now,
+                                          status=Ranking.COMPLETE_WITH_DATA,
+                                          data_time=self.datetime(days=days, minutes=minutes),
+                                          season=self.s1)
+
+        rr1 = create(-7 * 0,   -1)
+        rr2 = create(-7 * 51,  -2)
+        rr3 = create(-7 * 52,  -3)
+        rr4 = create(-7 * 53,  -4)
+        rr5 = create(-7 * 54,  -5)
+        rr6 = create(-7 * 55,  -6)
+        rr7 = create(-7 * 56,  -7)
+        rr8 = create(-7 * 57,  -8)
+        rr9 = create(-7 * 58,  -9)
+        
+        self.delete(keep_last=0, dry_run=False)
+        
+        self.assertCountEqual([r.pk for r in (rr1, rr2, rr3, rr4, rr5, rr6, rr7, rr8, rr9)], [r.pk for r in Ranking.objects.all()])
         
     def test_keep_last_in_each_season(self):
         rr1 = self.db.create_ranking(created=self.datetime(days=-400, minutes=1), season=self.s1)

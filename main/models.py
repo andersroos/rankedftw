@@ -583,7 +583,9 @@ class Ranking(models.Model):
             self.data_time = self.max_data_time
         else:
             self.data_time = min(self.max_data_time, season.end_time())
-
+            
+    def __str__(self):
+        return "RankingData<%s, %s>" % (self.id, self.data_time)
 
 class RankingData(models.Model):
     """ The actual ranking data for the ranking. """

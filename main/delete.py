@@ -35,6 +35,7 @@ class DataDeleter(object):
                        .filter(status__in=(Ranking.COMPLETE_WITH_DATA, Ranking.COMPLETE_WITOUT_DATA))
                        .all()
                        .order_by('-id'))
+            
             # Prep list of <ranking, keep flag, reason>.
             rrs = [[rr, False, "remove is default, data from %s" % rr.data_time.date()] for rr in rrs]
             
@@ -55,18 +56,33 @@ class DataDeleter(object):
                     rr[1] = True
                     rr[2] = "last from season %d, data from %s" % (season_id, rr[0].data_time.date())
 
-            # Try to keep rankings with an interval of 7 days.
+            # Try to keep rankings with an interval of 7 days for the last year.
             last_kept = datetime(2000, 1, 1, 0, 0, 0).replace(tzinfo=timezone.utc)
             rrs.sort(key=lambda rr: rr[0].data_time)
+            last_data_time = rrs[-1][0].data_time
             for rr in rrs:
+                ranking = rr[0]
                 if rr[1]:
-                    last_kept = rr[0].data_time
+                    last_kept = ranking.data_time
                 else:
-                    if rr[0].data_time - last_kept >= timedelta(days=7):
-                        rr[1] = True
-                        rr[2] = "new since 7 days, data from %s" % rr[0].data_time.date()
-                        last_kept = rr[0].data_time
-
+                    
+                    # Keep every 7 days
+                    if ranking.data_time - last_kept >= timedelta(days=7):
+                    
+                        # But if older than one year and archived. Keep every 4 weeks.
+                        if last_data_time > ranking.data_time + timedelta(days=365)\
+                                and ranking.status == Ranking.COMPLETE_WITOUT_DATA:
+                            
+                            if ranking.data_time - last_kept >= timedelta(days=28):
+                                rr[1] = True
+                                rr[2] = "new since 28 days, data from %s" % rr[0].data_time.date()
+                                last_kept = rr[0].data_time
+                            
+                        else:
+                            rr[1] = True
+                            rr[2] = "new since 7 days, data from %s" % rr[0].data_time.date()
+                            last_kept = rr[0].data_time
+                    
             # Delete all rankings that has still is False
             rrs.sort(key=lambda rr: rr[0].id)
             for rr in rrs:
