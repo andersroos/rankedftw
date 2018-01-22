@@ -172,7 +172,7 @@ class UpdateManager(object):
     pause to check for new ranking or new season.
     """
 
-    server_ping_timeout = 5.0
+    server_ping_timeout = 10.0
     
     @classmethod
     def save_ranking(self, cpp, ranking, queue_length):

@@ -43,6 +43,7 @@ ladder_handler::refresh(const Json::Value& request)
 {
    Json::Value response;
    response["code"] = "ok";
+   LOG_INFO("got refresh ping");
    refresh_ranking(true);
    return response;
 }
