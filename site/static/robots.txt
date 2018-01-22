@@ -8,3 +8,4 @@ Disallow: /ladder/
 Disallow: /clan/
 Disallow: /ladder/lotv/1v1/mmr/?f
 Disallow: /ladder/lotv/1v1/mmr/?t
+Disallow: /ladder/lotv/1v1/mmr/?o
