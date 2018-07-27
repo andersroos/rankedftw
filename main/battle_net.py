@@ -384,7 +384,7 @@ class ApiLadder(object):
                     member = {
                         'bid': bid,
                         'realm': realm,
-                        'name': legacy.get('name', '').split('#')[0],
+                        'name': legacy.get('name', '').split('#')[0][:12],
                         'tag': clan.get('clan_tag', ''),
                         'clan': clan.get('clan_name', ''),
                         'race': race,
@@ -401,7 +401,7 @@ class ApiLadder(object):
                 members.append({
                     'bid': c['id'],
                     'realm': c['realm'],
-                    'name': c['displayName'],
+                    'name': c['displayName'][:12],
                     'tag': c['clanTag'],
                     'clan': c['clanName'],
                     'race': Race.id_by_keys[m.get('favoriteRaceP%d' % (i % team_size + 1), 'unknown').lower()],

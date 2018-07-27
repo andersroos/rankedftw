@@ -298,6 +298,12 @@ class TestApi(DjangoTestCase):
                 'losses': 5,
             },
         ], al.members_for_ranking(4))
+        
+    def test_name_is_truncated_to_12_chars(self):
+        l = deepcopy(API_LADDER_1V1)
+        l['team'][0]['member'][0]['legacy_link']['name'] = '12345678901234567890#123'
+        al = ApiLadder(l)
+        self.assertEqual('123456789012', al.members_for_ranking(1)[0]['name'])
 
 
 
