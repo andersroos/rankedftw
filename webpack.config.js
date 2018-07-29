@@ -17,7 +17,7 @@ var config = {
                 exclude: /node_modules/,
                 loader: "babel",
                 query: {
-                    presets: ["es2016", "es2015"],
+                    presets: ["env"],
                 }
             },
         ]
