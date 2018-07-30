@@ -2,15 +2,10 @@ dist: trusty
 
 sudo: true
 
-python:
-  - "3.4"
-
 services:
   - docker
   - postgresql
   
-language: python
-
 install:
   - "make docker-test-image"
   
