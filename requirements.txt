@@ -1,6 +1,6 @@
 # Running
 Django>=1.9,<1.10
-psycopg2
+psycopg2-binary
 psutil
 uwsgi
 requests
