@@ -18,9 +18,9 @@ DEFAULT_DB := rankedftw
 
 PROD_JS :=
 
-PYTHON_INCLUDE := /usr/include/python3.4
-LIB_PYTHON := :libpython3.4m.so
-LIB_BOOST_PYTHON := boost_python-py34
+PYTHON_INCLUDE := /usr/include/python3.6
+LIB_PYTHON := :libpython3.6m.so
+LIB_BOOST_PYTHON := boost_python-py36
 
 GLO_INCLUDE := $(BASE_DIR)/contrib/glo-cpplib/include
 

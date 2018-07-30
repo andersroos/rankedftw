@@ -21,7 +21,6 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     libpq-dev \
     libjsoncpp-dev \
-    libpython3-dev \
     libpcre3 \
     libpcre3-dev \
     node-less \
