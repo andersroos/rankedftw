@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
       }
    }
    catch (std::exception& e) {
+      // This is buggy, when threads above go out of scope the process will terminate.
       std::cerr << e.what() << std::endl;
       return 1;
    }
