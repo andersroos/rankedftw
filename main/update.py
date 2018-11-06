@@ -7,7 +7,7 @@ from time import sleep
 from django.db import transaction
 from common.utils import utcnow, to_unix, StoppableThread
 from main.battle_net import BnetClient, ApiLadder
-from main.client import request_udp
+from main.client import request_udp, request_tcp
 from main.fetch import update_ladder_cache
 from main.models import Enums, Ladder, League, Mode, Version, Season, Ranking, get_db_name, Region
 from common.logging import log_context, LogContext
@@ -188,7 +188,7 @@ class UpdateManager(object):
 
         # Ping server to reload ranking.
         try:
-            raw = request_udp('localhost', 4747,
+            raw = request_tcp('localhost', 4747,
                               json.dumps({'cmd': 'refresh'}).encode('utf-8'),
                               timeout=self.server_ping_timeout)
             response = json.loads(raw.decode('utf-8'))
@@ -198,8 +198,8 @@ class UpdateManager(object):
             else:
                 logger.warning("refresh ping returned %s" % code)
 
-        except socket.timeout:
-            logger.warning("refresh ping to server timed out")
+        except OSError as e:
+            logger.warning("refresh ping to server failed: " + str(e))
 
     @classmethod
     def update_until(self, ranking=None, cpp=None, regions=None, until=None, check_stop=None,

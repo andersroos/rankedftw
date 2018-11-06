@@ -48,7 +48,7 @@ void
 udp_handler::reply(const request& request)
 {
    socklen_t addrlen = sizeof(sockaddr_in);
-   
+
    ssize_t sent = sendto(_socket, request.response_data.c_str(), request.response_data.length(), 0,
                          (sockaddr*) &request.request_src, addrlen);
    if (sent == -1) {

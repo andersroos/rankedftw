@@ -58,7 +58,7 @@ SC2_LIBS = -l$(LIB_BOOST_PYTHON) -lboost_system -l$(LIB_PYTHON) -lpq -lboost_ser
            -lboost_iostreams -ljsoncpp
 
 SERVER_OBJS = $(COMMON_OBJS) $(SRC_DIR)/log.o $(SRC_DIR)/server.o $(SRC_DIR)/udp_handler.o	\
-	      $(SRC_DIR)/ladder_handler.o
+	      $(SRC_DIR)/ladder_handler.o $(SRC_DIR)/tcp_handler.o
 SERVER_LIBS = -l$(LIB_BOOST_PYTHON) -lboost_system -l$(LIB_PYTHON) -lboost_serialization -lboost_iostreams	\
               -lboost_system -lpq -lboost_thread -lpthread -lboost_program_options -ljsoncpp
 

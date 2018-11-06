@@ -1,4 +1,3 @@
-import sys
 import socket
 import json
 
@@ -14,9 +13,9 @@ class Client(object):
 
     def request_server(self, data):
         try:
-            raw = request_udp('localhost', 4747, json.dumps(data).encode('utf-8'))
-        except socket.timeout:
-            raise ClientError('Request timeout.')
+            raw = request_tcp('localhost', 4747, json.dumps(data).encode('utf-8'))
+        except OSError as e:
+            raise ClientError('Error in server communication.') from e
 
         return json.loads(raw.decode('utf-8'))
 
@@ -75,6 +74,22 @@ class Client(object):
         return data
 
 
+def request_tcp(host, port, message, timeout=5.0):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.connect((host, port))
+        sock.send(message)
+        sock.send(b'\n')
+        sock.shutdown(socket.SHUT_WR)
+        sock.settimeout(timeout)
+        string = b''
+        while True:
+            data = sock.recv(65535)
+            if not len(data):
+                break
+            string = string + data
+        return string
+
+    
 def request_udp(host, port, message, timeout=5.0):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.settimeout(timeout)

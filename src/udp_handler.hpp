@@ -30,10 +30,10 @@ struct udp_handler {
 
    udp_handler(in_port_t port);
 
-   // Sends an UDP message to dest_addr, see sendto system call.
+   // Sends a reply message to dest_addr, see sendto system call.
    void reply(const request& request);   
 
-   // Block until a UDP message is available return it.
+   // Block until a message is available and then returns it.
    request recv();
 
    virtual ~udp_handler();

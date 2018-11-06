@@ -139,7 +139,7 @@ class ClanView(MainNavMixin, TemplateView, LadderCommon):
             data = self.fetch_data(tag, sort_key_id, is_reverse=is_reverse,
                                    league_id=league_id, region_id=region_id, race_id=race_id)
         except ClientError as e:
-            logger.error("Fetch from client error: %s" % str(e))
+            logger.exception("Fetch from client error: %s" % str(e))
             context['error'] = 'The server is not feeling well, try again later.'
             return self.respond(context, json_response)
 

@@ -9,7 +9,7 @@
 #include <fstream>
 #include <glo.hpp>
 
-#include "udp_handler.hpp"
+#include "tcp_handler.hpp"
 #include "exception.hpp"
 #include "log.hpp"
 #include "ladder_handler.hpp"
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
       signal_handler signal_handler;
       boost::thread signal_handler_thread(signal_handler);
       
-      udp_handler udp_handler(4747);
+      tcp_handler tcp_handler(4747);
       ladder_handler ladder_handler(vm["db"].as<string>());
 
       glo::status_server status_server("/server", 22200);
@@ -103,10 +103,11 @@ int main(int argc, char *argv[])
     
       // Dispatcher loop.
       while (true) {
-         request request = udp_handler.recv();
+         request request;
+         tcp_handler.accept(request);
          boost::this_thread::interruption_point();
          
-         Json::Value request_data = request.json();
+         Json::Value request_data = request.recv();
          string command = request_data["cmd"].asString();
          
          ++request_count;
@@ -127,8 +128,7 @@ int main(int argc, char *argv[])
             response_data["message"] = fmt("unknown command, '%s'", command.c_str());
          }
 
-         request.json(response_data);
-         udp_handler.reply(request);
+         request.reply(response_data);
       }
    }
    catch (std::exception& e) {

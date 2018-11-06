@@ -3,7 +3,6 @@
 #include <boost/thread/mutex.hpp>    
 #include <jsoncpp/json/json.h>
 
-#include "udp_handler.hpp"
 #include "db.hpp"
 #include "log.hpp"
 #include "types.hpp"
