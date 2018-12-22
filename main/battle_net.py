@@ -37,9 +37,6 @@ class LocalStatus(object):
 
 
 LadderResponse = namedtuple("LadderResponse", ['status', 'api_ladder', 'fetch_time', 'fetch_duration'])
-PlayerResponse = namedtuple("PlayerResponse", ['status', 'api_player', 'fetch_time', 'fetch_duration'])
-PlayerLaddersResponse = namedtuple("PlayerLaddersResponse", ['status', 'api_player_ladders',
-                                                             'fetch_time', 'fetch_duration'])
 SeasonResponse = namedtuple("SeasonResponse", ['status', 'api_season', 'fetch_time', 'fetch_duration'])
 LeagueResponse = namedtuple("LeagueResponse", ['status', 'api_league', 'fetch_time', 'fetch_duration'])
 
@@ -71,22 +68,20 @@ def get_bnet_profile_url_info(url):
 class BnetClient(object):
     """ Bnet connection, is a class for easier mocking. """
 
-    REGION_URL_PREFIXES_1 = {
-        Region.EU:  'https://eu.api.battle.net/sc2',
-        Region.AM:  'https://us.api.battle.net/sc2',
-        Region.KR:  'https://kr.api.battle.net/sc2',
-        Region.SEA: 'https://sea.api.battle.net/sc2',
-        Region.CN:  'https://api.battlenet.com.cn/sc2'
+    REGION_URL_PREFIXES = {
+        Region.EU:  'https://eu.api.blizzard.com',
+        Region.AM:  'https://us.api.blizzard.com',
+        Region.KR:  'https://kr.api.blizzard.com',
+        Region.CN:  'https://gateway.battlenet.com.cn',
     }
-
-    REGION_URL_PREFIXES_2 = {
-        Region.EU:  'https://eu.api.battle.net/data/sc2',
-        Region.AM:  'https://us.api.battle.net/data/sc2',
-        Region.KR:  'https://kr.api.battle.net/data/sc2',
-        Region.SEA: 'https://sea.api.battle.net/data/sc2',
-        Region.CN:  'https://api.battlenet.com.cn/data/sc2',
+    
+    REGION_IDS = {
+        Region.EU:  '2',
+        Region.AM:  '1',
+        Region.KR:  '3',
+        Region.CN:  '5',
     }
-
+    
     QUEUE_ID_MAJOR = {
         Version.WOL: 0,
         Version.HOTS: 100,
@@ -163,7 +158,6 @@ class BnetClient(object):
         :returns: <status code, json data>
         """
         status, raw = self.http_get(url, timeout, auth)
-
         if raw is None:
             return status, {'unparsable': ''}
 
@@ -184,60 +178,16 @@ class BnetClient(object):
 
         return status, json_data
 
-    def fetch_ladder(self, season_id, region, bid, timeout=60):
-        """
-        Fetch ladder from blizzard api.
-
-        :return: <status code, ApiLadder or None, fetch time, fetch duration>
-        """
-
-        if season_id >= 28:
-            url_prefix = self.REGION_URL_PREFIXES_2[region]
-            url = "%s/ladder/%d" % (url_prefix, bid)
-            timer = Timer()
-            status, data = self.http_get_json(url, timeout, ACCESS_TOKEN_AUTH)
-        else:
-            url_prefix = self.REGION_URL_PREFIXES_1[region]
-            url = "%s/ladder/%d" % (url_prefix, bid)
-            timer = Timer()
-            status, data = self.http_get_json(url, timeout, API_KEY_AUTH)
-
-        al = ApiLadder(data, url)
-
-        return LadderResponse(status, al, utcnow(), timer.end())
-
-    def fetch_player(self, region, player_path, timeout=60):
-        """
-        Fetch player from blizzard api.
-
-        :return: <status code, ApiPlayer or None, fetch time, fetch duration>
-        """
-        url_prefix = self.REGION_URL_PREFIXES_1[region]
-        url = '%s%s' % (url_prefix, player_path)
-        timer = Timer()
-        status, data = self.http_get_json(url, timeout, API_KEY_AUTH)
-        return PlayerResponse(status, ApiPlayer(data, url), utcnow(), timer.end())
-
-    def fetch_player_ladders(self, region, player_path, timeout=60):
-        """
-        Fetch player ladders from blizzard api.
-
-        :return: <status code, ApiPlayerLadders or None, fetch time, fetch duration>
-        """
-        url_prefix = self.REGION_URL_PREFIXES_1[region]
-        url = '%s%sladders' % (url_prefix, player_path)
-        timer = Timer()
-        status, data = self.http_get_json(url, timeout, API_KEY_AUTH)
-        return PlayerLaddersResponse(status, ApiPlayerLadders(data, url), utcnow(), timer.end())
-
     def fetch_current_season(self, region, timeout=60):
         """
         Fetch current season information.
 
         :return: <status code, ApiSeasonInfo or None, fetch time, fetch duration>
         """
-        url_prefix = self.REGION_URL_PREFIXES_2[region]
-        url = '%s/season/current' % url_prefix
+        url_prefix = self.REGION_URL_PREFIXES[region]
+        region_id = self.REGION_IDS[region]
+        
+        url = f'{url_prefix}/sc2/ladder/season/{region_id}'
         timer = Timer()
         status, data = self.http_get_json(url, timeout, ACCESS_TOKEN_AUTH)
         return SeasonResponse(status, ApiSeason(data, url), utcnow(), timer.end())
@@ -248,16 +198,31 @@ class BnetClient(object):
 
         :return: <status code, ApiLeagueInfo or None, fetch time, fetch duration>
         """
-        url_prefix = self.REGION_URL_PREFIXES_2[region]
 
+        url_prefix = self.REGION_URL_PREFIXES[region]
         queue_id = self.QUEUE_ID_MAJOR[version] + self.QUEUE_ID_MINOR[mode]
         team_type = self.TEAM_TYPE[mode]
 
-        url = '%s/league/%d/%d/%d/%d' % (url_prefix, season_id, queue_id, team_type, league)
+        url = f'{url_prefix}/data/sc2/league/{season_id}/{queue_id}/{team_type}/{league}'
         bid = league + team_type * 10 + queue_id * 100 + season_id * 100000
         timer = Timer()
         status, data = self.http_get_json(url, timeout, ACCESS_TOKEN_AUTH)
         return LeagueResponse(status, ApiLeague(data, url, bid), utcnow(), timer.end())
+
+    def fetch_ladder(self, region, bid, timeout=60):
+        """
+        Fetch ladder from blizzard api.
+
+        :return: <status code, ApiLadder or None, fetch time, fetch duration>
+        """
+
+        url_prefix = self.REGION_URL_PREFIXES[region]
+        
+        url = f"{url_prefix}/data/sc2/ladder/{bid}"
+        timer = Timer()
+        status, data = self.http_get_json(url, timeout, ACCESS_TOKEN_AUTH)
+        al = ApiLadder(data, url)
+        return LadderResponse(status, al, utcnow(), timer.end())
 
 
 class ApiSeason(object):
@@ -270,18 +235,18 @@ class ApiSeason(object):
         self.url = url
 
     def season_id(self):
-        # API returns 32 instead of 33 for kr.
-        if hasattr(self, 'url') and 'kr.api.battle.net' in self.url and self.data['id'] == 32:
-            return 33
-        return self.data['id']
+        return self.data['seasonId']
 
     def start_date(self):
-        return from_unix(self.data['start_timestamp']).date()
+        return from_unix(int(self.data['startDate'])).date()
 
     def to_text(self):
         if self.data:
             return json.dumps(self.data, indent=4)
         return None
+
+    def __repr__(self):
+        return f"ApiSeason(data={self.data!r}, url={self.url})"
 
 
 class ApiLeague(object):
@@ -307,6 +272,9 @@ class ApiLeague(object):
         if self.data:
             return json.dumps(self.data, indent=4)
         return None
+
+    def __repr__(self):
+        return f"ApiLeague(bid={self.bid}, data={self.data!r}, url={self.url})"
 
 
 class ApiLadder(object):
@@ -445,7 +413,7 @@ class ApiLadder(object):
             return from_unix(max(m['joinTimestamp'] for m in members))
 
     def __repr__(self):
-        return "ApiLadder<data=%r>" % self.data
+        return f"ApiLadder(data={self.data!r}, url={self.url})"
 
     #
     # Code for pre gd ladders only. Kept if recategorization of old ladders is needed.

@@ -37,8 +37,10 @@ class Main(Command):
                           help="File to save access token in.")
 
     def run(self, args, logger):
+        url = 'https://eu.battle.net/oauth/token'
+        logger.info(f"requesting token from {url}")
         response = request('POST',
-                           'https://eu.battle.net/oauth/token',
+                           url,
                            auth=HTTPBasicAuth(config.API_KEY, config.API_SECRET),
                            params=dict(grant_type='client_credentials'),
                            allow_redirects=False)

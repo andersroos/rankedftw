@@ -75,7 +75,7 @@ class FetcherThread(StoppableThread):
                 self.check_stop()
 
                 status, api_ladder, fetch_time, fetch_duration = \
-                    self.bnet_client.fetch_ladder(self.season.id, ladder.region, ladder.bid, timeout=60)
+                    self.bnet_client.fetch_ladder(ladder.region, ladder.bid, timeout=60)
 
                 logger.info("fetched %s got %d in %.2fs, ladder %d, %s, %s, %s" %
                             (api_ladder.url, status, fetch_duration, ladder.bid, Mode.key_by_ids[ladder.mode],

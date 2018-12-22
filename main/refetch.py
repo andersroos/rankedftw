@@ -39,7 +39,7 @@ def refetch_missing(region=None, max_retries=None, min_age=None, check_stop=lamb
         check_stop()
 
         logger.info("refetching missing ladder bid %d, %d/%d" % (bid, count, bid_count))
-        res = bnet_client.fetch_ladder(22, region=region, bid=bid)
+        res = bnet_client.fetch_ladder(region=region, bid=bid)
         al = res.api_ladder
 
         if res.status == 503:
@@ -115,7 +115,7 @@ def refetch_past_season(season, now, check_stop, bnet_client):
             with transaction.atomic(), LogContext(region=Region.key_by_ids[ladder.region]):
 
                 status, api_ladder, fetch_time, fetch_duration = \
-                    bnet_client.fetch_ladder(season.id, ladder.region, ladder.bid, timeout=20)
+                    bnet_client.fetch_ladder(ladder.region, ladder.bid, timeout=20)
 
                 logger.info("fetched %s got %d in %.2fs, %s (%d/%d)" %
                             (api_ladder.url, status, fetch_duration, ladder.info(), i, len(ladders)))

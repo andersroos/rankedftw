@@ -64,7 +64,7 @@ S22_END_TIME = datetime(2015, 6, 29, 23, 59, 59, 999, timezone.utc)
 def fetch_new_ladder(bnet_client, season, region, version, mode, league, tier, bid):
     """ Fetch a previously unknown ladder, save ladder and cache. """
 
-    res = bnet_client.fetch_ladder(season.id, region, bid)
+    res = bnet_client.fetch_ladder(region, bid)
     al = res.api_ladder
 
     if res.status == 503:

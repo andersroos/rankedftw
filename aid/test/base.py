@@ -160,8 +160,8 @@ class MockBnetTestMixin(object):
     def mock_current_season(self, status=200, season_id=None, start_time=None, fetch_time=None):
         self.bnet.fetch_current_season = \
             Mock(return_value=SeasonResponse(status,
-                                             ApiSeason({'id': season_id or self.db.season.id,
-                                                        'start_timestamp': to_unix(start_time or utcnow())},
+                                             ApiSeason({'seasonId': season_id or self.db.season.id,
+                                                        'startDate': to_unix(start_time or utcnow())},
                                                        'http://fake-url'),
                                              fetch_time or utcnow(), 0))
         

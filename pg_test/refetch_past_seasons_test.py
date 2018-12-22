@@ -56,7 +56,7 @@ class Test(MockBnetTestMixin, DjangoTestCase):
 
         self.refetch_past_seasons()
 
-        self.bnet.fetch_ladder.assert_called_once_with(self.s15.id, Region.EU, 100, timeout=20)
+        self.bnet.fetch_ladder.assert_called_once_with(Region.EU, 100, timeout=20)
 
         l.refresh_from_db()
         r.refresh_from_db()

@@ -360,6 +360,7 @@ bool update_team(team_t& old_team, const team_t& new_team)
    return updated;
 }
 
+
 boost::python::dict
 ranking_data::update_with_ladder(id_t ladder_id,
                                  id_t source_id,

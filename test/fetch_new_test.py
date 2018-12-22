@@ -44,7 +44,7 @@ class Test(MockBnetTestMixin, DjangoTestCase):
 
         self.fetch_new_in_league(season=self.s16)
 
-        self.bnet.fetch_ladder.assert_called_once_with(self.s16.id, Region.EU, 100)
+        self.bnet.fetch_ladder.assert_called_once_with(Region.EU, 100)
 
         ladder = self.db.get(Ladder, bid=100, region=Region.EU)
 
