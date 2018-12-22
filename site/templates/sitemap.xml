@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>http://www.rankedftw.com/</loc>
+    <loc>https://www.rankedftw.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.00</priority>
   </url>
@@ -10,7 +10,7 @@
   {% for stat in stats %}
     {% for mode in modes %}
       <url>
-        <loc>http://www.rankedftw.com{% url stat mode_key=mode %}</loc>
+        <loc>https://www.rankedftw.com{% url stat mode_key=mode %}</loc>
         <changefreq>weekly</changefreq>
         <priority>{% if forloop.first %}0.64{% else %}0.16{% endif %}</priority>
       </url>
@@ -22,7 +22,7 @@
       {% for sort_key in sort_keys %}
         {% for mode in modes %}
           <url>
-            <loc>http://www.rankedftw.com{% url 'ladder' version=version mode=mode reverse=reverse sort_key=sort_key %}</loc>
+            <loc>https://www.rankedftw.com{% url 'ladder' version=version mode=mode reverse=reverse sort_key=sort_key %}</loc>
             <changefreq>weekly</changefreq>
             <priority>{% if version == 'lotv' %}{% if forloop.first %}0.56{% else %}0.12{% endif %}{% else %}0.4{% endif %}</priority>
           </url>
@@ -32,40 +32,40 @@
   {% endfor %}
 
   <url>
-    <loc>http://www.rankedftw.com/donate/</loc>
+    <loc>https://www.rankedftw.com/donate/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.32</priority>
   </url>
 
   <url>
-    <loc>http://www.rankedftw.com/about/</loc>
+    <loc>https://www.rankedftw.com/about/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>http://www.rankedftw.com/news/</loc>
+    <loc>https://www.rankedftw.com/news/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>http://www.rankedftw.com/team/277189/</loc>
+    <loc>https://www.rankedftw.com/team/277189/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.01</priority>
   </url>
   <url>
-    <loc>http://www.rankedftw.com/team/757622/</loc>
+    <loc>https://www.rankedftw.com/team/757622/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.01</priority>
   </url>
   <url>
-    <loc>http://www.rankedftw.com/team/333316/</loc>
+    <loc>https://www.rankedftw.com/team/333316/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.01</priority>
   </url>
   <url>
-    <loc>http://www.rankedftw.com/search/</loc>
+    <loc>https://www.rankedftw.com/search/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.01</priority>
   </url>

@@ -1,4 +1,4 @@
-Sitemap: http://www.rankedftw.com/sitemap.xml
+Sitemap: https://www.rankedftw.com/sitemap.xml
 Host: www.rankedftw.com
 User-agent: *
 Allow: /ladder/lotv/1v1/mmr/

@@ -4,7 +4,7 @@
 Ranked For Teh Win
 ==================
 
-This is the source code for the website http://www.rankedftw.com, a
+This is the source code for the website https://www.rankedftw.com, a
 StarCraft II site.
        
 Building
@@ -84,5 +84,5 @@ A few things will work (not crash) without data but most things wont.
 Gettting Data
 =============
 
-If you get this far and want a sample db from the world please contact
-me here or at rankedftw.com@gmail.com.
+If you get this far and want a sample db from the real world please contact me here
+or at rankedftw.com@gmail.com.
