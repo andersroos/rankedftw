@@ -6,7 +6,7 @@ from aid.test.db import Db
 from aid.test.base import DjangoTestCase
 
 from django.test import Client
-from main.models import Region, Player, Cache, Season, Ranking, Race, Mode, League
+from main.models import Region, Cache, Season, Ranking, Race, Mode, League
 
 
 class Test(DjangoTestCase):
@@ -51,36 +51,58 @@ class Test(DjangoTestCase):
         self.assertEqual(True, response.context['no_search'])
 
     def test_search_by_url(self):
-        p = self.db.create_player(name="Kuno", bid=927, region=Region.EU, realm=1)
-        p = self.db.create_player(name="Kuno", bid=927, region=Region.AM, realm=1)
-        p = self.db.create_player(name="Kuno", bid=927, region=Region.KR, realm=1)
-        p = self.db.create_player(name="Kuno", bid=927, region=Region.CN, realm=1)
-        p = self.db.create_player(name="Kuno", bid=927, region=Region.SEA, realm=1)
+        p_eu = self.db.create_player(name="Kuno", bid=927, region=Region.EU, realm=1)
+        p_am = self.db.create_player(name="Kuno", bid=927, region=Region.AM, realm=1)
+        p_kr = self.db.create_player(name="Kuno", bid=927, region=Region.KR, realm=2)
+        p_cn = self.db.create_player(name="Kuno", bid=927, region=Region.CN, realm=1)
+        p_sea = self.db.create_player(name="Kuno", bid=927, region=Region.SEA, realm=1)
 
+        # EU
+        
         response = self.c.get('/search/', {'name': 'http://eu.battle.net/sc2/en/profile/927/1/Kuno/'})
-
         self.assertEqual(302, response.status_code)
-        self.assertTrue('/player/' in response.url)
+        self.assertTrue(f'/player/{p_eu.id}' in response.url)
+
+        response = self.c.get('/search/', {'name': 'https://starcraft2.com/en-gb/profile/2/1/927'})
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(f'/player/{p_eu.id}' in response.url)
+
+        # AM
 
         response = self.c.get('/search/', {'name': 'http://us.battle.net/sc2/en/profile/927/1/Kuno/'})
-
         self.assertEqual(302, response.status_code)
+        self.assertTrue(f'/player/{p_am.id}' in response.url)
         self.assertTrue('/player/' in response.url)
 
-        response = self.c.get('/search/', {'name': 'http://kr.battle.net/sc2/en/profile/927/1/Kuno/'})
-
+        response = self.c.get('/search/', {'name': 'https://starcraft2.com/en-gb/profile/1/1/927'})
         self.assertEqual(302, response.status_code)
-        self.assertTrue('/player/' in response.url)
+        self.assertTrue(f'/player/{p_am.id}' in response.url)
+
+        # KR
+
+        response = self.c.get('/search/', {'name': 'http://kr.battle.net/sc2/en/profile/927/2/Kuno/'})
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(f'/player/{p_kr.id}' in response.url)
+
+        response = self.c.get('/search/', {'name': 'https://starcraft2.com/en-gb/profile/3/2/927'})
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(f'/player/{p_kr.id}' in response.url)
+
+        # SEA
 
         response = self.c.get('/search/', {'name': 'http://sea.battle.net/sc2/en/profile/927/1/Kuno/'})
-
         self.assertEqual(302, response.status_code)
-        self.assertTrue('/player/' in response.url)
+        self.assertTrue(f'/player/{p_sea.id}' in response.url)
+
+        # CN
 
         response = self.c.get('/search/', {'name': 'http://www.battlenet.com.cn/sc2/en/profile/927/1/Kuno/'})
-
         self.assertEqual(302, response.status_code)
-        self.assertTrue('/player/' in response.url)
+        self.assertTrue(f'/player/{p_cn.id}' in response.url)
+        
+        response = self.c.get('/search/', {'name': 'https://starcraft2.com/en-gb/profile/5/1/927'})
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(f'/player/{p_cn.id}' in response.url)
 
     def test_pagination(self):
         for i in range(40):
@@ -118,7 +140,7 @@ class Test(DjangoTestCase):
                 'clan': p.clan,
                 'race': 'zerg',
                 'mode': '1v1',
-                'bnet_url': 'http://eu.battle.net/sc2/en/profile/300/0/sune/',
+                'bnet_url': 'https://starcraft2.com/en-gb/profile/2/1/300',
                 'region': 'eu',
                 'league': 'gold',
                 'season': self.db.season.id,
@@ -148,7 +170,7 @@ class Test(DjangoTestCase):
                 'clan': p1.clan,
                 'race': 'zerg',
                 'mode': '1v1',
-                'bnet_url': 'http://eu.battle.net/sc2/en/profile/300/0/sune/',
+                'bnet_url': 'https://starcraft2.com/en-gb/profile/2/1/300',
                 'region': 'eu',
                 'league': 'gold',
                 'season': self.db.season.id,
@@ -159,7 +181,7 @@ class Test(DjangoTestCase):
                 'clan': p3.clan,
                 'race': 'random',
                 'mode': '1v1',
-                'bnet_url': 'http://eu.battle.net/sc2/en/profile/302/0/sunerune/',
+                'bnet_url': 'https://starcraft2.com/en-gb/profile/2/1/302',
                 'region': 'eu',
                 'league': 'platinum',
                 'season': self.db.season.id,
@@ -170,7 +192,7 @@ class Test(DjangoTestCase):
                 'clan': p2.clan,
                 'race': 'terran',
                 'mode': 'archon',
-                'bnet_url': 'http://eu.battle.net/sc2/en/profile/301/0/sunebune/',
+                'bnet_url': 'https://starcraft2.com/en-gb/profile/2/1/301',
                 'region': 'eu',
                 'league': 'platinum',
                 'season': self.db.season.id,
@@ -224,7 +246,7 @@ class Test(DjangoTestCase):
                 'clan': p2.clan,
                 'race': 'terran',
                 'mode': 'archon',
-                'bnet_url': 'http://eu.battle.net/sc2/en/profile/301/0/sunebune/',
+                'bnet_url': 'https://starcraft2.com/en-gb/profile/2/1/301',
                 'region': 'eu',
                 'league': 'platinum',
                 'season': self.db.season.id,
@@ -258,7 +280,7 @@ class Test(DjangoTestCase):
             'clan': p.clan,
             'race': 'zerg',
             'mode': '1v1',
-            'bnet_url': 'http://eu.battle.net/sc2/en/profile/300/0/sune/',
+            'bnet_url': 'https://starcraft2.com/en-gb/profile/2/1/300',
             'region': 'eu',
             'league': 'gold',
             'season': self.db.season.id,

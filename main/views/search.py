@@ -2,29 +2,19 @@ import json
 import re
 from django.http import Http404, HttpResponse
 
-from django.views.generic.base import TemplateView, View
+from django.views.generic.base import TemplateView
 
-from main.battle_net import get_bnet_profile_url_info
-from main.views.base import rankings_view_client, MainNavMixin, last_updated_info
+from main.battle_net import get_bnet_profile_url_info, BnetClient
+from main.views.base import MainNavMixin, last_updated_info
 from django.shortcuts import redirect
 from django.db.models import Q
-from common.cache import cache_value, cache_control
-from main.models import Player, Team, Mode, Region, League, Season, Version, Ranking, Race
+from common.cache import cache_control
+from main.models import Player, Team, Mode, Region, League, Version, Race
 from django.core import urlresolvers
 
 
-region_hostnames = {
-    Region.EU:  'eu.battle.net',
-    Region.AM:  'us.battle.net',
-    Region.KR:  'kr.battle.net',
-    Region.SEA: 'sea.battle.net',
-    Region.CN:  'www.battlenet.com.cn'
-}
-    
-
 def get_bnet_url(player):
-    return "http://%s/sc2/en/profile/%s/%s/%s/" % \
-           (region_hostnames.get(player.region), player.bid, player.realm, player.name)
+    return f"https://starcraft2.com/en-gb/profile/{BnetClient.REGION_IDS[player.region]}/{player.realm}/{player.bid}"
 
 
 class SearchView(MainNavMixin, TemplateView):

@@ -132,7 +132,7 @@ class Db(object):
     def create_player(self, **kwargs):
         kwargs = merge_args({'bid': randint(0, 1e9),
                              'region': Region.EU,
-                             'realm': 0,
+                             'realm': 1,
                              'mode': Mode.TEAM_1V1,
                              'season': self.season,
                              'race': Race.ZERG,

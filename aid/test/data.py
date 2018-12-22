@@ -8,7 +8,7 @@ from main.models import Race
 def gen_member(**kwargs):
     """ Generate member as returned from ApiLadder and used by process_ladder. """
     return merge_args({"bid": randint(1, 1e6),
-                       "realm": 0,
+                       "realm": 1,
                        "name": uniqueid(length=12),
                        "clan": uniqueid(length=32),
                        "tag": uniqueid(length=6),

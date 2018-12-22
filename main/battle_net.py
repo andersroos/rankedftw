@@ -42,6 +42,24 @@ LeagueResponse = namedtuple("LeagueResponse", ['status', 'api_league', 'fetch_ti
 
 
 def get_bnet_profile_url_info(url):
+    if "starcraft2.com" in url:
+        # New style battle net profile  https://starcraft2.com/en-gb/profile/<region>/<realm>/<bid>
+
+        match = re.match(r'.*/(\d+)/(\d+)/(\d+)', url)
+        if not match:
+            return None, None, None
+        
+        region = BnetClient.REGION_BY_IDS.get(match.group(1))
+        realm = int(match.group(2))
+        bid = int(match.group(3))
+        
+        if region is None:
+            return None, None, None
+        
+        return region, realm, bid
+
+    # Legacy style battle net profile.
+    
     if "eu.battle.net" in url:
         region = Region.EU
     elif "us.battle.net" in url:
@@ -80,8 +98,11 @@ class BnetClient(object):
         Region.AM:  '1',
         Region.KR:  '3',
         Region.CN:  '5',
+        Region.SEA: '4',  # Unofficial but do not want sea profiles to crash.
     }
-    
+
+    REGION_BY_IDS = {v: k for k, v in REGION_IDS.items()}
+
     QUEUE_ID_MAJOR = {
         Version.WOL: 0,
         Version.HOTS: 100,
