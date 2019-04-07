@@ -2,11 +2,11 @@ import json
 from copy import copy
 from logging import getLogger
 
-from django.core import urlresolvers
 from django.db.models import Count
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic.base import TemplateView
 
 from common.cache import cache_control, cache_value
@@ -25,7 +25,7 @@ def clan_url(request, paths=None, args=None, name=None, key=None, tag=None):
         paths = copy(paths)
         paths[name] = key
 
-    url = urlresolvers.reverse(request.resolver_match.view_name, kwargs=paths)
+    url = reverse(request.resolver_match.view_name, kwargs=paths)
 
     if name in args:
         args = copy(args)

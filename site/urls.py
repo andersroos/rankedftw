@@ -1,6 +1,7 @@
 from django.conf.urls import include, url
 from logging import INFO
-from django.core.urlresolvers import reverse_lazy
+
+from django.urls import reverse_lazy
 
 from common.settings import config
 from main.views.clan import ClanOverviewView, ClanView
@@ -49,41 +50,41 @@ urlpatterns = \
         url(r'^stats/', include([
 
             url(r'^$',
-                CachingRedirectView.as_view(url=reverse_lazy('stats:leagues', kwargs={'mode_key': Mode.DEFAULT_KEY})),
-                name='main'),
+                CachingRedirectView.as_view(url=reverse_lazy('stats-leagues', kwargs={'mode_key': Mode.DEFAULT_KEY})),
+                name='stats-main'),
 
             url(r'^leagues/$',
                 CachingRedirectView
-                .as_view(url=reverse_lazy('stats:leagues', kwargs={'mode_key': Mode.DEFAULT_KEY})),
-                name='leagues-default'),
+                .as_view(url=reverse_lazy('stats-leagues', kwargs={'mode_key': Mode.DEFAULT_KEY})),
+                name='stats-leagues-default'),
 
             url(r'^leagues/(?P<mode_key>[\w-]+)/$',
                 StatsView.as_view(template_name='stats-leagues.html'),
-                name='leagues'),
+                name='stats-leagues'),
 
             url(r'^population/$',
                 CachingRedirectView
-                .as_view(url=reverse_lazy('stats:population', kwargs={'mode_key': Mode.DEFAULT_KEY})),
-                name='population-default'),
+                .as_view(url=reverse_lazy('stats-population', kwargs={'mode_key': Mode.DEFAULT_KEY})),
+                name='stats-population-default'),
 
             url(r'^population/(?P<mode_key>[\w-]+)/$',
                 StatsView.as_view(template_name='stats-population.html'),
-                name='population'),
+                name='stats-population'),
 
             url(r'^races/$',
                 CachingRedirectView
-                .as_view(url=reverse_lazy('stats:races', kwargs={'mode_key': Mode.DEFAULT_KEY})),
-                name='races-default'),
+                .as_view(url=reverse_lazy('stats-races', kwargs={'mode_key': Mode.DEFAULT_KEY})),
+                name='stats-races-default'),
 
             url(r'^races/(?P<mode_key>[\w-]+)/$',
                 StatsView.as_view(template_name='stats-races.html'),
-                name='races'),
+                name='stats-races'),
 
             url(r'^raw/(?P<mode_id>\d+)/$',
                 StatsRaw.as_view(),
-                name='raw')
+                name='stats-raw')
 
-        ], namespace='stats')),
+        ])),
     ]
 
 

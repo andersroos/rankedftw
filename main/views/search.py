@@ -1,6 +1,7 @@
 import json
 import re
 from django.http import Http404, HttpResponse
+from django.urls import reverse
 
 from django.views.generic.base import TemplateView
 
@@ -10,7 +11,6 @@ from django.shortcuts import redirect
 from django.db.models import Q
 from common.cache import cache_control
 from main.models import Player, Team, Mode, Region, League, Version, Race
-from django.core import urlresolvers
 
 
 def get_bnet_url(player):
@@ -140,11 +140,11 @@ class PlayerView(MainNavMixin, TemplateView):
         for team in teams:
             if team.season_id == season_id:
                 team.ladder_url \
-                    = urlresolvers.reverse('ladder',
-                                           kwargs={'version': Version.key_by_ids.get(team.version, Version.DEFAULT),
-                                                   'mode': Mode.key_by_ids[team.mode],
-                                                   'reverse': '',
-                                                   'sort_key': 'ladder-rank'})\
+                    = reverse('ladder',
+                              kwargs={'version': Version.key_by_ids.get(team.version, Version.DEFAULT),
+                                      'mode': Mode.key_by_ids[team.mode],
+                                      'reverse': '',
+                                      'sort_key': 'ladder-rank'})\
                     + "?team=%d" % team.id
                               
         return self.render_to_response(context)

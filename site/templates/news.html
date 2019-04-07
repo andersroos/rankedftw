@@ -162,7 +162,7 @@
   <h2>Stats and Rankings for All Team Games (2015-08-30)</h2>
   <p>
     Team game data have been fetched since the start of the site but never been on the actual site, now they are.
-    Both <a href="{% url 'stats:leagues' 'team-4v4'%}">stats</a> and <a href="{%  url 'team' 350424 %}">rankings</a>
+    Both <a href="{% url 'stats-leagues' 'team-4v4'%}">stats</a> and <a href="{%  url 'team' 350424 %}">rankings</a>
     are available.
   </p>
 
@@ -188,11 +188,11 @@
     The third sc2 statistics page added. Race distribution among ranked
     1v1 players over time.
   </p>
-  <a href="{% url 'stats:races' '1v1'%}"><img src="{{ STATIC_URL }}img/samples/race-stats.png"/></a>
+  <a href="{% url 'stats-races' '1v1'%}"><img src="{{ STATIC_URL }}img/samples/race-stats.png"/></a>
   
   <h2>Population Statistics Added (2014-08-30)</h2>
   <p>
-    <a href="{% url 'stats:population' '1v1'%}">The second statistics page
+    <a href="{% url 'stats-population' '1v1'%}">The second statistics page
     added.</a> The number of ranked 1v1 players over time.
   </p>
   
@@ -202,7 +202,7 @@
     the statistics section was added, more statistics will come but
     the ladder distribution history is the first one out.
   </p>
-  <a href="{% url 'stats:leagues' '1v1'%}"><img src="{{ STATIC_URL }}img/samples/league-distribution.png"/></a>
+  <a href="{% url 'stats-leagues' '1v1'%}"><img src="{{ STATIC_URL }}img/samples/league-distribution.png"/></a>
   
   <h2>Site Goes Live (2014-08-10)</h2>
   <p>

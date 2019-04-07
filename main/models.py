@@ -469,7 +469,7 @@ class Player(models.Model):
 
     # The last season this player was active. May not have been active
     # with the mode and league below?
-    season = models.ForeignKey(Season, null=True, related_name='+', default=None)
+    season = models.ForeignKey(Season, null=True, related_name='+', default=None, on_delete=models.DO_NOTHING)
 
     # The preferred mode for this player (according to some smart algorithm). =>
     # Prefer mode 11, then ???
@@ -514,7 +514,7 @@ class Team(models.Model):
 
     # The last season this player was active. Warning! Due to players
     # leaving league this may be null for some (historic <= season 23)  teams.
-    season = models.ForeignKey(Season, null=True, related_name='+', default=None)
+    season = models.ForeignKey(Season, null=True, related_name='+', default=None, on_delete=models.DO_NOTHING)
 
     # The last known version of this team (vill prefer later versions
     # if conflicting). Warning! Due to players leaving league this may
@@ -587,6 +587,7 @@ class Ranking(models.Model):
     def __str__(self):
         return "RankingData<%s, %s>" % (self.id, self.data_time)
 
+
 class RankingData(models.Model):
     """ The actual ranking data for the ranking. """
 
@@ -597,7 +598,7 @@ class RankingData(models.Model):
     
     data = models.BinaryField(null=True, default=None)
 
-    ranking = models.OneToOneField('Ranking', related_name='ranking_data', null=True)
+    ranking = models.OneToOneField('Ranking', related_name='ranking_data', null=True, on_delete=models.DO_NOTHING)
 
     
 class RankingStats(models.Model):
@@ -615,7 +616,7 @@ class RankingStats(models.Model):
     V1_LOSSES_INDEX = 2
     V1_POINT_INDEX = 3
 
-    ranking = models.ForeignKey(Ranking, db_index=True)
+    ranking = models.ForeignKey(Ranking, db_index=True, on_delete=models.DO_NOTHING)
 
     # The timestamp of when this data was saved in the database.
     updated = models.DateTimeField()

@@ -2,6 +2,7 @@ import math
 from logging import getLogger
 
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic.base import TemplateView
 
 from common.utils import to_unix, utcnow
@@ -10,7 +11,6 @@ from main.client import ClientError, client
 from common.cache import cache_value, cache_control
 from main.views.base import MainNavMixin, Nav, SORT_KEYS
 from django.http import Http404
-from django.core import urlresolvers
 from copy import copy
 
 
@@ -58,7 +58,7 @@ def ladder_url(request, paths=None, args=None, name=None, key=None):
     if name in args or name == 'offset':
         args[name] = key
 
-    url = urlresolvers.reverse('ladder', kwargs=paths)
+    url = reverse('ladder', kwargs=paths)
 
     team_id = args.pop('team_id', None)
     offset = args.pop('offset', None)
@@ -196,7 +196,7 @@ class LadderCommon(object):
     @staticmethod
     def redirect_mmr_url(request, view, **kwargs):
         kwargs['sort_key'] = 'mmr'
-        url = urlresolvers.reverse(view, kwargs=kwargs)
+        url = reverse(view, kwargs=kwargs)
         if request.GET:
             url += '?' + request.GET.urlencode()
         return url

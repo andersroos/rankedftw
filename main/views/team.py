@@ -1,6 +1,7 @@
 
 import json
 
+from django.urls import reverse
 from django.views.generic.base import TemplateView, View
 
 from main.battle_net import get_bnet_profile_url_info
@@ -9,7 +10,6 @@ from common.cache import cache_control
 from django.http import Http404
 from main.views.base import rankings_view_client, MainNavMixin, get_season_list, last_updated_info, BadRequestException
 from django.http import HttpResponse
-from django.core import urlresolvers
 
 
 class TeamView(MainNavMixin, TemplateView):
@@ -32,11 +32,11 @@ class TeamView(MainNavMixin, TemplateView):
         context['last_updated'], season_id = last_updated_info()
 
         if team.season_id == season_id:
-            url = urlresolvers.reverse('ladder',
-                                       kwargs={'version': Version.key_by_ids.get(team.version),
-                                               'mode': Mode.key_by_ids[team.mode],
-                                               'reverse': '',
-                                               'sort_key': 'ladder-rank'})\
+            url = reverse('ladder',
+                          kwargs={'version': Version.key_by_ids.get(team.version),
+                                  'mode': Mode.key_by_ids[team.mode],
+                                  'reverse': '',
+                                  'sort_key': 'ladder-rank'})\
                 + "?team=%d" % team.id
             context['ladder_href'] = url
         

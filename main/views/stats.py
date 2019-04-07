@@ -1,7 +1,5 @@
-from pprint import pprint
-from django.conf import settings
+from django.urls import reverse
 from django.views.generic.base import View
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils.http import http_date, parse_http_date
 
@@ -25,13 +23,13 @@ class StatsSubNav(object):
         context = super().get_context_data(**kwargs)
         context['sub_nav'] = Nav(self.request, 'Stat', levels=0) \
             .add('Leagues',
-                 reverse('stats:leagues', kwargs={'mode_key': self.mode_key}),
+                 reverse('stats-leagues', kwargs={'mode_key': self.mode_key}),
                  'League statistics over time.') \
             .add('Races',
-                 reverse('stats:races', kwargs={'mode_key': self.mode_key}),
+                 reverse('stats-races', kwargs={'mode_key': self.mode_key}),
                  'Race statistics over time.') \
             .add('Population',
-                 reverse('stats:population', kwargs={'mode_key': self.mode_key}),
+                 reverse('stats-population', kwargs={'mode_key': self.mode_key}),
                  'Player population statistics over time.')
 
         nav = Nav(self.request, 'Mode', levels=0)

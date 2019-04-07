@@ -1,17 +1,18 @@
 import random
 from django.shortcuts import render
+from django.urls import reverse
+
 from common.cache import cache_control
 from main.models import Mode, Version
 
 from main.views.base import CachingTemplateView, SORT_KEYS
-from django.core.urlresolvers import reverse
 
 
 @cache_control('max-age=86400')
 def sitemap_view(request):
     context = {}
 
-    context['stats'] = ['stats:leagues', 'stats:population', 'stats:races']
+    context['stats'] = ['stats-leagues', 'stats-population', 'stats-races']
     context['modes'] = [k for k in Mode.keys if k != Mode.UNKNOWN_KEY]
     context['versions'] = [k for k in Version.keys if k != Version.UNKNOWN_KEY]
     context['reverses'] = ['', '-']

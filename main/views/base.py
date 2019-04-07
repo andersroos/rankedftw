@@ -3,13 +3,15 @@ import json
 
 from django.conf import settings
 import gc
+
+from django.urls import reverse
+
 from lib import sc2
 from common.cache import cache_control, cache_value
 from common.utils import to_unix, utcnow
 from django.db.models import Max
 from main.models import Season, Ranking, Cache, Mode, Version, Enums
 from django.views.generic.base import TemplateView, RedirectView
-from django.core.urlresolvers import reverse
 
 
 DEFAULT_SORT_KEY = 'mmr'
@@ -111,7 +113,7 @@ class MainNavMixin(object):
                                            'sort_key': DEFAULT_SORT_KEY}),
                  'Current ladder.') \
             .add('STATS',
-                 reverse('stats:leagues', kwargs={'mode_key': Mode.DEFAULT_KEY}),
+                 reverse('stats-leagues', kwargs={'mode_key': Mode.DEFAULT_KEY}),
                  'Ladder statistics over time.') \
             .add('CLANS',
                  reverse('clan-overview'),
