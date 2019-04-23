@@ -598,7 +598,7 @@ class RankingData(models.Model):
     
     data = models.BinaryField(null=True, default=None)
 
-    ranking = models.OneToOneField('Ranking', related_name='ranking_data', null=True, on_delete=models.DO_NOTHING)
+    ranking = models.OneToOneField('Ranking', related_name='ranking_data', null=True, on_delete=models.CASCADE)
 
     
 class RankingStats(models.Model):
@@ -616,7 +616,7 @@ class RankingStats(models.Model):
     V1_LOSSES_INDEX = 2
     V1_POINT_INDEX = 3
 
-    ranking = models.ForeignKey(Ranking, db_index=True, on_delete=models.DO_NOTHING)
+    ranking = models.ForeignKey(Ranking, db_index=True, on_delete=models.CASCADE)
 
     # The timestamp of when this data was saved in the database.
     updated = models.DateTimeField()
