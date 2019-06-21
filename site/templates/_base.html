@@ -20,13 +20,13 @@
   <body class="{% block body_class %}{% endblock body_class %}" itemscope="" itemtype="{% block page_itemtype %}http://schema.org/WebPage{% endblock page_itemtype %}">
 
     {% block message %}
-      {% comment %}
-      <div class="message">
-        <p>
-          Data for some players is not up to date. Blizzard API seems to be returning stale data again, this time only a few ladders/players are affected.
-        </p>
-      </div>
-      {% endcomment %}
+      {% if nav_header_message %}
+        <div class="message">
+          <p>
+            {{ nav_header_message }}
+          </p>
+        </div>
+      {% endif %}
     {%  endblock message %}
     
     <div itemscope="" itemtype="http://schema.org/SiteNavigationElement" class="top-nav">

@@ -8,4 +8,5 @@ def site(request):
     return {
         'enums_info': Enums.INFO_JS,
         'al': config.AL,
+        'nav_header_message': config.NAV_HEADER_MESSAGE,
     }
