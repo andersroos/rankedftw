@@ -466,7 +466,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         $('.wins', o.tooltip).text(r.wins);
         $('.losses', o.tooltip).text(r.losses);
         $('.race', o.tooltip).empty().append('<img src="'+ static_url + 'img/races/' + enums_info.race_key_by_ids[r.race0] + '-16x16.png"/>');
-        $('.league', o.tooltip).empty().append('<img style="margin-bottom: -3px" src="'+ static_url + 'img/leagues/' + enums_info.league_key_by_ids[r.league] + '-16x16.png"/><span style="margin-bottom: 2px">' + (r.tier + 1) + '</span>');
+        $('.league', o.tooltip).empty().append('<img style="margin-bottom: -3px" src="'+ static_url + 'img/leagues/' + enums_info.league_key_by_ids[r.league] + '-16x16.png"/><span style="margin-bottom: 2px; padding-left: 3px;"> ' + (r.tier + 1) + '</span>');
 
         return 218;
     };
