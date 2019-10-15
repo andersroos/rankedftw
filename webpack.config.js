@@ -1,8 +1,9 @@
 var webpack = require("webpack");
 var path = require("path");
+const merge = require('webpack-merge');
 
 
-var config = {
+var commonSettings = {
     entry: {
         index: "./site/js/all.js",
     },
@@ -11,32 +12,54 @@ var config = {
         filename: "site.js"
     },
     module: {
-        loaders: [
+        rules: [
             {
-                test: /\.js$/,
+                test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
-                loader: "babel",
-                query: {
-                    presets: ["env"],
-                }
+                use: ['babel-loader'],
             },
-        ]
+        ],
     },
-    plugins: [],
     resolve: {
-        extensions: ['', '.js'],
+        extensions: ['.js'],
     },
     devtool: 'source-map',
 };
 
 if (process.env.PROD_JS) {
-    config.plugins.push(
-        new webpack.DefinePlugin({"process.env": {NODE_ENV: JSON.stringify("production")}}),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {warnings: false},
-        })
-    );
-}
+    console.info("production mode");
 
-module.exports = config;
+    const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+    
+    module.exports = merge(commonSettings, {
+        mode: "production",
+        devtool: "source-map",
+        optimization: {
+            minimizer: [
+                new UglifyJsPlugin({
+                    uglifyOptions: {
+                        compress: {warnings: false},
+                        mangle: false,
+                        beautify: true,
+                    },
+                    sourceMap: true,
+                }),
+            ],
+        },
+        plugins: [
+            new webpack.LoaderOptionsPlugin({
+                minimize: true,
+            })
+        ],
+    });
+}
+else {
+    console.info("development mode");
+    
+    module.exports = merge(commonSettings, {
+        mode: "development",
+        devtool: "inline-source-map",
+        plugins: [
+        ],
+    });
+}
