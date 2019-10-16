@@ -1,14 +1,21 @@
 {
   "private": true,
   "devDependencies": {
-    "babel-core": "^6.17.0",
-    "babel-loader": "^6.2.5",
-    "babel-preset-env": "^1.7.0",
-    "eslint": "^3.8.1",
-    "less": "^2.7.1",
-    "webpack": "^1.13.2"
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "babel-loader": "^8.0.6",
+    "eslint": "^6.5.1",
+    "less": "^3.10.3",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
+    "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "babel-polyfill": "^6.16.0"
+    "babel-polyfill": "^6.26.0"
+  },
+    "babel": {
+        "presets": ["@babel/preset-env"],
+        "plugins": []
   }
 }

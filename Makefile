@@ -120,10 +120,10 @@ lib/migrate: $(MIGRATE_OBJS)
 	$(CXX) -o $@ $^ $(MIGRATE_LIBS)
 
 run: build
-	./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch" "./lib/server"
+	PROD_JS=$(PROD_JS) ./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch" "./lib/server"
 
 run-web: build
-	./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch"
+	PROD_JS=$(PROD_JS) ./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch"
 
 run-server: build
 	./aid/tools/run.py "./lib/server"
