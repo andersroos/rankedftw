@@ -4,42 +4,42 @@ import {GraphBase} from "./graph";
 import {Radio} from "./controls";
 import {seasons} from "./seasons";
 import {images} from "./images";
-import {default_version, enums_info, static_url, ALL} from "./settings";
+import {settings} from "./settings";
 
 
 let create_version_control = (graph_jq, cb) => {
     return new Radio(graph_jq.find(".controls").find(".content"), 'v', 'Version:',
-        enums_info.version_ranking_ids
-                  .map(vid => ({value: vid, heading: enums_info.version_name_by_ids[vid]}))
+        settings.enums_info.version_ranking_ids
+                  .map(vid => ({value: vid, heading: settings.enums_info.version_name_by_ids[vid]}))
                   .reverse(),
-        default_version, cb);
+        settings.default_version, cb);
 };
 
 
 let create_region_control = (graph_jq, cb) => {
-    let regions = [ALL].concat(enums_info.region_ranking_ids);
+    let regions = [settings.ALL].concat(settings.enums_info.region_ranking_ids);
     return new Radio(graph_jq.find(".controls").find(".content"), 'r', 'Regions:',
         regions
             .map(rid => ({
                 value: rid,
-                heading: enums_info.region_name_by_ids[rid],
-                src: static_url + 'img/regions/' + enums_info.region_key_by_ids[rid] + '-16x16.png'
+                heading: settings.enums_info.region_name_by_ids[rid],
+                src: settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '-16x16.png'
             })),
-        ALL, cb)
+        settings.ALL, cb)
 };
 
 
 let create_league_control = (graph_jq, cb) => {
-    let leagues = [ALL].concat(enums_info.league_ranking_ids.reverse());
+    let leagues = [settings.ALL].concat(settings.enums_info.league_ranking_ids.reverse());
     return new Radio(graph_jq.find(".controls").find(".content"), 'l', 'League:',
         leagues
             .map(lid => ({
                 value: lid,
-                heading: lid === ALL ? enums_info.league_name_by_ids[lid] : null,
-                src: lid === ALL ? null : static_url + 'img/leagues/' + enums_info.league_key_by_ids[lid] + '-16x16.png',
-                tooltip: enums_info.league_name_by_ids[lid],
+                heading: lid === settings.ALL ? settings.enums_info.league_name_by_ids[lid] : null,
+                src: lid === settings.ALL ? null : settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[lid] + '-16x16.png',
+                tooltip: settings.enums_info.league_name_by_ids[lid],
             })),
-        ALL, cb);
+        settings.ALL, cb);
 };
 
 
@@ -150,7 +150,7 @@ export let LeagueDistributionGraph = function(mode_id) {
 
         // Add up for each league.
 
-        _.each(enums_info.league_ranking_ids, function(league) {
+        _.each(settings.enums_info.league_ranking_ids, function(league) {
             last_line = line;
             line = [];
             for (let i = 0; i < data.length; ++i) {
@@ -213,10 +213,10 @@ export let LeagueDistributionGraph = function(mode_id) {
         o.clear();
         o.setup_league_styles();
 
-        for (let li = enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
+        for (let li = settings.enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
             o
                 .garea(o.league_styles[li], [{x: o.width, y: o.height}, {x: 0, y: o.height}]
-                .concat(lines[enums_info.league_ranking_ids[li]]));
+                .concat(lines[settings.enums_info.league_ranking_ids[li]]));
         }
 
         o.y_axis("percent");
@@ -500,14 +500,14 @@ export let RaceDistributionGraph = function(mode_id) {
 
         for (let i = 0; i < data.length; ++i) {
             let x = o.epoch_to_pixels(data[i].data_time);
-            _.each(enums_info.race_ranking_ids, function(race_id) {
+            _.each(settings.enums_info.race_ranking_ids, function(race_id) {
                 let y = o.y_per_unit * (data[i].aggregate.count(race_id) / data[i].aggregate.count() * 100 - max_value);
                 lines[race_id] = lines[race_id] || [];
                 lines[race_id].push({x: x, y: y, m: i});
             });
         }
 
-        _.each(enums_info.race_ranking_ids, function(race_id) {
+        _.each(settings.enums_info.race_ranking_ids, function(race_id) {
             $.merge(new_points, lines[race_id]);
         });
 
@@ -575,11 +575,11 @@ export let RaceDistributionGraph = function(mode_id) {
     o.redraw = function() {
         o.clear();
 
-        _.each(enums_info.race_ranking_ids, function(race) {
+        _.each(settings.enums_info.race_ranking_ids, function(race) {
             o.gline(o.race_colors[race], 2, lines[race]);
         });
 
-        _.each(enums_info.race_ranking_ids, function(race) {
+        _.each(settings.enums_info.race_ranking_ids, function(race) {
             o.ctx.drawImage(document.getElementById('race' + race),
                             lines[race][0].x - 8 + o.edges.left,
                             lines[race][0].y - 8 + o.edges.top);
@@ -599,7 +599,7 @@ export let RaceDistributionGraph = function(mode_id) {
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
         let t = d.aggregate.count();
-        _.each(enums_info.race_ranking_ids, function(race) {
+        _.each(settings.enums_info.race_ranking_ids, function(race) {
             let e = format_tooltip_data(d.aggregate.count(race), t);
             $('.r' + race + '-n', o.tooltip).text(e.n);
             $('.r' + race + '-p', o.tooltip).text(e.p);

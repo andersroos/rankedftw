@@ -23,7 +23,7 @@ var commonSettings = {
     resolve: {
         extensions: ['.js'],
     },
-    devtool: 'source-map',
+    // devtool: 'source-map',
 };
 
 if (process.env.PROD_JS) {

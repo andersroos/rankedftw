@@ -1,5 +1,4 @@
-import {dynamic_url, enums_info} from "./settings";
-
+import {settings} from "./settings";
 
 export let  TOT = -2;
 export let  COUNT = 0;
@@ -22,7 +21,7 @@ class StatsData {
         if (typeof this.deferred[mode_id] === "undefined") {
             this.deferred[mode_id] = $.ajax({
                 dataType: "json",
-                url: dynamic_url + 'stats/raw/' + mode_id + '/',
+                url: settings.dynamic_url + 'stats/raw/' + mode_id + '/',
                 success: (data) => { this.raw_by_mode[mode_id] = data; }
             });
         }
@@ -82,7 +81,7 @@ export let Stat = function(mode_id, raw) {
     }
 
     var object = copy_non_data(raw);
-    var stat = enums_info.stat[raw.stat_version];
+    var stat = settings.enums_info.stat[raw.stat_version];
 
     function get(v, r, l, a) {
         // Get data at index.
