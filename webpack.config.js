@@ -23,7 +23,7 @@ var commonSettings = {
     resolve: {
         extensions: ['.js'],
     },
-    // devtool: 'source-map',
+    devtool: 'source-map',
 };
 
 if (process.env.PROD_JS) {
@@ -38,7 +38,7 @@ if (process.env.PROD_JS) {
             minimizer: [
                 new UglifyJsPlugin({
                     uglifyOptions: {
-                        compress: {warnings: false},
+                        compress: true,
                         mangle: false,
                         beautify: true,
                     },

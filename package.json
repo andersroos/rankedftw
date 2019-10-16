@@ -6,11 +6,16 @@
     "babel-loader": "^8.0.6",
     "eslint": "^6.5.1",
     "less": "^3.10.3",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.9",
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0"
+  },
+    "babel": {
+        "presets": ["@babel/preset-env"],
+        "plugins": []
   }
 }
