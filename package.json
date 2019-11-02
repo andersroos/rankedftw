@@ -14,8 +14,10 @@
   "dependencies": {
     "babel-polyfill": "^6.26.0"
   },
-    "babel": {
-        "presets": ["@babel/preset-env"],
-        "plugins": []
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ],
+    "plugins": []
   }
 }
