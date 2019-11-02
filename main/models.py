@@ -137,7 +137,7 @@ class Region(EnumBase):
         ('AM',       1, 'am',      'AM',      False,    1,    0),
         ('KR',       2, 'kr',      'KR',      False,    2,    0),
         ('SEA',      3, 'sea',     'SEA',     False,    3,    0),
-        ('CN',       4, 'cn',      'HK',      False,    4,    0),
+        ('CN',       4, 'cn',      'CN',      False,    4,    0),
     ]
 
     
