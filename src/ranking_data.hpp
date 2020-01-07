@@ -42,6 +42,7 @@ struct ranking_data {
                                           enum_t version,
                                           id_t season_id,
                                           double data_time,
+                                          std::string date_date,
                                           uint32_t team_size,
                                           boost::python::list members);
 

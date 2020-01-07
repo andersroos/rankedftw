@@ -187,12 +187,12 @@ class Season(models.Model):
     REFETCH_PAST_MIN_DAYS_AFTER_SEASON_END = 3
 
     # Refetch past ladder until it is updated this long time after season end. This should be lower than
-    # REFETCH_PAST_MIN_DAYS_AFTER_SEASON_END or it will refetch stuff several times.
+    # REFETCH_PAST_MIN_DAYS_AFTER_SEASON_END.
     REFETCH_PAST_UNTIL_DAYS_AFTER_SEASON_END = 2
 
-    # Refetch past ladder age limit. If ladder was not updated since this many days we give up, it will just
-    # returns constant 600 or something.
-    REFETCH_PAST_DAYS_AGE_LIMIT = 90
+    # Refetch past refresh rate. Days between each refetch past of a season. This needs to be well below 30 days
+    # since we need to remove data that is older than 30 days.
+    REFETCH_PAST_REFRESH_WHEN_OLDER_THAN_DAYS = 7
 
     class Meta:
         db_table = 'season'
@@ -482,6 +482,9 @@ class Player(models.Model):
     # The prefered race for this player (according to some smart agorithm).
     # Use race for prefereed mode.
     race = models.IntegerField(null=True)
+
+    # Last fetch date this team was seen, is used to clear out player data if removed from API results (CCPA, GDPR).
+    last_seen = models.DateField(default='2019-12-16')
     
     def path(self):
         return '/profile/%d/%d/%s/' % (self.bid, self.realm, self.name)
@@ -535,6 +538,9 @@ class Team(models.Model):
     race1 = models.IntegerField(default=Race.UNKNOWN)
     race2 = models.IntegerField(default=Race.UNKNOWN)
     race3 = models.IntegerField(default=Race.UNKNOWN)
+
+    # Last fetch date this team was seen, is used to clear out player data if removed from API results (CCPA, GDPR).
+    last_seen = models.DateField(default='2019-12-16')
 
     def __repr__(self):
         return "<mode: %s, m0: %s, m1: %s, m2: %s, m3: %s>" % (self.mode, self.member0_id, self.member1_id,

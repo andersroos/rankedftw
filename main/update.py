@@ -375,6 +375,7 @@ def countinously_update(regions=None, check_stop=None, update_manager=None, swit
                                                    ladder.version,
                                                    ladder.season_id,
                                                    to_unix(lc.updated),
+                                                   lc.updated.date().isoformat(),
                                                    team_size,
                                                    ApiLadder(lc.data, lc.url).members_for_ranking(team_size))
 

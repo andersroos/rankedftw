@@ -16,6 +16,7 @@
 typedef uint32_t id_t;
 typedef int8_t enum_t;
 typedef uint32_t bid_t;
+typedef std::string date_t;
 
 #define TEAM_1V1 11
 #define LOTV 2
@@ -218,6 +219,7 @@ struct player_t {
    enum_t race;
    enum_t league;
    enum_t mode;
+   date_t last_seen;
 };
 
 struct pr {
@@ -266,6 +268,7 @@ struct team_t {
    enum_t r1;
    enum_t r2;
    enum_t r3;
+   date_t last_seen;
 
    // Sort members (and races to have the first one with the lowest id.
    void normalize(uint32_t team_size) {

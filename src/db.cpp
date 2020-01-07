@@ -223,6 +223,7 @@ db::read_player_result(player_set_t& store, player_set_t& players)
       p.race =      res_int(i,  8);
       p.league =    res_int(i,  9);
       p.mode =      res_int(i, 10);
+      p.last_seen = res_str(i, 11);
       store.insert(p);
       players.erase(p);
    }
@@ -237,7 +238,7 @@ db::get_or_insert_players(player_set_t& store, player_set_t& players)
 
    if (players.size()) {
       stringstream sql;
-      sql << "SELECT id, region, bid, realm, name, tag, clan, season_id, race, league, mode"
+      sql << "SELECT id, region, bid, realm, name, tag, clan, season_id, race, league, mode, last_seen"
           << " FROM player WHERE (region, bid, realm) IN (VALUES ";
       char delimiter = ' ';
       for (auto& p : players) {
@@ -255,18 +256,20 @@ db::get_or_insert_players(player_set_t& store, player_set_t& players)
    if (players.size()) {
       stringstream sql;
       sql << "INSERT INTO player (region, bid, realm, name, tag, clan, "
-          << "season_id, mode, league, race) VALUES ";
+          << "season_id, mode, league, race, last_seen) VALUES ";
       char delimiter = ' ';
       for (auto& p : players) {
          pg_escape e_name(_conn, p.name);
          pg_escape e_tag(_conn, p.tag);
          pg_escape e_clan(_conn, p.clan);
+         pg_escape e_last_seen(_conn, p.last_seen);
          sql << delimiter << "(" << int(p.region) << "," << p.bid << ","
              << int(p.realm) << "," << e_name << "," << e_tag << "," << e_clan << ","
-             << p.season_id << "," << int(p.mode) << "," << int(p.league) << "," << int(p.race) << ")";
+             << p.season_id << "," << int(p.mode) << "," << int(p.league) << "," << int(p.race)
+             << "," << e_last_seen << ")";
          delimiter = ',';
       }
-      sql << " RETURNING id, region, bid, realm, name, tag, clan, season_id, race, league, mode;";
+      sql << " RETURNING id, region, bid, realm, name, tag, clan, season_id, race, league, mode, last_seen;";
       exec(sql);
 
       count = players.size();
@@ -285,15 +288,17 @@ db::update_players(const player_set_t& players)
    // Insert data.
    stringstream sql;
    sql << "INSERT INTO updated_player (id, region, bid, realm, name, tag, clan, "
-       << "season_id, mode, league, race) VALUES ";
+       << "season_id, mode, league, race, last_seen) VALUES ";
    char delimiter = ' ';
    for (auto& p : players) {
       pg_escape e_name(_conn, p.name);
       pg_escape e_tag(_conn, p.tag);
       pg_escape e_clan(_conn, p.clan);
+      pg_escape e_last_seen(_conn, p.last_seen);
       sql << delimiter << "(" << p.id << "," << int(p.region) << "," << p.bid << ","
           << int(p.realm) << "," << e_name << "," << e_tag << "," << e_clan << ","
-          << p.season_id << "," << int(p.mode) << "," << int(p.league) << "," << int(p.race) << ")";
+          << p.season_id << "," << int(p.mode) << "," << int(p.league) << "," << int(p.race)
+          << "," << e_last_seen << ")";
       delimiter = ',';
    }
    sql << ";";
@@ -308,7 +313,8 @@ db::update_players(const player_set_t& players)
         "   race = s.race,"
         "   league = s.league,"
         "   mode = s.mode,"
-        "   season_id = s.season_id"
+        "   season_id = s.season_id,"
+        "   last_seen = s.last_seen"
         " FROM updated_player s"
         " WHERE"
         " t.id = s.id"
@@ -334,6 +340,7 @@ db::read_team_result(team_set_t& store, team_set_t& teams)
       t.r1 =        res_int(i, 11);
       t.r2 =        res_int(i, 12);
       t.r3 =        res_int(i, 13);
+      t.last_seen = res_str(i, 14);
       store.insert(t);
       teams.erase(t);
    }
@@ -358,7 +365,7 @@ db::get_or_insert_teams(team_set_t& store, team_set_t& teams, uint32_t team_size
       
       stringstream sql;
       sql << "SELECT id, region, mode, season_id, version, league"
-          << "  , member0_id, member1_id, member2_id, member3_id, race0, race1, race2, race3"
+          << "  , member0_id, member1_id, member2_id, member3_id, race0, race1, race2, race3, last_seen"
           << " FROM team WHERE (" << values << ") IN (VALUES ";
       char delimiter = ' ';
       for (auto& t : teams) {
@@ -387,23 +394,25 @@ db::get_or_insert_teams(team_set_t& store, team_set_t& teams, uint32_t team_size
    if (teams.size()) {
       stringstream sql;
       sql << "INSERT INTO team (region, mode,season_id, version, league"
-          << " , member0_id, member1_id, member2_id, member3_id, race0, race1, race2, race3) VALUES ";
+          << " , member0_id, member1_id, member2_id, member3_id, race0, race1, race2, race3, last_seen) VALUES ";
       char delimiter = ' ';
       for (auto& t : teams) {
          null_if_0 m0(t.m0);
          null_if_0 m1(t.m1);
          null_if_0 m2(t.m2);
          null_if_0 m3(t.m3);
-      
+
+         pg_escape e_last_seen(_conn, t.last_seen);
+
          sql << delimiter << "(" << int(t.region) << "," << int(t.mode)
              << "," << t.season_id << "," << int(t.version) << "," << int(t.league)
              << "," << m0.c << "," << m1.c << "," << m2.c << "," << m3.c
              << "," << int(t.r0) << "," << int(t.r1) << "," << int(t.r2) << "," << int(t.r3)
-             << ")";
+             << "," << e_last_seen << ")";
          delimiter = ',';
       }
       sql << " RETURNING id, region, mode, season_id, version, league"
-          << "  , member0_id, member1_id, member2_id, member3_id, race0, race1, race2, race3;";
+          << "  , member0_id, member1_id, member2_id, member3_id, race0, race1, race2, race3, last_seen;";
       exec(sql);
 
       count = teams.size();
@@ -423,19 +432,21 @@ db::update_teams(const team_set_t& teams)
    // Insert data.
    stringstream sql;
    sql << "INSERT INTO updated_team (id, region, mode,season_id, version, league"
-       << " , member0_id, member1_id, member2_id, member3_id, race0, race1, race2, race3) VALUES ";
+       << " , member0_id, member1_id, member2_id, member3_id, race0, race1, race2, race3, last_seen) VALUES ";
    char delimiter = ' ';
    for (auto& t : teams) {
       null_if_0 m0(t.m0);
       null_if_0 m1(t.m1);
       null_if_0 m2(t.m2);
       null_if_0 m3(t.m3);
-      
+
+      pg_escape e_last_seen(_conn, t.last_seen);
+
       sql << delimiter << "(" << t.id << "," << int(t.region) << "," << int(t.mode)
           << "," << t.season_id << "," << int(t.version) << "," << int(t.league)
           << "," << m0.c << "," << m1.c << "," << m2.c << "," << m3.c
           << "," << int(t.r0) << "," << int(t.r1) << "," << int(t.r2) << "," << int(t.r3)
-          << ")";
+          << "," << e_last_seen << ")";
       delimiter = ',';
    }
    exec(sql);
@@ -450,6 +461,7 @@ db::update_teams(const team_set_t& teams)
            "  ,season_id = s.season_id"
            "  ,version = s.version"
            "  ,league = s.league"
+           "  ,last_seen = s.last_seen"
         " FROM updated_team s"
         " WHERE"
         " t.id = s.id"

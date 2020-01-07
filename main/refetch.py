@@ -1,7 +1,11 @@
 from datetime import timedelta
+from time import perf_counter
 
 from django.db import transaction
 from logging import getLogger
+
+from django.db.models import Min
+
 from main.fetch import update_ladder_cache, fetch_new_in_region
 from main.models import Season, Cache, Ladder, Ranking, Enums, get_db_name, Region
 from main.battle_net import BnetClient
@@ -80,29 +84,37 @@ def refetch_missing(region=None, max_retries=None, min_age=None, check_stop=lamb
 def refetch_past_season(season, now, check_stop, bnet_client):
     """ Refetch ladders for past seasons. """
 
+    start = perf_counter()
+
+    need_refetch_limit = now - timedelta(days=Season.REFETCH_PAST_REFRESH_WHEN_OLDER_THAN_DAYS)
+
     with transaction.atomic():
         ranking = Ranking.objects.filter(season=season).order_by('-data_time').first()
         if ranking is None:
-            logger.warning("season %d has no ranking to check refetch past for, this is strange, skipping" % season.id)
+            logger.warning(f"season {season.id} has no ranking to check refetch past for, this is strange, skipping")
             return
 
-        too_old_limit = now - timedelta(days=Season.REFETCH_PAST_DAYS_AGE_LIMIT)
+        ladders_query = Ladder.objects.filter(season=season, strangeness=Ladder.GOOD)
 
-        need_refetch_limit = season.end_time() + timedelta(days=Season.REFETCH_PAST_UNTIL_DAYS_AFTER_SEASON_END)
+        last_updated = ladders_query.aggregate(Min('updated'))['updated__min']
 
-        ladders = list(Ladder.objects.filter(season=season,
-                                             strangeness=Ladder.GOOD,
-                                             updated__lt=need_refetch_limit,
-                                             updated__gt=too_old_limit))
+        if need_refetch_limit < last_updated:
+            logger.info(f"skipping refetch of season {season.id}, it was refetched {last_updated.date()}")
+            return
 
-        logger.info("%d ladders to refetch for season %d" % (len(ladders), season.id))
+        ladders = list(ladders_query.filter(updated__lt=need_refetch_limit))
 
-    if not ladders:
-        return
+        ladders_count = ladders_query.count()
+
+        logger.info(f"{len(ladders)} (of {ladders_count}) to refetch for season {season.id}")
+
+    # if not ladders:
+    #     return
 
     # This is kind of bad but since c++ works in it's own db connection we can't fetch ladders and update
     # ranking in same transaction, which in turn means that if the code fails here ranking needs to be repaired.
-
+    # TODO Move updating of cache to cpp? How is this done in update?
+    
     cpp = sc2.RankingData(get_db_name(), Enums.INFO)
     cpp.load(ranking.id)
 
@@ -125,7 +137,7 @@ def refetch_past_season(season, now, check_stop, bnet_client):
                     raise SystemExit()
 
                 if status != 200:
-                    logger.info("refetching %d returned %d, skipping" % (ladder.id, status))
+                    logger.info("refetching %d returned %d, skipping ladder" % (ladder.id, status))
                     continue
 
                 update_ladder_cache(cpp, ranking, ladder, status, api_ladder, fetch_time)
@@ -142,9 +154,13 @@ def refetch_past_season(season, now, check_stop, bnet_client):
         logger.info("saving ranking data and ranking stats for ranking %d" % ranking.id)
         cpp.save_data(ranking.id, ranking.season_id, to_unix(utcnow()))
         cpp.save_stats(ranking.id, to_unix(utcnow()))
-        ranking.data_time = min(season.end_time(), fetch_time)
+        ranking.set_data_time(season, cpp)
         ranking.save()
-
+    else:
+        logger.info("skipping save of ranking data and ranking stats for ranking %d, nothing changed" % ranking.id)
+        
+    logger.info(f"completed refetch of season {season.id} in {int(perf_counter() - start)} seconds")
+    
 
 @log_context(feature='past', region='ALL')
 def refetch_past_seasons(check_stop=lambda: None, bnet_client=None, now=None, skip_fetch_new=False):
@@ -164,8 +180,9 @@ def refetch_past_seasons(check_stop=lambda: None, bnet_client=None, now=None, sk
         for region in Region.ranking_ids:
             fetch_new_in_region(check_stop, bnet_client, prev_season, region)
 
-    # Refetch all past seasons.
-    for season in Season.objects.filter(id__gt=14, end_date__lt=season_end_limit).order_by('-id'):
+    # Refetch all past seasons, skip if refreshed recently. Skip seasons before 28 since they are not available in
+    # the api.
+    for season in Season.objects.filter(id__gte=28, end_date__lt=season_end_limit).order_by('-id'):
         refetch_past_season(season, now, check_stop, bnet_client)
         check_stop()
 

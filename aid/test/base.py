@@ -106,6 +106,7 @@ class DjangoTestCase(TestCase):
                                     version,
                                     season.id,
                                     to_unix(fetch_time),
+                                    fetch_time.date().isoformat(),
                                     Mode.team_size(mode),
                                     members)
         if save:

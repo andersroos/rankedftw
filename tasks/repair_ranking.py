@@ -79,6 +79,7 @@ class Main(Command):
                                    ladder.version,
                                    ladder.season_id,
                                    to_unix(cache.updated),
+                                   cache.updated.date().isoformat(),
                                    team_size,
                                    ApiLadder(cache.data).members_for_ranking(team_size))
 

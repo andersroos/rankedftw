@@ -233,6 +233,7 @@ boost::python::list ranking_data::min_max_data_time()
    
    double min_data_time = 1e32;
    double max_data_time = 0;
+   double min_data_time_save = min_data_time;
    for (auto& team_rank : _team_ranks) {
       min_data_time = min(team_rank.data_time, min_data_time);
       max_data_time = max(team_rank.data_time, max_data_time);
@@ -260,6 +261,12 @@ bool update_player(player_t& old_player, const player_t& new_player)
       }
    }
 
+   if (old_player.last_seen < new_player.last_seen) {
+      // Update the date when this player was last seen in a fetch from the battle new api.
+      old_player.last_seen = new_player.last_seen;
+      updated = true;
+   }
+   
    if (old_player.season_id < new_player.season_id) {
       // Always update if new data is later season.
       old_player.season_id = new_player.season_id;
@@ -371,6 +378,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
                                  enum_t version,
                                  id_t season_id,
                                  double data_time,
+                                 std::string data_date,
                                  uint32_t team_size,
                                  boost::python::list members)
 {
@@ -408,6 +416,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
          p.mode = mode;
          p.league = league;
          p.race = extract<enum_t>(member["race"]);
+         p.last_seen = data_date;
          
          auto pc = _player_cache.find(p);
          if (pc == _player_cache.end()) {
@@ -464,6 +473,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
             team.r2 = member_races[2];
             team.r3 = member_races[3];
             team.normalize(team_size);
+            team.last_seen = data_date;
 
             auto tc = _team_cache.find(team);
             if (tc == _team_cache.end()) {

@@ -54,6 +54,7 @@ def update_ladder_cache(cpp, ranking, ladder, status, api_ladder, fetch_time):
                                   ladder.version,
                                   ladder.season_id,
                                   to_unix(lc.updated),
+                                  lc.updated.date().isoformat(),
                                   team_size,
                                   api_ladder.members_for_ranking(team_size))
 
