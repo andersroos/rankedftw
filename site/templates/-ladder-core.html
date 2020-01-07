@@ -16,14 +16,14 @@
     <th class="number">Age</th>
   </tr>
   {% for team in ladder.teams %}
-    <tr onclick="window.location='{% url 'team' team_id=team.team_id %}';" style="cursor: pointer;" class="{% if team.team_id == highlight_team_id %} highlight-team{% endif %}">
+    <tr {% if team.team_id %}onclick="window.location='{% url 'team' team_id=team.team_id %}';" style="cursor: pointer;" class="{% if team.team_id == highlight_team_id %} highlight-team{% endif %}{% endif %}">
       <td class="number">{{ team.rank }}</td>
 
       <td class="img"><img src="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}-16x16.png" /></td>
 
-      <td class="img"><img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-16x16.png" /></td>
+      <td class="img">{% if team.league %}<img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-16x16.png" />{% endif %}</td>
 
-      <td class="img">{{ team.tier|add:1 }}</td>
+      <td class="img">{{ team.tier }}</td>
 
       <td class="player">
         <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m0_race | race_key }}-16x16.png" />
@@ -35,6 +35,8 @@
           <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m1_race | race_key }}-16x16.png" />
           {% if team.m1_tag %}<span class="tag">{{ team.m1_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m1_name }}</span>
         </td>
+      {% elif team_size > 1 %}
+        <td/>
       {% endif %}
 
       {% if team.m2_id %}
@@ -42,6 +44,8 @@
           <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m2_race | race_key }}-16x16.png" />
           {% if team.m2_tag %}<span class="tag">{{ team.m2_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m2_name }}</span>
         </td>
+      {% elif team_size > 2 %}
+        <td/>
       {% endif %}
 
       {% if team.m3_id %}
@@ -49,21 +53,23 @@
           <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m3_race | race_key }}-16x16.png" />
           {% if team.m3_tag %}<span class="tag">{{ team.m3_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m3_name }}</span>
         </td>
+      {% elif team_size > 3 %}
+        <td/>
       {% endif %}
 
       <td class="number">{{ team.mmr }}</td>
 
-      <td class="number">{{ team.points|floatformat:0 }}</td>
+      <td class="number">{{ team.points|format_points|none_to_dash }}</td>
 
-      <td class="number">{{ team.wins }}</td>
+      <td class="number">{{ team.wins|none_to_dash }}</td>
 
-      <td class="number">{{ team.losses }}</td>
+      <td class="number">{{ team.losses|none_to_dash }}</td>
 
-      <td class="number">{{ team.wins|add:team.losses }}</td>
+      <td class="number">{{ team.wins|none_to_dash }}</td>
 
-      <td class="number">{{ team.win_rate|floatformat:1 }}%</td>
+      <td class="number">{{ team.win_rate|format_win_rate|none_to_dash }}</td>
 
-      <td class="number">{{ team.age }}</td>
+      <td class="number">{{ team.age|none_to_dash }}</td>
     </tr>
   {% endfor %}
 </table>

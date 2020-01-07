@@ -8,8 +8,8 @@ from django.db.models import Min
 
 from main.fetch import update_ladder_cache, fetch_new_in_region
 from main.models import Season, Cache, Ladder, Ranking, Enums, get_db_name, Region
-from main.battle_net import BnetClient
-from common.utils import utcnow, to_unix
+from main.battle_net import BnetClient, LAST_AVAILABLE_SEASON
+from common.utils import utcnow, to_unix, human_i_split
 from common.logging import log_context, LogContext
 from lib import sc2
 
@@ -159,7 +159,7 @@ def refetch_past_season(season, now, check_stop, bnet_client):
     else:
         logger.info("skipping save of ranking data and ranking stats for ranking %d, nothing changed" % ranking.id)
         
-    logger.info(f"completed refetch of season {season.id} in {int(perf_counter() - start)} seconds")
+    logger.info(f"completed refetch of season {season.id} in {human_i_split(int(perf_counter() - start))} seconds")
     
 
 @log_context(feature='past', region='ALL')
@@ -182,7 +182,7 @@ def refetch_past_seasons(check_stop=lambda: None, bnet_client=None, now=None, sk
 
     # Refetch all past seasons, skip if refreshed recently. Skip seasons before 28 since they are not available in
     # the api.
-    for season in Season.objects.filter(id__gte=28, end_date__lt=season_end_limit).order_by('-id'):
+    for season in Season.objects.filter(id__gte=LAST_AVAILABLE_SEASON, end_date__lt=season_end_limit).order_by('-id'):
         refetch_past_season(season, now, check_stop, bnet_client)
         check_stop()
 

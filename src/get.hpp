@@ -9,8 +9,8 @@
 
 struct get
 {
-   get(const std::string& db_name, const boost::python::dict& enums_info, uint32_t season_filter) :
-      _db(db_name), _enums_info(enums_info), _season_filter(season_filter)
+   get(const std::string& db_name, const boost::python::dict& enums_info, uint32_t from_season) :
+      _db(db_name), _enums_info(enums_info), _from_season(from_season)
    {}
    
    // Get all team rankings for a team. Uint32_t or strange errors in python call.
@@ -25,5 +25,5 @@ private:
 
    db _db;
    const boost::python::dict _enums_info;
-   uint32_t _season_filter;
+   uint32_t _from_season;
 };

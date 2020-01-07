@@ -469,14 +469,14 @@ db::update_teams(const team_set_t& teams)
 }
 
 rankings_t
-db::get_available_rankings(uint32_t filter_season)
+db::get_available_rankings(uint32_t from_season)
 {
    // Ranking.COMPLETE_WITH_DATA and Ranking.COMPLETE_WITOUT_DATA used here.
    exec(fmt("SELECT r.id, s.id, s.version, EXTRACT(epoch FROM r.data_time), EXTRACT(epoch FROM rd.updated)"
             " FROM ranking_data rd"
             " JOIN ranking r ON rd.ranking_id = r.id"
             " JOIN season s ON s.id = r.season_id"
-            " WHERE r.status IN (1, 2) AND r.season_id > %d ORDER BY r.data_time", filter_season));
+            " WHERE r.status IN (1, 2) AND r.season_id >= %d ORDER BY r.data_time", from_season));
    rankings_t res;
    for (uint32_t i = 0; i < res_size(); ++i) {
       ranking_t r(res_int(i, 0), res_int(i, 1), res_int(i, 2), res_float(i, 3), res_float(i, 4));
@@ -557,7 +557,7 @@ db::load_team_ranks_header(id_t ranking_id, team_ranks_header& trh)
 }
 
 void
-db::load_team_ranks(id_t id, team_ranks_t& team_ranks)
+db::load_team_ranks(id_t id, team_ranks_t& team_ranks, double data_time_low_limit_s)
 {
    clear_res();
    team_ranks.clear();
@@ -582,14 +582,20 @@ db::load_team_ranks(id_t id, team_ranks_t& team_ranks)
    catch (io_exception &e) {
       THROW(db_exception, fmt("Failed to load header from ranking_data with ranking_id %d.", id)) << NEST(e);
    }
-   
+
+   uint32_t skip_count = 0;
    for (uint32_t i = 0; i < trh.count; ++i) {
       read_tr(ss, trh.version, tr);
-      team_ranks.push_back(tr);
+      if (data_time_low_limit_s <= tr.data_time) {
+         team_ranks.push_back(tr);
+      }
+      else {
+         ++skip_count;
+      }
    }
    
-   LOG_INFO("loaded %d team ranks from ranking_data ranking_id %d (%d bytes) in %fs", team_ranks.size(),
-            id, res_value_size(0, 0), float(timer.end()) / 1e6);
+   LOG_INFO("loaded %d team ranks from ranking_data ranking_id %d (%d bytes) in %fs, skipped %d due to data_time",
+            team_ranks.size(), id, res_value_size(0, 0), float(timer.end()) / 1e6, skip_count);
    clear_res();
 }
 

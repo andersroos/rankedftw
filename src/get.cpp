@@ -139,7 +139,7 @@ get::rankings_for_team(id_t team_id)
    
    db::transaction_block transaction(_db);
 
-   rankings_t rankings = _db.get_available_rankings(_season_filter);
+   rankings_t rankings = _db.get_available_rankings(_from_season);
 
    team_rank_window_t trs;
    
@@ -226,7 +226,7 @@ get::ranking_stats(uint32_t mode_id)
    stringstream ss;
 
    ranking_stats_list_t list;
-   _db.load_all_ranking_stats(list, _season_filter);
+   _db.load_all_ranking_stats(list, _from_season);
    
    char del = ' ';
    ss << "[";

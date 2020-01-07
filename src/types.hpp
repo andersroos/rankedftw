@@ -24,6 +24,9 @@ typedef std::string date_t;
 #define MMR_SEASON 28
 #define SEPARATE_RACE_MMR_SEASON 29
 
+// NOTE: This constant needs to be the same in python-code.
+#define KEEP_API_DATA_DAYS 10
+
 #define VERSION_COUNT 3
 
 #define RACE_HI 3
@@ -161,7 +164,7 @@ struct team_rank_v2_t {
    
    id_t team_id;
 
-   // The timestamp of the ladder data for presenting data points on site. Ideally this
+   // The timestamp (in seconds) of the ladder data for presenting data points on site. Ideally this
    // should be the last time the ladder was updated. This data can not be retrieved
    // easily at all times. For already closed ladders it will be the season end date
    // (season <= 14 don't have sufficient meta data). For current season ladders it will

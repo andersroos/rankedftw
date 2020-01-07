@@ -9,7 +9,7 @@ from common.utils import to_unix, utcnow
 from main.models import Team, Region, League, Race, Version, Mode
 from main.client import ClientError, client
 from common.cache import cache_value, cache_control
-from main.views.base import MainNavMixin, Nav, SORT_KEYS
+from main.views.base import MainNavMixin, SORT_KEYS
 from django.http import Http404
 from copy import copy
 
@@ -110,11 +110,14 @@ class LadderCommon(object):
         """ Update age of ladder data to present it as correctly as possible (to not be cached in outer layers). """
         now = to_unix(utcnow())
         for t in data['teams']:
-            delta = now - int(t["data_time"])
-            if delta < 3600:
-                t["age"] = "%dm" % max((delta + 60) // 60, 1)
+            if t["data_time"]:
+                delta = now - int(t["data_time"])
+                if delta < 3600:
+                    t["age"] = "%dm" % max((delta + 60) // 60, 1)
+                else:
+                    t["age"] = "%dh" % (delta // 3600)
             else:
-                t["age"] = "%dh" % (delta // 3600)
+                t["age"] = None
 
     @staticmethod
     def extract_filters(request):
@@ -222,37 +225,57 @@ class LadderView(MainNavMixin, TemplateView, LadderCommon):
         team_ids = {team["team_id"] for team in teams}
         team_mapping = {team.id: team
                         for team in
-                        Team.objects
+                        Team.non_purged
                         .filter(id__in=team_ids)
                         .all()
                         .select_related('member0', 'member1', 'member2', 'member3')}
 
         for tr in teams:
-            t = team_mapping[tr["team_id"]]
-
+            t = team_mapping.get(tr["team_id"])
+            
             tr['rank'] += 1
+            tr['tier'] = tr['tier'] + 1
 
-            tr['mmr'] = '-' if tr['mmr'] < 0 else tr['mmr']
-
-            tr["m0_id"] = t.member0.id
-            tr["m0_name"] = t.member0.name
-            tr["m0_tag"] = t.member0.tag
-
-            if t.member1:
-                tr["m1_id"] = t.member1.id
-                tr["m1_name"] = t.member1.name
-                tr["m1_tag"] = t.member1.tag
-
-            if t.member2:
-                tr["m2_id"] = t.member2.id
-                tr["m2_name"] = t.member2.name
-                tr["m2_tag"] = t.member2.tag
-
-            if t.member3:
-                tr["m3_id"] = t.member3.id
-                tr["m3_name"] = t.member3.name
-                tr["m3_tag"] = t.member3.tag
-
+            if t:
+                tr['mmr'] = '-' if tr['mmr'] < 0 else tr['mmr']
+                
+                tr['played'] = tr['wins'] + tr['losses']
+      
+                tr["m0_id"] = t.member0.id
+                tr["m0_name"] = t.member0.name
+                tr["m0_tag"] = t.member0.tag
+    
+                if t.member1:
+                    tr["m1_id"] = t.member1.id
+                    tr["m1_name"] = t.member1.name
+                    tr["m1_tag"] = t.member1.tag
+    
+                if t.member2:
+                    tr["m2_id"] = t.member2.id
+                    tr["m2_name"] = t.member2.name
+                    tr["m2_tag"] = t.member2.tag
+    
+                if t.member3:
+                    tr["m3_id"] = t.member3.id
+                    tr["m3_name"] = t.member3.name
+                    tr["m3_tag"] = t.member3.tag
+            else:
+                tr['league'] = None
+                tr['team_id'] = None
+                tr['m0_race'] = None
+                tr['m1_race'] = None
+                tr['m2_race'] = None
+                tr['m3_race'] = None
+                tr['mmr'] = '-'
+                tr['tier'] = ''
+                tr['m0_name'] = ' REMOVED'
+                tr['points'] = None
+                tr['wins'] = None
+                tr['losses'] = None
+                tr['played'] = None
+                tr['win_rate'] = None
+                tr['data_time'] = None
+                
         return data
 
     @cache_control("max-age=40")

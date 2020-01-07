@@ -13,6 +13,7 @@ void
 ladder_handler::refresh_ranking(bool force)
 {
    uint64_t now = now_us();
+   double data_time_low_limit = (now / 1e6) - KEEP_API_DATA_DAYS * 24 * 3600;
    
    boost::lock_guard<boost::mutex> lock(_mutex);
    // Check for new data every 1 minutes.
@@ -24,7 +25,7 @@ ladder_handler::refresh_ranking(bool force)
       // Reload if new data.
       if (ranking.id != _ranking.id or ranking.updated > _ranking.updated) {
          LOG_INFO("loading ranking %d", ranking.id);
-         db.load_team_ranks(ranking.id, _team_ranks);
+         db.load_team_ranks(ranking.id, _team_ranks, data_time_low_limit);
          // Make sure new data is sorted on version and mode since request will filter on version and mode before
          // sorting (or sorting will take too long time).
          sort(_team_ranks.begin(), _team_ranks.end(), compare_version_mode_world_rank);

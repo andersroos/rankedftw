@@ -39,9 +39,8 @@ struct db
    // Save team ranks and set updated time. NOTE Only use ranking.id, not ranking_data.id or ranking_stats.id.
    void save_team_ranks(id_t id, float now, team_ranks_t& team_ranks);
    
-   // Get the complete list of available rankings (but without data). Use filter_season to exclude seasons lower or
-   // equal.
-   rankings_t get_available_rankings(uint32_t filter_season);
+   // Get the complete list of available rankings (but without data). Use from_season to exclude seasons lower.
+   rankings_t get_available_rankings(uint32_t from_season);
 
    // Get the lastest ranking (but without data).
    ranking_t get_latest_ranking();
@@ -58,7 +57,8 @@ struct db
    void load_team_ranks_header(id_t ranking_id, team_ranks_header& trh);
    
    // Load team ranks saved in the unpacked format. NOTE Only use ranking.id, not ranking_data.id or ranking_stats.id.
-   void load_team_ranks(id_t id, team_ranks_t& team_ranks);
+   // Use data_time_low_limit (unix time in seconds) to only get entries with data_time >= data_time_low_limit_s.
+   void load_team_ranks(id_t id, team_ranks_t& team_ranks, double data_time_low_limit_s=0);
 
    // Update or create ranking stats with id. NOTE Only use ranking.id, not ranking_data.id or ranking_stats.id.
    void update_or_create_ranking_stats(ranking_stats_t& ranking_stats, id_t id);

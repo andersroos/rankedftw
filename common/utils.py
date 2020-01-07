@@ -1,14 +1,16 @@
-import os
 import string
 from datetime import datetime, timedelta
 from random import choice
 from threading import Thread
-import math
-import base64
 
 from django.utils import timezone
 
 epoch = datetime.utcfromtimestamp(0).replace(tzinfo=timezone.utc)
+
+
+# TODO Update this to 21 or something.
+# NOTE: This constant needs to be the same in c++-code.
+KEEP_API_DATA_DAYS = 10
 
 
 def utcnow(**kwargs):
@@ -45,6 +47,12 @@ def localtoday():
     """ Get the current date in the local timezone for the user
     (timezone set by timezone.activate())."""
     return timezone.localtime(utcnow(), timezone=timezone.get_current_timezone()).date()
+
+
+def api_data_purge_date():
+    """ Return the date when api data from this date needs to be purged due to Blizzard API terms of use. Terms says
+    30 days, but need some margin to have time to purge. """
+    return utctoday() - timedelta(days=KEEP_API_DATA_DAYS)
 
 
 def uniqueid(length=12):

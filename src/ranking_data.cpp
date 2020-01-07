@@ -233,7 +233,6 @@ boost::python::list ranking_data::min_max_data_time()
    
    double min_data_time = 1e32;
    double max_data_time = 0;
-   double min_data_time_save = min_data_time;
    for (auto& team_rank : _team_ranks) {
       min_data_time = min(team_rank.data_time, min_data_time);
       max_data_time = max(team_rank.data_time, max_data_time);
@@ -322,6 +321,12 @@ bool update_team(team_t& old_team, const team_t& new_team)
 {
    bool updated = false;
 
+   if (old_team.last_seen < new_team.last_seen) {
+      // Update the date when this team was last seen in a fetch from the battle new api.
+      old_team.last_seen = new_team.last_seen;
+      updated = true;
+   }
+   
    if (old_team.season_id < new_team.season_id) {
       // Always update if new data is later season.
       old_team.season_id = new_team.season_id;

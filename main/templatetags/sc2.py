@@ -70,12 +70,27 @@ def tag_braces(tag):
 
 
 @register.filter
-def format_percent(x, y):
-    """ Calculate and format as percent. """
-    if y == 0:
-        return "N/A %"
+def format_win_rate(v):
+    if v is None:
+        return None
         
-    return "%.2f %%" % (float(x) * 100 / float(y))
+    return "%.1f%%" % v
+
+
+@register.filter
+def format_points(v):
+    if v is None:
+        return None
+        
+    return int(v)
+
+
+@register.filter
+def none_to_dash(v):
+    if v is None:
+        return '-'
+        
+    return v
 
     
 @register.filter

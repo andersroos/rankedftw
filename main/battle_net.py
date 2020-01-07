@@ -23,6 +23,10 @@ API_KEY_AUTH = "apikey=%s" % config.API_KEY
 ACCESS_TOKEN_AUTH = "access_token=%s" % config.ACCESS_TOKEN
 
 
+# Last season currently available through the API.
+LAST_AVAILABLE_SEASON = 28
+
+
 NO_MMR = -32768
 
 

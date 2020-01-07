@@ -21,7 +21,7 @@ class TeamView(MainNavMixin, TemplateView):
         context = self.get_context_data()
 
         try:
-            team = Team.objects.select_related('member0', 'member1', 'member2', 'member3').get(id=team_id)
+            team = Team.non_purged.select_related('member0', 'member1', 'member2', 'member3').get(id=team_id)
             context['team'] = team
         except Team.DoesNotExist:
             raise Http404('Could not find team %d.' % team_id)
@@ -48,8 +48,13 @@ class TeamRankingsData(View):
     @cache_control("max-age=3600")
     def get(self, request, team_id=None):
         team_id = int(team_id)
-        rankings = rankings_view_client('rankings_for_team', team_id)
-        return HttpResponse(json.dumps(rankings), content_type="application/json", status=200)
+        try:
+            Team.non_purged.get(id=team_id)
+            rankings = rankings_view_client('rankings_for_team', team_id)
+            return HttpResponse(json.dumps(rankings), content_type="application/json", status=200)
+        
+        except Team.DoesNotExist:
+            raise Http404(f"team {team_id} does not exist")
 
         
 class TeamId(View):
@@ -64,7 +69,7 @@ class TeamId(View):
             raise BadRequestException("could not find region from player '%s'" % url)
 
         try:
-            return Player.objects.get(region=region, realm=realm, bid=bid)
+            return Player.non_purged.get(region=region, realm=realm, bid=bid)
         except Player.DoesNotExist:
             raise Http404("could not find player using '%s'" % url)
 
@@ -84,8 +89,8 @@ class TeamId(View):
             players.extend([None, None, None])
 
             try:
-                team = Team.objects.get(mode=mode_id, member0=players[0], member1=players[1], member2=players[2],
-                                        member3=players[3])
+                team = Team.non_purged.get(mode=mode_id, member0=players[0], member1=players[1], member2=players[2],
+                                           member3=players[3])
                 return HttpResponse(json.dumps({'team_id': team.id}), content_type="application/json", status=200)
             except Team.DoesNotExist:
                 raise Http404("could not find team")

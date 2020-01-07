@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 from collections import Mapping
 from datetime import datetime, time, timezone
-from pprint import pprint
 
 from django.conf import settings
 
 from django.db import models
 from django.db.models import Q, Max
 from common.cache import caching
-from common.utils import from_unix, classproperty
+from common.utils import from_unix, classproperty, api_data_purge_date
 
 
 def get_db_name():
@@ -440,6 +439,13 @@ class Ladder(models.Model):
                 self.first_join, self.last_join, self.created, self.updated, self.id)
 
     __str__ = __repr__
+    
+    
+class NonPurged(models.Manager):
+    """ Model manager that will filter objects that are going to be purged from the data. """
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(last_seen__gte=api_data_purge_date())
         
     
 class Player(models.Model):
@@ -448,7 +454,10 @@ class Player(models.Model):
     class Meta:
         db_table = 'player'
         unique_together = ('bid', 'region', 'realm')
-        
+
+    objects = models.Manager()  # TODO Test with this disabled.
+    non_purged = NonPurged()
+    
     # The region this ladder belongs to.
     region = models.IntegerField()
         
@@ -508,7 +517,10 @@ class Team(models.Model):
         # needed/wanted want to be able to track teams over version
         # switches and if someone plays several versions at once they
         # are to blame themselves.
-        
+
+    objects = models.Manager()  # TODO Test with this disabled.
+    non_purged = NonPurged()
+    
     # The region this team belongs to.
     region = models.IntegerField()
         

@@ -10,6 +10,8 @@ from lib import sc2
 from common.cache import cache_control, cache_value
 from common.utils import to_unix, utcnow
 from django.db.models import Max
+
+from main.battle_net import LAST_AVAILABLE_SEASON
 from main.models import Season, Ranking, Cache, Mode, Version, Enums
 from django.views.generic.base import TemplateView, RedirectView
 
@@ -23,9 +25,6 @@ SORT_KEYS = {
     "win-rate": 4,
     "mmr": 5,
 }
-
-
-SEASON_FILTER = 14
 
 
 def _get_season_list():
@@ -66,7 +65,7 @@ class RankingsViewClient(object):
             if self.cpp is None:
                 self.cpp = sc2.Get(settings.DATABASES['default']['NAME'],
                                    Enums.INFO,
-                                   SEASON_FILTER)
+                                   LAST_AVAILABLE_SEASON)
             return getattr(self.cpp, func)(*args)
         except:
             self.cpp = None
