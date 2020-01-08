@@ -133,6 +133,9 @@ class DjangoTestCase(TestCase):
 
         team_ranks = sc2.get_team_ranks(self.db.db_name, ranking_id, sort)
 
+        for tr in team_ranks:
+            print(tr)
+
         all_keys = {key for rank in ranks for key in rank}
         try:
             if not skip_len:

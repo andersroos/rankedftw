@@ -8,9 +8,8 @@ from django.utils import timezone
 epoch = datetime.utcfromtimestamp(0).replace(tzinfo=timezone.utc)
 
 
-# TODO Update this to 21 or something.
 # NOTE: This constant needs to be the same in c++-code.
-KEEP_API_DATA_DAYS = 10
+KEEP_API_DATA_DAYS = 14
 
 
 def utcnow(**kwargs):

@@ -441,7 +441,7 @@ class Ladder(models.Model):
     __str__ = __repr__
     
     
-class NonPurged(models.Manager):
+class NonPurgedManager(models.Manager):
     """ Model manager that will filter objects that are going to be purged from the data. """
     
     def get_queryset(self):
@@ -455,8 +455,8 @@ class Player(models.Model):
         db_table = 'player'
         unique_together = ('bid', 'region', 'realm')
 
-    objects = models.Manager()  # TODO Test with this disabled.
-    non_purged = NonPurged()
+    all_objects = models.Manager()
+    objects = NonPurgedManager()
     
     # The region this ladder belongs to.
     region = models.IntegerField()
@@ -518,8 +518,8 @@ class Team(models.Model):
         # switches and if someone plays several versions at once they
         # are to blame themselves.
 
-    objects = models.Manager()  # TODO Test with this disabled.
-    non_purged = NonPurged()
+    all_objects = models.Manager()
+    objects = NonPurgedManager()
     
     # The region this team belongs to.
     region = models.IntegerField()

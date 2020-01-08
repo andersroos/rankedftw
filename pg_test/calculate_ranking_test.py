@@ -26,7 +26,7 @@ class Test(DjangoTestCase):
         # change ladder due to promotion/demotion.
 
         self.process_ladder(league=League.PLATINUM,
-                            fetch_time=self.datetime(days=-200),
+                            fetch_time=self.datetime(days=-5),
                             members=[
                                 gen_member(bid=301,
                                            race=Race.ZERG,
@@ -48,7 +48,7 @@ class Test(DjangoTestCase):
                             ])
         
         self.process_ladder(league=League.GOLD,
-                            fetch_time=self.datetime(days=-330),
+                            fetch_time=self.datetime(days=-9),
                             members=[
                                 gen_member(bid=302,
                                            race=Race.TERRAN,

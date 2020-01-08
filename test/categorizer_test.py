@@ -103,7 +103,7 @@ class DetermineSeasonTest(DjangoTestCase):
 
     def setUp(self):
         super().setUp()
-        self.db.objects(Ladder).all().delete()
+        self.db.all(Ladder).delete()
 
     # Open season tests.
 

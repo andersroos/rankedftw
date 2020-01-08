@@ -40,7 +40,7 @@ def clan_url(request, paths=None, args=None, name=None, key=None, tag=None):
 
 def get_top_clans():
     current_season = Season.get_current_season()
-    return list(Player.non_purged
+    return list(Player.objects
                 .filter(season=current_season, mode=Mode.TEAM_1V1, tag__gt='')
                 .values('clan', 'tag').annotate(count=Count('tag')).order_by('-count')[:32])
 
@@ -60,7 +60,7 @@ class ClanOverviewView(MainNavMixin, TemplateView):
             clan = clan.strip()
             context['search'] = True
 
-            clans = list(Player.non_purged
+            clans = list(Player.objects
                          .filter(season=current_season,
                                  mode=Mode.TEAM_1V1,
                                  tag__gt='')
@@ -89,7 +89,7 @@ class ClanView(MainNavMixin, TemplateView, LadderCommon):
         # Get ids from db.
 
         teams = {t.id: t for t in
-                 Team.non_purged
+                 Team.objects
                  .filter(member0__tag=tag, mode=Mode.TEAM_1V1, season=Season.get_current_season())
                  .all()
                  .select_related('member0')}
@@ -130,7 +130,7 @@ class ClanView(MainNavMixin, TemplateView, LadderCommon):
         region_id, race_id, league_id = self.extract_filters(request)
         is_reverse, sort_key_id = self.extract_common(reverse, sort_key)
 
-        player = Player.non_purged.filter(tag=tag, mode=Mode.TEAM_1V1, season=Season.get_current_season()).first()
+        player = Player.objects.filter(tag=tag, mode=Mode.TEAM_1V1, season=Season.get_current_season()).first()
         if not player:
             raise Http404()
 

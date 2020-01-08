@@ -21,15 +21,15 @@ class Test(MockBnetTestMixin, DjangoTestCase):
         self.db.delete_all()
         self.now = utcnow()
         self.today = self.now.date()
-        self.s15 = self.db.create_season(id=15,
+        self.s35 = self.db.create_season(id=35,
                                          start_date=self.date(days=-120),
                                          end_date=self.date(days=-21),
                                          version=Version.LOTV)
-        self.s16 = self.db.create_season(id=16,
+        self.s36 = self.db.create_season(id=36,
                                          start_date=self.date(days=-20),
                                          end_date=self.date(days=-2),
                                          version=Version.LOTV)
-        self.s17 = self.db.create_season(id=17,
+        self.s37 = self.db.create_season(id=37,
                                          start_date=self.date(days=-1),
                                          end_date=None,
                                          version=Version.LOTV)
@@ -41,10 +41,10 @@ class Test(MockBnetTestMixin, DjangoTestCase):
         p1 = self.db.create_player(name="arne")
         t1 = self.db.create_team()
 
-        l = self.db.create_ladder(bid=100, season=self.s15, max_points=20, updated=self.datetime(days=-30))
+        l = self.db.create_ladder(bid=100, season=self.s35, max_points=20, updated=self.datetime(days=-30))
 
         c = self.db.create_cache(bid=100)
-        r = self.db.create_ranking(season=self.s15, data_time=self.datetime(days=-21))
+        r = self.db.create_ranking(season=self.s35, data_time=self.datetime(days=-21))
 
         self.db.create_ranking_data(data=[dict(team_id=t1.id, points=20, data_time=self.unix_time(days=-30))])
         self.db.update_ranking_stats()
@@ -62,19 +62,19 @@ class Test(MockBnetTestMixin, DjangoTestCase):
         r.refresh_from_db()
 
         self.assertTrue(abs(fetch_time - l.updated) < timedelta(hours=1))
-        self.assertEqual(40, l.max_points)
+        self.assertEqual(40.0, l.max_points)
         self.assertEqual({c.id}, {c.id for c in r.sources.all()})
-        self.assert_team_ranks(r.id, dict(points=40))
-        self.assertEqual(self.s15.end_time(), r.data_time)
+        self.assert_team_ranks(r.id, dict(points=40.0))
+        self.assertEqual(self.s35.end_time(), r.data_time)
 
     def test_refetch_past_seasons_skips_ladders_that_was_updated_recently(self):
         p1 = self.db.create_player(name="arne")
         t1 = self.db.create_team()
 
         self.db.create_cache(bid=100)
-        l = self.db.create_ladder(bid=100, season=self.s15, max_points=20, updated=self.datetime(days=-10))
+        l = self.db.create_ladder(bid=100, season=self.s35, max_points=20, updated=self.datetime(days=-10))
 
-        r = self.db.create_ranking(season=self.s15, data_time=self.s15.end_time())
+        r = self.db.create_ranking(season=self.s35, data_time=self.s35.end_time())
 
         self.db.create_ranking_data(data=[dict(team_id=t1.id, points=20, data_time=self.unix_time(days=-30))])
         self.db.update_ranking_stats()
@@ -88,13 +88,13 @@ class Test(MockBnetTestMixin, DjangoTestCase):
         self.assertEqual(20, l.max_points)
         self.assertEqual(1, r.sources.count())
         self.assert_team_ranks(r.id, dict(points=20))
-        self.assertEqual(self.s15.end_time(), r.data_time)
+        self.assertEqual(self.s35.end_time(), r.data_time)
 
     def test_skip_refetch_of_season_if_recently_closed(self):
         self.db.create_cache(bid=100)
-        l = self.db.create_ladder(bid=100, season=self.s16, updated=self.datetime(days=-20))
+        l = self.db.create_ladder(bid=100, season=self.s36, updated=self.datetime(days=-20))
 
-        r = self.db.create_ranking(season=self.s16, data_time=self.datetime(days=-20))
+        r = self.db.create_ranking(season=self.s36, data_time=self.datetime(days=-20))
 
         self.refetch_past_seasons()
 

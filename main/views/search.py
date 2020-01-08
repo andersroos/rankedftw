@@ -49,7 +49,7 @@ class SearchView(MainNavMixin, TemplateView):
                 # Treat this as a battle net url.
                 try:
                     # Go directly to the player page if found.
-                    player = Player.non_purged.get(bid=bid, realm=realm, region=region)
+                    player = Player.objects.get(bid=bid, realm=realm, region=region)
                     return redirect('player', player_id=player.id)
                 except Player.DoesNotExist:
                     # Return no match.
@@ -64,7 +64,7 @@ class SearchView(MainNavMixin, TemplateView):
 
         # Try to search for player. (Only db index on start or exact.)
 
-        q = Player.non_purged.filter(name__istartswith=name).order_by('-season', 'mode', 'name', 'region', 'bid')
+        q = Player.objects.filter(name__istartswith=name).order_by('-season', 'mode', 'name', 'region', 'bid')
         
         items = q[offset:offset + self.PAGE_SIZE + 1]
         
@@ -127,11 +127,11 @@ class PlayerView(MainNavMixin, TemplateView):
         context = self.get_context_data()
 
         try:
-            player = Player.non_purged.get(id=player_id)
+            player = Player.objects.get(id=player_id)
         except Player.DoesNotExist:
             raise Http404('Could not find player %d.' % player_id)
 
-        teams = Team.non_purged\
+        teams = Team.objects\
             .filter(Q(member0=player) | Q(member1=player) | Q(member2=player) | Q(member3=player))\
             .select_related('member0', 'member1', 'member2', 'member3')\
             .order_by('mode', '-league')

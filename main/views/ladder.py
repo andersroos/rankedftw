@@ -225,7 +225,7 @@ class LadderView(MainNavMixin, TemplateView, LadderCommon):
         team_ids = {team["team_id"] for team in teams}
         team_mapping = {team.id: team
                         for team in
-                        Team.non_purged
+                        Team.objects
                         .filter(id__in=team_ids)
                         .all()
                         .select_related('member0', 'member1', 'member2', 'member3')}

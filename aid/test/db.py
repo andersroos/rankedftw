@@ -2,11 +2,12 @@ import json
 from logging import getLogger
 
 from aid.test.data import gen_ladder_data
-from common.utils import merge_args, uniqueid, to_unix, utcnow
+from common.utils import merge_args, uniqueid, to_unix, utcnow, utctoday
 from random import randint
 from django.db import connection
 
 from lib import sc2
+from main.battle_net import LAST_AVAILABLE_SEASON
 from main.models import RankingData, Cache, Ranking, Team, Player, Ladder, Season, Version, Region, League, \
     Mode, Race, Enums
 from main.models import RankingStats
@@ -47,11 +48,9 @@ class Db(object):
         return klass.objects.get(*args, **kwargs)
 
     @staticmethod
-    def objects(klass):
-        return klass.objects
-
-    @staticmethod
     def all(klass):
+        if hasattr(klass, 'all_objects'):
+            return klass.all_objects.all()
         return klass.objects.all()
 
     @staticmethod
@@ -72,12 +71,12 @@ class Db(object):
                 self.all(d).delete()
 
     def create_season(self, **kwargs):
-        kwargs = merge_args({'id': 16,
+        kwargs = merge_args({'id':  LAST_AVAILABLE_SEASON + 1,
                              'start_date': '2013-11-11',
                              'end_date': '2014-01-03',
                              'name': '2013 Season 6',
                              'year': 2013,
-                             'number': 6,
+                             'number': LAST_AVAILABLE_SEASON + 1,
                              'version': Version.HOTS},
                             **kwargs)
         try:
@@ -138,7 +137,8 @@ class Db(object):
                              'race': Race.ZERG,
                              'name': uniqueid(12),
                              'clan': uniqueid(32),
-                             'tag': uniqueid(6)},
+                             'tag': uniqueid(6),
+                             'last_seen': utctoday().isoformat()},
                             **kwargs)
         self.player = Player(**kwargs)
         self.player.save()
@@ -157,7 +157,8 @@ class Db(object):
                                  race0=Race.ZERG,
                                  race1=Race.UNKNOWN,
                                  race2=Race.UNKNOWN,
-                                 race3=Race.UNKNOWN),
+                                 race3=Race.UNKNOWN,
+                                 last_seen=utctoday().isoformat()),
                             **kwargs)
 
         self.team = Team(**kwargs)
