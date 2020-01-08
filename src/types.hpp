@@ -25,7 +25,7 @@ typedef std::string date_t;
 #define SEPARATE_RACE_MMR_SEASON 29
 
 // NOTE: This constant needs to be the same in python-code.
-#define KEEP_API_DATA_DAYS 21
+#define KEEP_API_DATA_DAYS 14
 
 #define VERSION_COUNT 3
 

@@ -9,7 +9,7 @@ epoch = datetime.utcfromtimestamp(0).replace(tzinfo=timezone.utc)
 
 
 # NOTE: This constant needs to be the same in c++-code.
-KEEP_API_DATA_DAYS = 21
+KEEP_API_DATA_DAYS = 14
 
 
 def utcnow(**kwargs):
