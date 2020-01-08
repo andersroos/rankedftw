@@ -20,9 +20,10 @@ class BreakRun(Exception):
 
 class DataArchiver(object):
     
-    def __init__(self, now, dir=None):
+    def __init__(self, now, dir=None, remove=False):
         self._stop = False
         self.now = now
+        self.remove = remove
         if dir is None:
             self.dir = config.DATA_DIR
         else:
@@ -43,7 +44,10 @@ class DataArchiver(object):
 
             with transaction.atomic():
 
-                filename = "%s/archive-ranking-%d.gz" % (self.dir, ranking.id)
+                if self.remove:
+                    filename = "/dev/null"
+                else:
+                    filename = "%s/archive-ranking-%d.gz" % (self.dir, ranking.id)
 
                 with gzip.open(filename, mode='wb') as file:
 

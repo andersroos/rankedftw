@@ -17,11 +17,13 @@ class Main(Command):
                          pid_file=True, stoppable=True)
         self.add_argument('--now', dest="now", type=utcdatetime, default=utcnow(),
                           help="The date (YYYY-MM-DD HH:MM:SS) in utc to use for the processing.")
+        self.add_argument('--rm', dest="remove", action='store_true',
+                          help="Skip saving to file and just remove the data.")
 
     def run(self, args, logger):
         log_region('ALL')
 
-        archiver = DataArchiver(args.now)
+        archiver = DataArchiver(now=args.now, remove=args.remove)
         archiver.archive_rankings(check_stop=self.check_stop)
 
         return 0
