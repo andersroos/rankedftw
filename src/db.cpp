@@ -732,6 +732,25 @@ db::load_all_ranking_stats(ranking_stats_list_t& ranking_stats_list, uint32_t fi
 }
 
 void
+db::load_seen_team_ids(unordered_set<id_t>& team_ids, string threshold_date)
+{
+   team_ids.clear();
+
+   pg_escape e_date(_conn, threshold_date);
+
+   stringstream sql;
+   sql << "SELECT id FROM team WHERE last_seen >= " << e_date;
+   exec(sql);
+
+   uint32_t size = res_size();
+   for (uint32_t i = 0; i < size; ++i) {
+      team_ids.insert(res_int(i, 0));
+   }
+   LOG_INFO("loaded %d team_ids that was seen since %s (inclusive)", team_ids.size(), threshold_date.c_str());
+}
+
+
+void
 db::reconnect()
 {
    disconnect();

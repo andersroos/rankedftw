@@ -8,6 +8,7 @@
 #include "get.hpp"
 #include "test_aid.hpp"
 #include "ranking_data.hpp"
+#include "purger.hpp"
 
 using namespace boost::python;
 
@@ -29,6 +30,10 @@ BOOST_PYTHON_MODULE(sc2)
       .def("ranking_stats", &get::ranking_stats)
       ;
 
+   class_<purger, boost::noncopyable>("Purger", init<std::string>())
+      .def("purge_removed_teams_from_ranking", &purger::purge_removed_teams_from_ranking)
+      ;
+   
    class_<ranking_data, boost::noncopyable>("RankingData", init<std::string, dict>())
       .def("load", &ranking_data::load)
       .def("save_data", &ranking_data::save_data)

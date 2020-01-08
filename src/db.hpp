@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <array>
+#include <unordered_set>
 
 #include "types.hpp"
 
@@ -68,6 +69,9 @@ struct db
    
    // Load all ranking stats in data_time_order (oldest first).
    void load_all_ranking_stats(ranking_stats_list_t& ranking_stats_list, uint32_t filter_season);
+
+   // Load all team ids with last seen more recent (including) than threshold_date.
+   void load_seen_team_ids(std::unordered_set<id_t>& team_ids, std::string threshold_date);
 
    // Reconnect to the db.
    void reconnect();
