@@ -191,7 +191,7 @@ class Season(models.Model):
 
     # Refetch past refresh rate. Days between each refetch past of a season. This needs to be well below 30 days
     # since we need to remove data that is older than 30 days.
-    REFETCH_PAST_REFRESH_WHEN_OLDER_THAN_DAYS = 7
+    REFETCH_PAST_REFRESH_WHEN_OLDER_THAN_DAYS = 5
 
     class Meta:
         db_table = 'season'
