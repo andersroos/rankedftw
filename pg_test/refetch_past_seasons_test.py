@@ -1,3 +1,4 @@
+from logging import getLogger
 from unittest.mock import Mock
 
 import aid.test.init_django_postgresql
@@ -6,8 +7,9 @@ from datetime import timedelta
 from aid.test.base import DjangoTestCase, MockBnetTestMixin
 from aid.test.data import gen_member, gen_api_ladder
 from common.utils import utcnow
-from main.models import Version, Region
+from main.models import Version, Region, Race
 from main.refetch import refetch_past_seasons
+from lib import sc2
 
 
 class Test(MockBnetTestMixin, DjangoTestCase):
@@ -49,10 +51,8 @@ class Test(MockBnetTestMixin, DjangoTestCase):
         self.db.create_ranking_data(data=[dict(team_id=t1.id, points=20, data_time=self.unix_time(days=-30))])
         self.db.update_ranking_stats()
 
-        al = gen_api_ladder(data=[dict(team_id=t1.id, points=40)], bid=100)
-
         fetch_time = utcnow()
-        self.mock_fetch_ladder(fetch_time=fetch_time, members=[gen_member(bid=p1.bid, points=40)])
+        self.mock_fetch_ladder(fetch_time=fetch_time, members=[gen_member(bid=p1.bid, points=40, race=Race.ZERG)])
 
         self.refetch_past_seasons()
 
@@ -72,7 +72,7 @@ class Test(MockBnetTestMixin, DjangoTestCase):
         t1 = self.db.create_team()
 
         self.db.create_cache(bid=100)
-        l = self.db.create_ladder(bid=100, season=self.s35, max_points=20, updated=self.datetime(days=-10))
+        l = self.db.create_ladder(bid=100, season=self.s35, max_points=20, updated=self.datetime(days=-1))
 
         r = self.db.create_ranking(season=self.s35, data_time=self.s35.end_time())
 
@@ -84,7 +84,7 @@ class Test(MockBnetTestMixin, DjangoTestCase):
         l.refresh_from_db()
         r.refresh_from_db()
 
-        self.assertEqual(self.datetime(days=-10), l.updated)
+        self.assertEqual(self.datetime(days=-1), l.updated)
         self.assertEqual(20, l.max_points)
         self.assertEqual(1, r.sources.count())
         self.assert_team_ranks(r.id, dict(points=20))

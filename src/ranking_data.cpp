@@ -446,7 +446,7 @@ ranking_data::update_with_ladder(id_t ladder_id,
             }
          }
       }
-            
+      
       //
       // Get or create team ids.
       //
