@@ -76,8 +76,3 @@ class Test(MockBnetTestMixin, DjangoTestCase):
         self.assertEqual(None, s18.start_date)
         self.assertEqual(None, s18.end_date)
 
-    def test_fetching_stops_on_503_ladder_fetch(self):
-        self.mock_current_season(status=503)
-        self.fetch_new()
-        self.assertEqual(5, self.bnet.fetch_current_season.call_count)
-
