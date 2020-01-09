@@ -94,7 +94,8 @@ def refetch_past_season(season, now, check_stop, bnet_client):
             logger.warning(f"season {season.id} has no ranking to check refetch past for, this is strange, skipping")
             return
 
-        ladders_query = Ladder.objects.filter(season=season, strangeness=Ladder.GOOD)
+        # Prevent refetch of sea since sea api endpoints are no longer present, the data will be purged eventually.
+        ladders_query = Ladder.objects.filter(season=season, strangeness=Ladder.GOOD).exclude(region=Region.SEA)
 
         last_updated = ladders_query.aggregate(Min('updated'))['updated__min']
 
