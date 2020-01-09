@@ -60,6 +60,19 @@ def create_new_season(current_season, end_date):
                    (next_season.id, next_season.start_date))
 
 
+def update_season_cache(api_season, region, api_response):
+    # Update or create the season cache, just for bookkeeping.
+    try:
+        cache = Cache.objects.get(region=region, type=Cache.SEASON, bid=1)
+        cache.updated = api_response.fetch_time
+        cache.data = api_season.to_text()
+        cache.save()
+    except Cache.DoesNotExist:
+        Cache.objects.create(url=api_season.url, bid=1, type=Cache.SEASON, region=region,
+                             status=api_response.status, created=api_response.fetch_time,
+                             updated=api_response.fetch_time, data=api_season.to_text())
+
+
 @log_context(feature='new')
 def fetch_new(region=None, check_stop=lambda: None, bnet_client=None):
 
@@ -67,57 +80,40 @@ def fetch_new(region=None, check_stop=lambda: None, bnet_client=None):
 
         current_season = Season.get_current_season()
 
-        for count in range(1, 6):
+        for count in range(1, 3):
             check_stop()
 
             res = bnet_client.fetch_current_season(region)
             api_season = res.api_season
 
-            if region == Region.SEA:
-                if res.status != 200:
-                    logger.info("could not get season info from %s, status %s, bailing" % (api_season.url, res.status))
-                    return
-                else:
-                    logger.warning("sea is alive")
-                    break
-
             if res.status == 200:
-                break
+                update_season_cache(api_season, region, res)
+
+                # Check season.
+                if current_season.id == api_season.season_id():
+                    # We already have latest season, continue with fetch.
+                    break
+        
+                elif current_season.id + 1 == api_season.season_id():
+                    # New season detected, create new season and wait for next fetch new.
+                    create_new_season(current_season, api_season.start_date())
+                    return
+                
+                elif current_season.near_start(utcnow(), days=2):
+                    logger.info("current season %d near start, blizzard says %d, probably cached or other region"
+                                ", bailing" % (current_season.id, api_season.season_id()))
+                    return
+                
+                else:
+                    raise Exception("season mismatch blizzard says %d, current in db is %d" %
+                                    (api_season.season_id(), current_season.id))
 
         else:
-            level = INFO if region == Region.CN else WARNING
-            logger.log(level, "could not get season info from %s after %d tries, status %s, bailing" %
+            # Is should be safe to continue after this since season id is in call to blizzard api. This is info logging
+            # because it happens all the time due to some blizzard bug.
+            logger.log(INFO, "could not get season info from %s after %d tries, status %s, skipping season check" %
                        (api_season.url, count, res.status))
-            return
-
-        # Update or create the season cache, just for bookkeeping.
-        try:
-            cache = Cache.objects.get(region=region, type=Cache.SEASON, bid=1)
-            cache.updated = res.fetch_time
-            cache.data = api_season.to_text()
-            cache.save()
-        except Cache.DoesNotExist:
-            Cache.objects.create(url=api_season.url, bid=1, type=Cache.SEASON, region=region,
-                                 status=res.status, created=res.fetch_time, updated=res.fetch_time,
-                                 data=api_season.to_text())
-
-        # Check season.
-
-        if current_season.id == api_season.season_id():
-            # We already have latest season.
-            pass
-
-        elif current_season.id + 1 == api_season.season_id():
-            # New season detected, create new season.
-            create_new_season(current_season, api_season.start_date())
-            return
-
-        elif current_season.near_start(utcnow(), days=2):
-            logger.info("current season %d near start, blizzard says %d, probably cached or other region, bailing" %
-                        (current_season.id, api_season.season_id()))
-            return
-        else:
-            raise Exception("season mismatch blizzard says %d, current in db is %d" %
-                            (api_season.season_id(), current_season.id))
 
     fetch_new_in_region(check_stop, bnet_client, current_season, region)
+
+
