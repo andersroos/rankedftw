@@ -29,22 +29,16 @@ var commonSettings = {
 if (process.env.PROD_JS) {
     console.info("production mode");
 
-    const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+    const TerserPlugin = require('terser-webpack-plugin');
     
     module.exports = merge(commonSettings, {
         mode: "production",
         devtool: "source-map",
         optimization: {
-            minimizer: [
-                new UglifyJsPlugin({
-                    uglifyOptions: {
-                        compress: true,
-                        mangle: false,
-                        beautify: true,
-                    },
-                    sourceMap: true,
-                }),
-            ],
+            minimize: true,
+            minimizer: [new TerserPlugin({
+                sourceMap: true,
+            })],
         },
         plugins: [
             new webpack.LoaderOptionsPlugin({

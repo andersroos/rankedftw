@@ -1,5 +1,5 @@
 # Running
-Django>=2.2,<3
+Django>=2.2.9,<3
 psycopg2-binary
 psutil
 uwsgi
