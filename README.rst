@@ -24,7 +24,7 @@ Major Dependencies
 * Javascript libs (package.json)
 
 For a complete and up to date list of dependecies and example on
-install steps on Ubuntu 14.04 see `<.travis.yml>`_.
+install steps on Ubuntu 18.04 see `<.travis.yml>`_.
 
 Basic Build Steps
 -----------------
