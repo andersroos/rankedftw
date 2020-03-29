@@ -63,7 +63,7 @@ class DetermineSeasonTest(DjangoTestCase):
         super().setUpClass()
 
         self.now = utcnow()
-        self.today = self.now.today()
+        self.today = self.now.date()
 
         self.s10 = self.db.create_season(id=10,
                                          start_date=self.date(days=1000),

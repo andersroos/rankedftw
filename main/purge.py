@@ -19,6 +19,8 @@ def purge_player_data(check_stop=lambda: None):
         if check_stop():
             return
         
+        logger.info(f"Purge teams from ranking {ranking.id}.")
+        
         cpp_purger.purge_removed_teams_from_ranking(ranking.id, to_unix(utcnow()), api_data_purge_date().isoformat())
     
     # Maybe would be better to null here instead of delete, we will see what happens.
