@@ -65,7 +65,7 @@
 
       <td class="number">{{ team.losses|none_to_dash }}</td>
 
-      <td class="number">{{ team.wins|none_to_dash }}</td>
+      <td class="number">{{ team.wins|add:team.losses|none_to_dash }}</td>
 
       <td class="number">{{ team.win_rate|format_win_rate|none_to_dash }}</td>
 
