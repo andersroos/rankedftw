@@ -160,6 +160,7 @@ class Test(DjangoTestCase):
                 win_rate=50.0,
                 wins=100,
                 losses=100,
+                played=200,
                 points=20,
             ),
             dict(
@@ -175,6 +176,7 @@ class Test(DjangoTestCase):
                 win_rate=50.0,
                 wins=200,
                 losses=200,
+                played=400,
                 points=40,
             ),
         ],
