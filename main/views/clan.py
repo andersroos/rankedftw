@@ -111,6 +111,7 @@ class ClanView(MainNavMixin, TemplateView, LadderCommon):
             tr["m0_id"] = t.member0.id
             tr["m0_name"] = t.member0.name
             tr["m0_bnet_url"] = get_bnet_url(t.member0)
+            tr['played'] = tr['wins'] + tr['losses']
 
         return data
 
