@@ -48,10 +48,10 @@ def localtoday():
     return timezone.localtime(utcnow(), timezone=timezone.get_current_timezone()).date()
 
 
-def api_data_purge_date():
+def api_data_purge_date(keep_days=None):
     """ Return the date when api data from this date needs to be purged due to Blizzard API terms of use. Terms says
     30 days, but need some margin to have time to purge. """
-    return utctoday() - timedelta(days=KEEP_API_DATA_DAYS)
+    return utctoday() - timedelta(days=KEEP_API_DATA_DAYS if keep_days is None else keep_days)
 
 
 def uniqueid(length=12):

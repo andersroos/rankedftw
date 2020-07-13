@@ -20,8 +20,8 @@ class Main(Command):
         log_region('ALL')
 
         data_deleter = DataDeleter(dry_run=args.dry_run)
-        data_deleter.delete_rankings()
-        data_deleter.delete_cache_data()
+        data_deleter.delete_old_rankings()
+        data_deleter.delete_old_cache_data()
 
         return 0
 

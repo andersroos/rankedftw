@@ -32,8 +32,8 @@ class Test(DjangoTestCase):
     @staticmethod
     def delete(keep_last=None, dry_run=None):
         dd = DataDeleter(dry_run=dry_run)
-        dd.delete_rankings(keep_last=keep_last)
-        dd.delete_cache_data()
+        dd.delete_old_rankings(keep_last=keep_last)
+        dd.delete_old_cache_data()
 
     def test_unlinked_200_caches_older_than_30_days_are_removed(self):
 
@@ -50,7 +50,7 @@ class Test(DjangoTestCase):
 
         self.delete(keep_last=0, dry_run=False)
 
-        self.assertEqual({c1, c4, c5, c6, c7}, {c for c in Cache.objects.all()})
+        self.assertEqual({c1.id, c4.id, c5.id, c6.id, c7.id}, {c.id for c in Cache.objects.all()})
 
     def stats_ranking_data_and_cache_data_is_removed_together_with_ranking(self):
 

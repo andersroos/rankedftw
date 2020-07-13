@@ -4,8 +4,10 @@ from django.db import transaction, connection
 from logging import getLogger
 from datetime import timedelta, datetime
 
-from common.utils import utcnow
-from main.models import Ranking, Cache
+from django.db.models import Q
+
+from common.utils import utcnow, api_data_purge_date
+from main.models import Ranking, Cache, RankingData, RankingStats, Ladder
 from common.logging import log_context
 from django.utils import timezone
 
@@ -20,13 +22,14 @@ class BreakRun(Exception):
 class DataDeleter(object):
     
     def __init__(self, dry_run=True):
-        self.dry_run = dry_run
+        self.do_delete = not dry_run
+        self.prefix = "DRY RUN NOT " if dry_run else ""
 
     def stop(self):
         pass
         
     @log_context(feature='del')
-    def delete_rankings(self, keep_last=7):
+    def delete_old_rankings(self, keep_last=7):
         """ Delete rankings for deletion and disconnect from cache, keep enough to make it interesting. """
 
         with transaction.atomic():
@@ -87,23 +90,19 @@ class DataDeleter(object):
             rrs.sort(key=lambda rr: rr[0].id)
             for rr in rrs:
                 if not rr[1]:
-                    logger.info("removing ranking %d because %s" % (rr[0].id, rr[2]))
-
-                    if self.dry_run:
-                        logger.info("DRY RUN NOT REMOVING %d rankings" %
-                                    len(Ranking.objects.filter(id=rr[0].id)))
-                    else:
+                    logger.info("%sremoving ranking %d because %s" % (self.prefix, rr[0].id, rr[2]))
+                    if self.do_delete:
                         ranking_id = rr[0].id
-
+    
                         cursor = connection.cursor()
                         cursor.execute("UPDATE cache SET ranking_id = NULL WHERE ranking_id = %s", [ranking_id])
-
+    
                         Ranking.objects.filter(id=ranking_id).delete()
                 else:
                     logger.info("keeping ranking %d beacuse %s" % (rr[0].id, rr[2]))
 
     @log_context(feature='del')
-    def delete_cache_data(self):
+    def delete_old_cache_data(self):
         """ Delete all cache data that is no longer linked from rankings or ladders but only if older than 30 days. """
 
         with transaction.atomic():
@@ -112,8 +111,74 @@ class DataDeleter(object):
                                            updated__lt=utcnow() - timedelta(days=30))
 
             count = objects.count()
-            if self.dry_run:
-                logger.info("DRY RUN NOT REMOVING %d caches" % count)
-            else:
-                logger.info("removing unreferenced %d cache objects" % count)
+            logger.info("%sremoving unreferenced %d cache objects" % (self.prefix, count))
+            if self.do_delete:
                 objects.delete()
+
+    @log_context(feature='del')
+    def agressive_delete_cache_data(self):
+        """ Delete all cache data that is no longer linked from rankings or ladders or if it older than
+         keep_days. """
+    
+        with transaction.atomic():
+            query = Cache.objects.filter(
+                Q(updated__lt=api_data_purge_date())
+                | Q(ladder__isnull=True, ranking__isnull=True, type=Cache.LADDER)
+                | Q(type__in=(Cache.PLAYER, Cache.PLAYER_LADDERS))
+            )
+        
+            count = query.count()
+            logger.info("%sremoving %d unreferenced cache objects" % (self.prefix, count))
+            if self.do_delete:
+                query.delete()
+
+    @log_context(feature='del')
+    def delete_ranking(self, pk):
+        """ Delete ranking with pk, including ranking_data, ranking_stats and cache. """
+        
+        with transaction.atomic():
+            ranking = Ranking.objects.get(pk=pk)
+            
+            # checking for linked ladder to rankings cache objects (should never happend)
+            cache_ids = [c.id for c in
+                         Cache.objects.raw("SELECT c.id FROM cache c WHERE ranking_id = %s AND ladder_id is not NULL",
+                                           [ranking.id])]
+            if cache_ids:
+                raise Exception("rankings cache objects are tied to ladders: %s" % cache_ids)
+    
+            logger.info("%sdeleting %d ranking data" %
+                        (self.prefix, RankingData.objects.filter(ranking=ranking).count()))
+            if self.do_delete:
+                RankingData.objects.filter(ranking=ranking).delete()
+    
+            logger.info("%sdeleting %d ranking stats" % (self.prefix, RankingStats.objects.filter(ranking=ranking).count()))
+            if self.do_delete:
+                RankingStats.objects.filter(ranking=ranking).delete()
+    
+            logger.info("%sdeleting %d caches" % (self.prefix, ranking.sources.count()))
+            if self.do_delete:
+                for c in ranking.sources.all():
+                    c.delete()
+    
+            logger.info("%sdeleteing ranking %d" % (self.prefix, ranking.id))
+            if self.do_delete:
+                ranking.delete()
+
+    @log_context(feature='del')
+    def delete_ladders(self, keep_season_ids):
+        """ Delete ladder data including cache, keep for seasons in keep_season_ids. """
+        with transaction.atomic():
+            
+            logger.info(f"{self.prefix}deleting ladders keeping seasons {keep_season_ids}"
+                        f" (seasons to keep depends on existing rankings so will be different for live run)")
+            if self.do_delete:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "DELETE FROM cache WHERE ladder_id in (SELECT id FROM ladder WHERE season_id NOT IN %s)",
+                        [keep_season_ids]
+                    )
+                    cursor.execute(
+                        "DELETE FROM ladder WHERE season_id NOT IN %s",
+                        [keep_season_ids]
+                    )
+            
