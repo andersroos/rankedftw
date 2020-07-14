@@ -314,7 +314,7 @@ class LadderView(MainNavMixin, TemplateView, LadderCommon):
                                        race_id=filter_race, offset=request_offset, team_id=team_id, limit=PAGE_SIZE)
 
         except ClientError as e:
-            logger.error("Fetch from client error: %s" % str(e))
+            logger.exception("Fetch from client error: %s" % str(e))
             context['error'] = 'The server is not feeling well, try again later.'
             return self.render_to_response(context)
 
