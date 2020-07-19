@@ -17,10 +17,10 @@
 <div  itemscope="" itemtype="http://schema.org/SiteNavigationElement" class="sub-nav">
   <div class="content">
 
-    <div class="control compact"><span>Race:</span>{% for visiting, title, key, href in race_nav %}{% if forloop.first %}<a class="{{ visiting}}" href="{{ href }}">{{ title }}</a>{% else %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/races/{{ key }}-16x16.png"/></a>{% endif %}{% endfor %}</div>
+    <div class="control compact"><span>Race:</span>{% for visiting, title, key, href in race_nav %}{% if forloop.first %}<a class="{{ visiting}}" href="{{ href }}">{{ title }}</a>{% else %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/races/{{ key }}.svg" height="16px" width="16px"/></a>{% endif %}{% endfor %}</div>
 
-    <div class="control compact"><span>Region:</span>{% for visiting, title, key, href in region_nav %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/regions/{{ key }}-16x16.png"/></a>{% endfor %}</div>
+    <div class="control compact"><span>Region:</span>{% for visiting, title, key, href in region_nav %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/regions/{{ key }}.svg" height="16px" width="16px"/></a>{% endfor %}</div>
 
-    <div class="control compact"><span>League:</span>{% for visiting, title, key, href in league_nav %}{% if forloop.first %}<a class="{{ visiting}}" href="{{ href }}">{{ title }}</a>{% else %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/leagues/{{ key }}-16x16.png"/></a>{% endif %}{% endfor %}</div>
+    <div class="control compact"><span>League:</span>{% for visiting, title, key, href in league_nav %}{% if forloop.first %}<a class="{{ visiting}}" href="{{ href }}">{{ title }}</a>{% else %}<a class="{{ visiting }}" title="{{ title }}" href="{{ href }}"><img src="{{ STATIC_URL }}img/leagues/{{ key }}.svg" height="16px" width="16px"/></a>{% endif %}{% endfor %}</div>
   </div>
 </div>

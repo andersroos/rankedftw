@@ -47,7 +47,7 @@
       <tbody>
         {% for region in regions reversed %}
           <tr>
-            <th><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/></th>
+            <th><span>{{ region | region_name }}</span><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}.svg" height="16px" width="16px"/></th>
             <td id="r{{ region }}"><span class="number"></span></td>
           </tr>
         {% endfor %}

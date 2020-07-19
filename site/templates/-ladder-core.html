@@ -19,20 +19,20 @@
     <tr {% if team.team_id %}onclick="window.location='{% url 'team' team_id=team.team_id %}';" style="cursor: pointer;" class="{% if team.team_id == highlight_team_id %} highlight-team{% endif %}{% endif %}">
       <td class="number">{{ team.rank }}</td>
 
-      <td class="img"><img src="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}-16x16.png" /></td>
+      <td class="img"><img src="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}.svg" height="16px" width="16px" /></td>
 
-      <td class="img">{% if team.league %}<img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-16x16.png" />{% endif %}</td>
+      <td class="img">{% if team.league %}<img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}.svg" height="16px" width="16px" />{% endif %}</td>
 
       <td class="img">{{ team.tier }}</td>
 
       <td class="player">
-        <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m0_race | race_key }}-16x16.png" />
+        <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m0_race | race_key }}.svg" height="16px" width="16px" />
         {% if team.m0_tag %}<span class="tag">{{ team.m0_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m0_name }}</span>
       </td>
 
       {% if team.m1_id %}
         <td class="player">
-          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m1_race | race_key }}-16x16.png" />
+          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m1_race | race_key }}.svg" height="16px" width="16px" />
           {% if team.m1_tag %}<span class="tag">{{ team.m1_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m1_name }}</span>
         </td>
       {% elif team_size > 1 %}
@@ -41,7 +41,7 @@
 
       {% if team.m2_id %}
         <td class="player">
-          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m2_race | race_key }}-16x16.png" />
+          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m2_race | race_key }}.svg" height="16px" width="16px" />
           {% if team.m2_tag %}<span class="tag">{{ team.m2_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m2_name }}</span>
         </td>
       {% elif team_size > 2 %}
@@ -50,7 +50,7 @@
 
       {% if team.m3_id %}
         <td class="player">
-          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m3_race | race_key }}-16x16.png" />
+          <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m3_race | race_key }}.svg" height="16px" width="16px" />
           {% if team.m3_tag %}<span class="tag">{{ team.m3_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m3_name }}</span>
         </td>
       {% elif team_size > 3 %}
