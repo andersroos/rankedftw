@@ -652,7 +652,7 @@ export let RaceDistributionTable = function(mode_id) {
 
         let filters = {versions: [parseInt(o.settings.v)]};
 
-        if (!_.isUndefined(o.settings.r) && parseInt(o.settings.r) !== TOT) {
+        if (o.settings.r != null && parseInt(o.settings.r) !== TOT) {
             filters.regions = [parseInt(o.settings.r)];
         }
 

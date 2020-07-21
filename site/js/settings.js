@@ -3,7 +3,10 @@
 //
 
 const settings = {
-    enums_info: {},
+    enums_info: {
+        league_ranking_ids: [],
+        race_ranking_ids: [],
+    },
     default_version: 2,
     static_url: 'https://www.rankedftw.com/static/latest/',
     dynamic_url: 'https://www.rankedftw.com/',

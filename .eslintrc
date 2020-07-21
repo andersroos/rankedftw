@@ -21,7 +21,7 @@
         "strict": "warn",
         "no-unsafe-negation": "warn",
         "array-callback-return": "warn",
-        "eqeqeq": "warn",
+        "eqeqeq": ["warn", "smart"],
         "no-unused-expressions": "warn",
         "no-with": "warn",
         "no-shadow": "warn",

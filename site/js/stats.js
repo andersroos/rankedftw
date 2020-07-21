@@ -97,18 +97,17 @@ export let Stat = function(mode_id, raw) {
         return raw.data.slice(index, index + stat.data_size);
     }
 
-    // TODO UNDERSCORE
     function filter_sum(filters) {
         // Calculate a sum based on filters, one filter per type (version, region, league, races),
         // each filter maps to a list of type ids. An undefined type list will be regarded as a list with all ids.
         let sum = [0, 0, 0, 0];
     
-        _.each(filters.versions, function(v) {
-            _.each(filters.regions, function(r) {
-                _.each(filters.leagues, function(l) {
-                    _.each(filters.races, function(a) {
-                        var data = get(v, r, l, a);
-                        for (var i = 0; i < stat.data_size; ++i) {
+        filters.versions.forEach(v => {
+            filters.regions.forEach(r => {
+                filters.leagues.forEach(l => {
+                    filters.races.forEach(a => {
+                        const data = get(v, r, l, a);
+                        for (let i = 0; i < stat.data_size; ++i) {
                             sum[i] += data[i];
                         }
                     });
@@ -182,13 +181,13 @@ export let Stat = function(mode_id, raw) {
 //
 // TODO OLD OBJECT
 export let Mode = function(mode_id) {
-    var object = {};
-
-    var raws = stats_data.get_raws(mode_id);
-
+    const object = {};
+    
+    const raws = stats_data.get_raws(mode_id);
+    
     // Get stat by ranking id, return another one close to it if not present.
     object.get = function(ranking_id) {
-        var raw;
+        let raw;
         for (let i = 0; i < raws.length; ++i) {
             raw = raws[i];  // Will cause a missing raws to get another raw.
             if (raw.id === ranking_id) {
@@ -204,10 +203,9 @@ export let Mode = function(mode_id) {
     };
 
     // Iterate over raws in order. Skip raws that are of season version lower than min.
-    // TODO UNDERSCORE
     object.each = function(fun, min_version) {
-        for (var i = 0; i < raws.length; ++i) {
-            if (_.isUndefined(min_version) || min_version <= raws[i].season_version) {
+        for (let i = 0; i < raws.length; ++i) {
+            if (min_version == null || min_version <= raws[i].season_version) {
                 fun(Stat(mode_id, raws[i]), i);
             }
         }
@@ -215,8 +213,8 @@ export let Mode = function(mode_id) {
 
     // Iterate over raws in reverse order. Skip raws that are of season version lower than min.
     object.each_reverse = function(fun, min_version) {
-        for (var i = raws.length - 1; i >= 0; --i) {
-            if (_.isUndefined(min_version) || min_version <= raws[i].season_version) {
+        for (let i = raws.length - 1; i >= 0; --i) {
+            if (min_version == null || min_version <= raws[i].season_version) {
                 fun(Stat(mode_id, raws[i]), i);
             }
         }
