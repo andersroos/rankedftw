@@ -19,13 +19,13 @@ let set_persistent_value = function(name, value) {
 //
 let get_persistent_initial_value = function(name, allowed_values, default_value) {
 
-    var value = get_hash(name);
+    let value = get_hash(name);
 
     if (!value) {
         value = get_cookie(name);
     }
 
-    for (var i = 0; i < allowed_values.length; ++i) {
+    for (let i = 0; i < allowed_values.length; ++i) {
         if (value === allowed_values[i]) {
             set_persistent_value(name, value, true);
             return value;
@@ -74,6 +74,7 @@ let registry = new Registry();
 // add itself to the registry to be linked with other controls of the same key. Option values will be
 // converted to strings and on_select will be called with a string.
 //
+// TODO JQ TEMPLATE, JQ DATA, JQ EVENT
 export class Radio {
 
     // Render and register.
@@ -97,6 +98,7 @@ export class Radio {
         this.ul.empty();
         this.ul.append("<span>" + this.heading + "</span>");
         options.forEach(option => {
+            
             let a = $("<a data-ctrl-value='" + option.value + "' title='" + (option.tooltip || '') + "'>");
             if (option.heading) {
                 a.append("<span>" + option.heading + "</span>");

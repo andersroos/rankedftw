@@ -1,9 +1,9 @@
 import {settings} from "./settings";
 
-export let  TOT = -2;
-export let  COUNT = 0;
-export let  WINS = 1;
-export let  LOSSES = 2;
+export const TOT = -2;
+export const COUNT = 0;
+export const WINS = 1;
+export const LOSSES = 2;
 
 
 //
@@ -19,6 +19,7 @@ class StatsData {
     // Return deferred for when mode data is available.
     deferred_fetch_mode(mode_id) {
         if (typeof this.deferred[mode_id] === "undefined") {
+            // TODO JQ AJAX
             this.deferred[mode_id] = $.ajax({
                 dataType: "json",
                 url: settings.dynamic_url + 'stats/raw/' + mode_id + '/',
@@ -37,13 +38,14 @@ export let stats_data = new StatsData();
 //
 // Wrapper object for a filtered and aggregated object.
 //
+// TODO OLD OBJECT
 export let Aggregate = function(mode_id, filters, group_by, raw) {
-    var object = $.extend({}, filters);
-
+    const object = Object.assign({}, filters);
+    
     function create_accessor(type) {
         return function() {
-            var data = raw.data;
-            for (var i = 0; i < arguments.length; ++i) {
+            let data = raw.data;
+            for (let i = 0; i < arguments.length; ++i) {
                 data = data[arguments[i]];
             }
             if (group_by.length !== arguments.length) {
@@ -68,10 +70,11 @@ export let Aggregate = function(mode_id, filters, group_by, raw) {
 //
 // Wrapper object for single raw stat to help with filtering and aggregation.
 //
+// TODO OLD OBJECT
 export let Stat = function(mode_id, raw) {
 
     function copy_non_data(raw_) {
-        var o = {};
+        const o = {};
         Object.keys(raw_).forEach(function (key) {
             if (key !== 'data') {
                 o[key] = raw_[key];
@@ -79,26 +82,27 @@ export let Stat = function(mode_id, raw) {
         });
         return o;
     }
-
-    var object = copy_non_data(raw);
-    var stat = settings.enums_info.stat[raw.stat_version];
-
+    
+    const object = copy_non_data(raw);
+    const stat = settings.enums_info.stat[raw.stat_version];
+    
     function get(v, r, l, a) {
         // Get data at index.
 
-        var index = stat.data_size
-            * (  stat.version_indices[v] * stat.region_count * stat.league_count * stat.race_count
-               + stat.region_indices[r] * stat.league_count * stat.race_count
-               + stat.league_indices[l] * stat.race_count
-               + stat.race_indices[a]);
+        const index = stat.data_size
+                      * (  stat.version_indices[v] * stat.region_count * stat.league_count * stat.race_count
+                           + stat.region_indices[r] * stat.league_count * stat.race_count
+                           + stat.league_indices[l] * stat.race_count
+                           + stat.race_indices[a]);
         return raw.data.slice(index, index + stat.data_size);
     }
 
+    // TODO UNDERSCORE
     function filter_sum(filters) {
         // Calculate a sum based on filters, one filter per type (version, region, league, races),
         // each filter maps to a list of type ids. An undefined type list will be regarded as a list with all ids.
-        var sum = [0, 0, 0, 0];
-
+        let sum = [0, 0, 0, 0];
+    
         _.each(filters.versions, function(v) {
             _.each(filters.regions, function(r) {
                 _.each(filters.leagues, function(l) {
@@ -130,26 +134,26 @@ export let Stat = function(mode_id, raw) {
         if (group_by.length === 0) {
             return filter_sum(filters);
         }
-
-        var result = {};
-        var group_by__head = group_by[0];
-        var group_by__head_s = group_by__head + 's';
-        var group_by__rest = group_by.slice(1, group_by.length);
-        var tot = [0, 0, 0, 0];
-
-        for (var fi in filters[group_by__head_s]) {
-            var next_filter = $.extend({}, filters);
+    
+        const result = {};
+        const group_by__head = group_by[0];
+        const group_by__head_s = group_by__head + 's';
+        const group_by__rest = group_by.slice(1, group_by.length);
+        const tot = [0, 0, 0, 0];
+    
+        for (let fi in filters[group_by__head_s]) {
+            const next_filter = Object.assign({}, filters);
             next_filter[group_by__head_s] = [filters[group_by__head_s][fi]];
-            var next_res = filter_aggregate(next_filter, group_by__rest);
+            const next_res = filter_aggregate(next_filter, group_by__rest);
             result[filters[group_by__head_s][fi]] = next_res;
-            var sum;
+            let sum;
             if (next_res[TOT]) {
                 sum = next_res[TOT];
             }
             else {
                 sum = next_res;
             }
-            for (var i = 0; i < stat.data_size; ++i) {
+            for (let i = 0; i < stat.data_size; ++i) {
                 tot[i] += sum[i];
             }
         }
@@ -164,7 +168,7 @@ export let Stat = function(mode_id, raw) {
         filters.leagues = filters.leagues   || stat.league_ids;
         filters.races = filters.races       || stat.race_ids;
 
-        var aggregated = copy_non_data(raw);
+        const aggregated = copy_non_data(raw);
         aggregated.data = filter_aggregate(filters, group_by);
         return Aggregate(mode_id, filters, group_by, aggregated);
     };
@@ -176,6 +180,7 @@ export let Stat = function(mode_id, raw) {
 //
 // Create a stats object for all stats for a mode.
 //
+// TODO OLD OBJECT
 export let Mode = function(mode_id) {
     var object = {};
 
@@ -184,7 +189,7 @@ export let Mode = function(mode_id) {
     // Get stat by ranking id, return another one close to it if not present.
     object.get = function(ranking_id) {
         var raw;
-        for (var i = 0; i < raws.length; ++i) {
+        for (let i = 0; i < raws.length; ++i) {
             raw = raws[i];  // Will cause a missing raws to get another raw.
             if (raw.id === ranking_id) {
                 break;
@@ -199,6 +204,7 @@ export let Mode = function(mode_id) {
     };
 
     // Iterate over raws in order. Skip raws that are of season version lower than min.
+    // TODO UNDERSCORE
     object.each = function(fun, min_version) {
         for (var i = 0; i < raws.length; ++i) {
             if (_.isUndefined(min_version) || min_version <= raws[i].season_version) {

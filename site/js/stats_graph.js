@@ -54,6 +54,7 @@ let create_x_axis_control = (graph_jq, cb) => {
 //
 // League distribution table.
 //
+// TODO OLD OBJECT, JQ SELECT, JQ PROMISE
 export let LeagueDistributionTable = function(mode_id) {
 
     let o = {};
@@ -72,6 +73,7 @@ export let LeagueDistributionTable = function(mode_id) {
         let leagues_by_region = stats.filter_aggregate(filters, ['region', 'league']);
         let leagues = stats.filter_aggregate(filters, ['league']);
 
+        // TODO UNDERSCORE
         _.each(leagues_by_region.regions, function(region) {
             let t = leagues_by_region.count(region);
             $("#r" + region + "-pop .number").text(format_int(t));
@@ -109,6 +111,7 @@ export let LeagueDistributionTable = function(mode_id) {
 //
 // League distribution graph.
 //
+// TODO OLD OBJECT, JQ MERGE ARRAY, UNDERSCORE, JQ SELECT, JQ PROMISE
 export let LeagueDistributionGraph = function(mode_id) {
 
     let o = GraphBase('#leagues-graph-container');
@@ -266,6 +269,7 @@ export let LeagueDistributionGraph = function(mode_id) {
 //
 // Population table.
 //
+// TODO OLD OBJECT, UNDERSCORE, JQ SELECT, JQ PROMISE
 export let PopulationTable = function(mode_id) {
 
     let o = {};
@@ -307,6 +311,7 @@ export let PopulationTable = function(mode_id) {
 //
 // Population graph.
 //
+// TODO OLD OBJECT, UNDERSCORE, JQ SELECT, JQ PROMISE
 export let PopulationGraph = function(mode_id) {
 
     let o = GraphBase('#pop-graph-container');
@@ -465,6 +470,7 @@ export let PopulationGraph = function(mode_id) {
 //
 // Rrace distribution graph.
 //
+// TODO OLD OBJECT, UNDERSCORE, JQ SELECT, JQ PROMISE
 export let RaceDistributionGraph = function(mode_id) {
 
     let o = GraphBase('#races-graph-container');
@@ -630,6 +636,7 @@ export let RaceDistributionGraph = function(mode_id) {
 //
 // Race distribution table.
 //
+// TODO OLD OBJECT, UNDERSCORE, JQ PROMISE
 export let RaceDistributionTable = function(mode_id) {
 
     let o = {};

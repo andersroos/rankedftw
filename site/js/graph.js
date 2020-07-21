@@ -1,7 +1,7 @@
 import {seasons} from "./seasons";
 import {min_max} from "./utils";
 
-
+// TODO JQ SELECTOR, OLD OBJECT
 export let GraphBase = function(container_selector, edges, x_margin) {
 
     edges = edges || {top: 20, right: 40, bottom: 20, left: 64}; // Spacing inside canvas to graph ares.

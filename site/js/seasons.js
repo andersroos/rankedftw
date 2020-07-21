@@ -6,7 +6,7 @@ class Seasons {
     init(seasons) {
         this.sorted = seasons;
         this.by_id = {};
-        for (var i = 0; i < seasons.length; ++i) {
+        for (let i = 0; i < seasons.length; ++i) {
             this.by_id[seasons[i].id] = seasons[i];
         }
     }
