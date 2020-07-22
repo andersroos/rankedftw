@@ -1,6 +1,5 @@
 var webpack = require("webpack");
 var path = require("path");
-const merge = require('webpack-merge');
 
 
 var commonSettings = {
@@ -23,7 +22,6 @@ var commonSettings = {
     resolve: {
         extensions: ['.js'],
     },
-    devtool: 'source-map',
 };
 
 if (process.env.PROD_JS) {
@@ -31,7 +29,7 @@ if (process.env.PROD_JS) {
 
     const TerserPlugin = require('terser-webpack-plugin');
     
-    module.exports = merge(commonSettings, {
+    module.exports = Object.assign(commonSettings, {
         mode: "production",
         devtool: "source-map",
         optimization: {
@@ -50,7 +48,7 @@ if (process.env.PROD_JS) {
 else {
     console.info("development mode");
     
-    module.exports = merge(commonSettings, {
+    module.exports = Object.assign(commonSettings, {
         mode: "development",
         devtool: "inline-source-map",
         plugins: [
