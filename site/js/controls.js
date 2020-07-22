@@ -1,4 +1,4 @@
-import {get_hash} from "./utils";
+import {get_hash, to_jq_element} from "./utils";
 import {get_cookie} from "./utils";
 import {set_cookie} from "./utils";
 import {set_hash} from "./utils";
@@ -78,8 +78,8 @@ let registry = new Registry();
 export class Radio {
 
     // Render and register.
-    constructor(jq_container, key, heading, options, default_value, on_select) {
-
+    constructor(container, key, heading, options, default_value, on_select) {
+        const jq_container = to_jq_element(container);
         this.key = key;
         this.heading = heading;
         this.ul = $("<ul class='" + key + "'/>");

@@ -1,4 +1,4 @@
-import {deferred_doc_ready, format_int} from "./utils";
+import {deferred_doc_ready, format_int, to_jq_element} from "./utils";
 import {stats_data, Mode, TOT} from "./stats";
 import {GraphBase} from "./graph";
 import {Radio} from "./controls";
@@ -7,7 +7,8 @@ import {images} from "./images";
 import {settings} from "./settings";
 
 
-let create_version_control = (graph_jq, cb) => {
+export const create_version_control = (graph, cb) => {
+    const graph_jq = to_jq_element(graph);
     return new Radio(graph_jq.find(".controls").find(".content"), 'v', 'Version:',
         settings.enums_info.version_ranking_ids
                   .map(vid => ({value: vid, heading: settings.enums_info.version_name_by_ids[vid]}))
@@ -16,7 +17,8 @@ let create_version_control = (graph_jq, cb) => {
 };
 
 
-let create_region_control = (graph_jq, cb) => {
+export const create_region_control = (graph, cb) => {
+    const graph_jq = to_jq_element(graph);
     let regions = [settings.ALL].concat(settings.enums_info.region_ranking_ids);
     return new Radio(graph_jq.find(".controls").find(".content"), 'r', 'Regions:',
         regions
@@ -29,7 +31,8 @@ let create_region_control = (graph_jq, cb) => {
 };
 
 
-let create_league_control = (graph_jq, cb) => {
+export const create_league_control = (graph, cb) => {
+    const graph_jq = to_jq_element(graph);
     let leagues = [settings.ALL].concat(settings.enums_info.league_ranking_ids.reverse());
     return new Radio(graph_jq.find(".controls").find(".content"), 'l', 'League:',
         leagues
@@ -43,7 +46,8 @@ let create_league_control = (graph_jq, cb) => {
 };
 
 
-let create_x_axis_control = (graph_jq, cb) => {
+export const create_x_axis_control = (graph, cb) => {
+    const graph_jq = to_jq_element(graph);
     return new Radio(graph_jq.find(".controls").find(".content"), 'sx', 'X-Axis:', [
             {value: 'a', heading: 'All', tooltip: 'Show all data'},
             {value: 'sl', heading: 'Season Last', tooltip: 'Show only one point in graph for each season.'},
@@ -582,7 +586,7 @@ export let RaceDistributionGraph = function(mode_id) {
         o.clear();
 
         settings.enums_info.race_ranking_ids.forEach(race => {
-            o.gline(o.race_colors[race], 2, lines[race]);
+            o.gline(settings.race_colors[race], 2, lines[race]);
         });
 
         settings.enums_info.race_ranking_ids.forEach(race => {

@@ -2,6 +2,11 @@
 // TODO JQ UTIL, QJ PROMISE
 
 //
+//
+//
+export const to_jq_element = element => (element instanceof HTMLElement) ? $(element) : element;
+
+//
 // Format an int with spaces.
 //
 export let format_int = function(int) {

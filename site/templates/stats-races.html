@@ -96,6 +96,7 @@
 {% block body_js %}
   {% if mode_got_race_stats %}
     sc2.stats.RaceDistributionTable({{ mode_id }});
-    sc2.stats.RaceDistributionGraph({{ mode_id }});
+    // TODO sc2.stats.RaceDistributionGraph({{ mode_id }});
+    const graph = new sc2.RaceDistributionGraph({{ mode_id }});
   {% endif %}
 {% endblock body_js %}

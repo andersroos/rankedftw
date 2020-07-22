@@ -12,6 +12,13 @@ const settings = {
     dynamic_url: 'https://www.rankedftw.com/',
     UNKWNON: -1,
     ALL: -2,
+    race_colors: {
+        [-1]: "#666666", // Unknown
+        [0]:  "#704898", // Zerg
+        [1]:  "#fff080", // Protoss
+        [2]:  "#c94118", // Terran
+        [3]:  "#a0ebff", // Random
+    },
 };
 
 export {settings};
