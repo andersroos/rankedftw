@@ -161,6 +161,7 @@ export let Stat = function(mode_id, raw) {
         return result;
     }
 
+    // Return an Aggregate object with count, wins and losses aggregated on group_by entities. And filtered by filters.
     object.filter_aggregate = function(filters, group_by) {
         filters.versions = filters.versions || stat.version_ids;
         filters.regions = filters.regions   || stat.region_ids;

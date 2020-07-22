@@ -74,20 +74,20 @@ export let LeagueDistributionTable = function(mode_id) {
         let leagues = stats.filter_aggregate(filters, ['league']);
 
         // TODO UNDERSCORE
-        _.each(leagues_by_region.regions, function(region) {
-            let t = leagues_by_region.count(region);
+        leagues_by_region.regions.forEach(region => {
+            const t = leagues_by_region.count(region);
             $("#r" + region + "-pop .number").text(format_int(t));
-            _.each(leagues_by_region.leagues, function(league) {
-                let c = leagues_by_region.count(region, league);
+            leagues_by_region.leagues.forEach(league => {
+                const c = leagues_by_region.count(region, league);
                 $("#r" + region + "-l" + league + " .number").text(format_int(c));
                 $("#r" + region + "-l" + league + " .percent").text("(" + (c * 100 / t).toFixed(2) + "%)");
             });
         });
 
-        let t = leagues.count();
+        const t = leagues.count();
         $("#r-2-pop").find(".number").text(format_int(t));
-        _.each(leagues.leagues, function(league) {
-            let c = leagues.count(league);
+        leagues.leagues.forEach(league => {
+            const c = leagues.count(league);
             $("#r-2-l" + league + " .number").text(format_int(c));
             $("#r-2-l" + league + " .percent").text("(" + (c * 100 / t).toFixed(2) + "%)");
         });
@@ -153,7 +153,7 @@ export let LeagueDistributionGraph = function(mode_id) {
 
         // Add up for each league.
 
-        _.each(settings.enums_info.league_ranking_ids, function(league) {
+        settings.enums_info.league_ranking_ids.forEach(league => {
             last_line = line;
             line = [];
             for (let i = 0; i < data.length; ++i) {
@@ -236,9 +236,9 @@ export let LeagueDistributionGraph = function(mode_id) {
         let season = seasons.by_id[d.season_id];
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
-        let t = d.aggregate.count();
-        _.each(d.aggregate.leagues, function(league) {
-            let e = format_tooltip_data(d.aggregate.count(league), t);
+        const t = d.aggregate.count();
+        d.aggregate.leagues.forEach(league => {
+            const e = format_tooltip_data(d.aggregate.count(league), t);
             $('.l' + league + "-n", o.tooltip).text(e.n);
             $('.l' + league + "-p", o.tooltip).text(e.p);
         });
@@ -287,7 +287,7 @@ export let PopulationTable = function(mode_id) {
 
         let regions = stat.filter_aggregate(filters, ['region']);
 
-        _.each(regions.regions, function(region) {
+        regions.regions.forEach(region => {
             $("#r" + region + " .number").text(format_int(regions.count(region)));
         });
         $("#r-2 .number").text(format_int(regions.count()));
@@ -506,14 +506,14 @@ export let RaceDistributionGraph = function(mode_id) {
 
         for (let i = 0; i < data.length; ++i) {
             let x = o.epoch_to_pixels(data[i].data_time);
-            _.each(settings.enums_info.race_ranking_ids, function(race_id) {
+            settings.enums_info.race_ranking_ids.forEach(race_id => {
                 let y = o.y_per_unit * (data[i].aggregate.count(race_id) / data[i].aggregate.count() * 100 - max_value);
                 lines[race_id] = lines[race_id] || [];
                 lines[race_id].push({x: x, y: y, m: i});
             });
         }
 
-        _.each(settings.enums_info.race_ranking_ids, function(race_id) {
+        settings.enums_info.race_ranking_ids.forEach(race_id => {
             $.merge(new_points, lines[race_id]);
         });
 
@@ -562,7 +562,7 @@ export let RaceDistributionGraph = function(mode_id) {
             all.push(point);
             let t = point.aggregate.count();
             if (t) {
-                _.each(aggregate.races, function(race) {
+                aggregate.races.forEach(race => {
                     max_value = Math.max(max_value, point.aggregate.count(race) / t * 100);
                 });
             }
@@ -581,11 +581,11 @@ export let RaceDistributionGraph = function(mode_id) {
     o.redraw = function() {
         o.clear();
 
-        _.each(settings.enums_info.race_ranking_ids, function(race) {
+        settings.enums_info.race_ranking_ids.forEach(race => {
             o.gline(o.race_colors[race], 2, lines[race]);
         });
 
-        _.each(settings.enums_info.race_ranking_ids, function(race) {
+        settings.enums_info.race_ranking_ids.forEach(race => {
             o.ctx.drawImage(document.getElementById('race' + race),
                             lines[race][0].x - 8 + o.edges.left,
                             lines[race][0].y - 8 + o.edges.top);
@@ -605,7 +605,7 @@ export let RaceDistributionGraph = function(mode_id) {
         $('.date', o.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
         $('.season', o.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
         let t = d.aggregate.count();
-        _.each(settings.enums_info.race_ranking_ids, function(race) {
+        settings.enums_info.race_ranking_ids.forEach(race => {
             let e = format_tooltip_data(d.aggregate.count(race), t);
             $('.r' + race + '-n', o.tooltip).text(e.n);
             $('.r' + race + '-p', o.tooltip).text(e.p);
@@ -658,9 +658,9 @@ export let RaceDistributionTable = function(mode_id) {
 
         let races_by_league = stat.filter_aggregate(filters, ['league', 'race']);
 
-        _.each(races_by_league.leagues, function(league) {
-            let t = races_by_league.count(league);
-            _.each(races_by_league.races, function(race) {
+        races_by_league.leagues.forEach(league => {
+            const t = races_by_league.count(league);
+            races_by_league.races.forEach(race => {
                 let c = races_by_league.count(league, race);
                 $("#l" + league + "-r" + race + " .number").text(format_int(c));
                 $("#l" + league + "-r" + race + " .percent").text("(" + (c * 100 / t).toFixed(2) + "%)");
