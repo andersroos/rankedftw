@@ -1,7 +1,6 @@
 var webpack = require("webpack");
 var path = require("path");
 
-
 var commonSettings = {
     entry: {
         index: "./site/js/all.js",
@@ -50,8 +49,6 @@ else {
     
     module.exports = Object.assign(commonSettings, {
         mode: "development",
-        devtool: "inline-source-map",
-        plugins: [
-        ],
+        devtool: "inline-source-map"
     });
 }

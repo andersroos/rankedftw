@@ -108,6 +108,6 @@
 
 
 {% block body_js %}
-  sc2.stats.LeagueDistributionTable({{ mode_id }});
-  sc2.stats.LeagueDistributionGraph({{ mode_id }});
+  const table = new sc2.LeagueDistributionTable({{ mode_id }});
+  const graph = new sc2.LeagueDistributionGraph({{ mode_id }});
 {% endblock body_js %}
