@@ -70,8 +70,8 @@
       <div class="tooltip">
         <table>
           <tbody>
-            <tr><th class="no-img">Date</th><td colspan="2" class="date"/></tr>
-            <tr><th class="no-img">Season</th><td colspan="2" class="season"/></tr>
+            <tr><th class="no-img">Date</th><td colspan="2" class="date"></td></tr>
+            <tr><th class="no-img">Season</th><td colspan="2" class="season"></td></tr>
             {% for race in races %}
               <tr>
                 <th><span>{{ race | race_name }}</span><img src="{{ STATIC_URL }}img/races/{{ race | race_key }}-16x16.png"/></th>
@@ -95,8 +95,7 @@
 
 {% block body_js %}
   {% if mode_got_race_stats %}
-    sc2.stats.RaceDistributionTable({{ mode_id }});
-    // TODO sc2.stats.RaceDistributionGraph({{ mode_id }});
+    const table = new sc2.RaceDistributionTable({{ mode_id }});
     const graph = new sc2.RaceDistributionGraph({{ mode_id }});
   {% endif %}
 {% endblock body_js %}

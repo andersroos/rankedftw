@@ -1,15 +1,65 @@
 //
 // Race distribution graph.
 //
-// TODO Replace and rename when this works.
 import {NewGraphBase} from "./graph";
 import {create_league_control, create_region_control, create_version_control} from "./stats_graph";
 import {settings} from "./settings";
 import {Mode, stats_data, TOT} from "./stats";
 import {deferred_doc_ready, format_int} from "./utils";
 import {seasons} from "./seasons";
+import {images} from "./images";
 
-export class NewRaceDistributionGraph extends NewGraphBase {
+//
+// Race distribution table.
+//
+// TODO JQ PROMISE
+export class RaceDistributionTable {
+    constructor(mode_id) {
+        this.settings = {};
+        this.mode_id = mode_id;
+        this.container = document.querySelector("#races-table-container");
+        this.version_control = create_version_control(this.container, this.controls_change.bind(this));
+        this.region_control = create_region_control(this.container, this.controls_change.bind(this));
+    
+        $.when(
+            deferred_doc_ready(),
+            stats_data.deferred_fetch_mode(mode_id),
+            images.deferred_load_races()
+        ).done(() => this.init());
+    }
+    
+    controls_change(name, value) {
+        this.settings[name] = value;
+        
+        const stat = Mode(this.mode_id).get_last();
+        
+        const filters = {versions: [parseInt(this.settings.v)]};
+        
+        if (this.settings.r != null && parseInt(this.settings.r) !== TOT) {
+            filters.regions = [parseInt(this.settings.r)];
+        }
+        
+        const races_by_league = stat.filter_aggregate(filters, ['league', 'race']);
+        
+        races_by_league.leagues.forEach(league => {
+            const t = races_by_league.count(league);
+            races_by_league.races.forEach(race => {
+                let c = races_by_league.count(league, race);
+                document.querySelector(`#l${league}-r${race} .number`).textContent = format_int(c);
+                document.querySelector(`#l${league}-r${race} .percent`).textContent = "(" + (c * 100 / t).toFixed(2) + "%)";
+            });
+        });
+    }
+    
+    init() {
+        this.version_control.init();
+        this.region_control.init();
+        this.container.classList.remove("wait");
+    }
+}
+
+// TODO JQ SELECT, JQ PROMISE
+export class RaceDistributionGraph extends NewGraphBase {
     
     // Create a race distribution graph for mode_id.
     constructor(mode_id) {
