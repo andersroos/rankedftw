@@ -111,6 +111,6 @@
 
 
 {% block body_js %}
-  sc2.stats.PopulationTable({{ mode_id }});
-  sc2.stats.PopulationGraph({{ mode_id }});
+  const table = new sc2.PopulationTable({{ mode_id }});
+  const graph = new sc2.PopulationGraph({{ mode_id }});
 {% endblock body_js %}

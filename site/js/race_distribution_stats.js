@@ -1,7 +1,7 @@
 //
 // Race distribution graph.
 //
-import {NewGraphBase} from "./graph";
+import {GraphBase} from "./graph";
 import {create_league_control, create_region_control, create_version_control} from "./stats_graph";
 import {settings} from "./settings";
 import {Mode, stats_data, TOT} from "./stats";
@@ -59,7 +59,7 @@ export class RaceDistributionTable {
 }
 
 // TODO JQ SELECT, JQ PROMISE
-export class RaceDistributionGraph extends NewGraphBase {
+export class RaceDistributionGraph extends GraphBase {
     
     // Create a race distribution graph for mode_id.
     constructor(mode_id) {

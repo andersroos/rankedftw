@@ -1,7 +1,7 @@
 import {create_region_control, create_version_control, create_x_axis_control} from "./stats_graph";
 import {deferred_doc_ready, format_int} from "./utils";
 import {Mode, stats_data, TOT} from "./stats";
-import {NewGraphBase} from "./graph";
+import {GraphBase} from "./graph";
 import {settings} from "./settings";
 import {seasons} from "./seasons";
 
@@ -63,7 +63,7 @@ export class LeagueDistributionTable {
 // League distribution graph.
 //
 // TODO JQ MERGE ARRAY, JQ PROMISE
-export class LeagueDistributionGraph extends NewGraphBase {
+export class LeagueDistributionGraph extends GraphBase {
     constructor(mode_id) {
         super("#leagues-graph-container");
 
