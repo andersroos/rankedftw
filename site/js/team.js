@@ -6,7 +6,7 @@ import {Radio} from "./controls";
 import {deferred_doc_ready, rev_each, format_int} from "./utils";
 import {stats_data, Mode} from "./stats";
 
-// TODO JQ CLASS, JQ TEMPLATE, JQ AJAX, JQ PROMISE, UNDERSCORE
+// TODO JQ CLASS, JQ TEMPLATE, JQ AJAX, JQ PROMISE
 
 //
 // The ranking graph object.
