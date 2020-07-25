@@ -4,13 +4,13 @@
 //
 
 @content-max-width: 1024px;
-@content-min-width: 540px; // Same as inital view port.
+@content-min-width: 540px; // Same as initial view port.
 @hide-logo-width: 910px;
 
 @the-color: #84B585;
 @sub-nav-bg: #eeeeee;
 @footer-color: #909090;
-    
+@text-color: #000000;
 
 //
 // main styles
@@ -319,7 +319,7 @@ a, a.visited {
     .controls {
         border-top: 1px solid black;
         background: @the-color;
-        color: black;
+        color: @text-color;
         ul:first-child { margin-left: 0px };
         ul {
             list-style-type: none;
@@ -334,7 +334,7 @@ a, a.visited {
             }
             
             a {
-                color: black;
+                color: @text-color;
                 padding: 2px 3px;
                 display: inline-block;
                 
@@ -477,37 +477,52 @@ body.ladder {
         margin: 0 2px 0  -2px; // Have no idea why this is needed on this page.
     }    
 
-    table {
+    .table {
         font-size: 0.9em;
         width: 100%;
         border-collapse: collapse;
+        display: table;
 
-        tr.highlight-team {
+        a {
+            color: @text-color;
+            &:visited {
+                color: @text-color;
+            }
+            &:hover {
+                text-decoration: none;
+            }
+        }
+
+        .highlight-team {
             background: lighten(@the-color, 20%);
         }
         
-        tr:hover {
-            background: darken(#ffffff, 25%);
+        .row {
+            display: table-row;
+
+            &:hover {
+                background: darken(#ffffff, 25%);
+            }
         }
-        
-        td, th {
-            padding: 4px 2px 4px 2px;
+
+        .cell {
+            display: table-cell;
+            padding: 4px 6px 4px 2px;
             img {
                 margin: 0 0 -3px 0;
             }
             vertical-align: text-bottom;            
         }
 
-        tr {
-            margin-right: 10px;
+        .heading {
+            font-weight: bold;
+            text-align: center;
+            &.number, &.mmr {
+                margin-top: 1px;
+            }
         }
 
-        td.number, th.mmr {
-            margin-top: 1px;
-            padding-right: 8px;
-        }
-
-        td:first-child {
+        .cell:first-child {
             width: 10px;
         }
 
