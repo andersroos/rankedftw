@@ -1,75 +1,78 @@
 {% load sc2 %}
 
-<table class="team-size-{{ team_size }}">
-  <tr>
-    <th class="number">Rank</th>
-    <th class="img">Region</th>
-    <th class="img">League</th>
-    <th class="img">Tier</th>
-    <th class="team-header" colspan={{ team_size }}>Team</th>
-    <th class="mmr">MMR</th>
-    <th class="number">Points</th>
-    <th class="number">Wins</th>
-    <th class="number">Losses</th>
-    <th class="number">Played</th>
-    <th class="number">Win rate</th>
-    <th class="number">Age</th>
-  </tr>
+<div role="grid" class="table team-size-{{ team_size }}">
+  <div role="row" class="row">
+    <div role="gridcell" class="cell heading number">Rank</div>
+    <div role="gridcell" class="cell heading img">Region</div>
+    <div role="gridcell" class="cell heading img">League</div>
+    <div role="gridcell" class="cell heading img">Tier</div>
+    <div role="gridcell" class="cell heading team-header">Team</div>
+    {% if team_size > 1 %}<div role="gridcell" class="cell heading team-header"></div>{% endif %}
+    {% if team_size > 2 %}<div role="gridcell" class="cell heading team-header"></div>{% endif %}
+    {% if team_size > 3 %}<div role="gridcell" class="cell heading team-header"></div>{% endif %}
+    <div role="gridcell" class="cell heading mmr">MMR</div>
+    <div role="gridcell" class="cell heading number">Points</div>
+    <div role="gridcell" class="cell heading number">Wins</div>
+    <div role="gridcell" class="cell heading number">Losses</div>
+    <div role="gridcell" class="cell heading number">Played</div>
+    <div role="gridcell" class="cell heading number">Win&nbsp;rate</div>
+    <div role="gridcell" class="cell heading number">Age</div>
+  </div>
   {% for team in ladder.teams %}
-    <tr {% if team.team_id %}onclick="window.location='{% url 'team' team_id=team.team_id %}';" style="cursor: pointer;" class="{% if team.team_id == highlight_team_id %} highlight-team{% endif %}{% endif %}">
-      <td class="number">{{ team.rank }}</td>
+    <a {% if team.team_id %}href="{% url 'team' team_id=team.team_id %}" style="cursor: pointer;" role="gridcell" class="row {% if team.team_id == highlight_team_id %} highlight-team{% endif %}{% endif %}">
+      <div role="gridcell" class="cell number">{{ team.rank }}</div>
 
-      <td class="img"><img src="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}-16x16.png" /></td>
+      <div role="gridcell" class="cell img"><img src="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}-16x16.png" /></div>
 
-      <td class="img">{% if team.league %}<img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-16x16.png" />{% endif %}</td>
+      <div role="gridcell" class="cell img">{% if team.league %}<img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-16x16.png" />{% endif %}</div>
 
-      <td class="img">{{ team.tier }}</td>
+      <div role="gridcell" class="cell img">{{ team.tier }}</div>
 
-      <td class="player">
+      <div role="gridcell" class="cell player">
         <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m0_race | race_key }}-16x16.png" />
         {% if team.m0_tag %}<span class="tag">{{ team.m0_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m0_name }}</span>
-      </td>
+      </div>
 
       {% if team.m1_id %}
-        <td class="player">
+        <div role="gridcell" class="cell player">
           <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m1_race | race_key }}-16x16.png" />
           {% if team.m1_tag %}<span class="tag">{{ team.m1_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m1_name }}</span>
-        </td>
+        </div>
       {% elif team_size > 1 %}
-        <td/>
+        <div role="gridcell" class="cell"></div>
       {% endif %}
 
       {% if team.m2_id %}
-        <td class="player">
+        <div role="gridcell" class="cell player">
           <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m2_race | race_key }}-16x16.png" />
           {% if team.m2_tag %}<span class="tag">{{ team.m2_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m2_name }}</span>
-        </td>
+        </div>
       {% elif team_size > 2 %}
-        <td/>
+        <div role="gridcell" class="cell"></div>
       {% endif %}
 
       {% if team.m3_id %}
-        <td class="player">
+        <div role="gridcell" class="cell player">
           <img class="race" src="{{ STATIC_URL }}img/races/{{ team.m3_race | race_key }}-16x16.png" />
           {% if team.m3_tag %}<span class="tag">{{ team.m3_tag | tag_braces }}</span>{% endif %}<span class="name">{{ team.m3_name }}</span>
-        </td>
+        </div>
       {% elif team_size > 3 %}
-        <td/>
+        <div role="gridcell" class="cell"></div>
       {% endif %}
 
-      <td class="number">{{ team.mmr }}</td>
+      <div role="gridcell" class="cell number">{{ team.mmr }}</div>
 
-      <td class="number">{{ team.points|format_points|none_to_dash }}</td>
+      <div role="gridcell" class="cell number">{{ team.points|format_points|none_to_dash }}</div>
 
-      <td class="number">{{ team.wins|none_to_dash }}</td>
+      <div role="gridcell" class="cell number">{{ team.wins|none_to_dash }}</div>
 
-      <td class="number">{{ team.losses|none_to_dash }}</td>
+      <div role="gridcell" class="cell number">{{ team.losses|none_to_dash }}</div>
 
-      <td class="number">{{ team.played|none_to_dash }}</td>
+      <div role="gridcell" class="cell number">{{ team.played|none_to_dash }}</div>
 
-      <td class="number">{{ team.win_rate|format_win_rate|none_to_dash }}</td>
+      <div role="gridcell" class="cell number">{{ team.win_rate|format_win_rate|none_to_dash }}</div>
 
-      <td class="number">{{ team.age|none_to_dash }}</td>
-    </tr>
+      <div role="gridcell" class="cell number">{{ team.age|none_to_dash }}</div>
+    </a>
   {% endfor %}
-</table>
+</div>
