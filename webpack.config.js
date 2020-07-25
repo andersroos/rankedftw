@@ -23,7 +23,7 @@ var commonSettings = {
     },
 };
 
-if (process.env.PROD_JS) {
+if (Number.parseInt(process.env.PROD_JS)) {
     console.info("production mode");
 
     const TerserPlugin = require('terser-webpack-plugin');
