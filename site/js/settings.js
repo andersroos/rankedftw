@@ -4,10 +4,11 @@
 
 const settings = {
     enums_info: {
-        league_ranking_ids: [],
-        race_ranking_ids: [],
+        league_ranking_ids: [],  // Ids for the leagues from bronze to gm.
+        race_ranking_ids: [],    // Ids for the races from unknown to random.
+        stat: {},                // Information about where data is located in the raw stat format for each version of the format.
     },
-    default_version: 2,
+    default_version: 2,          // LotV
     static_url: 'https://www.rankedftw.com/static/latest/',
     dynamic_url: 'https://www.rankedftw.com/',
     UNKWNON: -1,

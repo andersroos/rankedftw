@@ -70,44 +70,44 @@ export let Aggregate = function(mode_id, filters, group_by, raw) {
 //
 // Wrapper object for single raw stat to help with filtering and aggregation.
 //
-// TODO OLD OBJECT
-export let Stat = function(mode_id, raw) {
-
-    function copy_non_data(raw_) {
-        const o = {};
-        Object.keys(raw_).forEach(function (key) {
-            if (key !== 'data') {
-                o[key] = raw_[key];
-            }
-        });
-        return o;
+export class Stat {
+    
+    constructor(mode_id, raw) {
+        this.mode_id = mode_id;
+        this.raw = raw;
+        this.stat = settings.enums_info.stat[raw.stat_version];
     }
     
-    const object = copy_non_data(raw);
-    const stat = settings.enums_info.stat[raw.stat_version];
+    get season_id() {
+        return this.raw.season_id;
+    }
     
-    function get(v, r, l, a) {
+    get data_time() {
+        return this.raw.data_time;
+    }
+    
+    get(version, region, league, race) {
         // Get data at index.
 
-        const index = stat.data_size
-                      * (  stat.version_indices[v] * stat.region_count * stat.league_count * stat.race_count
-                           + stat.region_indices[r] * stat.league_count * stat.race_count
-                           + stat.league_indices[l] * stat.race_count
-                           + stat.race_indices[a]);
-        return raw.data.slice(index, index + stat.data_size);
+        const index = this.stat.data_size
+                      * (  this.stat.version_indices[version] * this.stat.region_count * this.stat.league_count * this.stat.race_count
+                           + this.stat.region_indices[region] * this.stat.league_count * this.stat.race_count
+                           + this.stat.league_indices[league] * this.stat.race_count
+                           + this.stat.race_indices[race]);
+        return this.raw.data.slice(index, index + this.stat.data_size);
     }
 
-    function filter_sum(filters) {
+    filter_sum(filters) {
         // Calculate a sum based on filters, one filter per type (version, region, league, races),
         // each filter maps to a list of type ids. An undefined type list will be regarded as a list with all ids.
         let sum = [0, 0, 0, 0];
     
-        filters.versions.forEach(v => {
-            filters.regions.forEach(r => {
-                filters.leagues.forEach(l => {
-                    filters.races.forEach(a => {
-                        const data = get(v, r, l, a);
-                        for (let i = 0; i < stat.data_size; ++i) {
+        filters.versions.forEach(version => {
+            filters.regions.forEach(region => {
+                filters.leagues.forEach(league => {
+                    filters.races.forEach(race => {
+                        const data = this.get(version, region, league, race);
+                        for (let i = 0; i < this.stat.data_size; ++i) {
                             sum[i] += data[i];
                         }
                     });
@@ -118,7 +118,7 @@ export let Stat = function(mode_id, raw) {
         return sum;
     }
 
-    function filter_aggregate(filters, group_by) {
+    filter_aggregate_internal(filters, group_by) {
         // Calculate a generic filtered map [of maps ..]  of sums. The
         // aggregate will only consist of data points that is in the filter
         // for each dimension (making it possible to aggregate EU + AM but not
@@ -131,9 +131,10 @@ export let Stat = function(mode_id, raw) {
         // will also include a TOT which is a total of everything.
 
         if (group_by.length === 0) {
-            return filter_sum(filters);
+            return this.filter_sum(filters);
         }
     
+        // TODO Try to make this core understandable.
         const result = {};
         const group_by__head = group_by[0];
         const group_by__head_s = group_by__head + 's';
@@ -143,7 +144,7 @@ export let Stat = function(mode_id, raw) {
         for (let fi in filters[group_by__head_s]) {
             const next_filter = Object.assign({}, filters);
             next_filter[group_by__head_s] = [filters[group_by__head_s][fi]];
-            const next_res = filter_aggregate(next_filter, group_by__rest);
+            const next_res = this.filter_aggregate_internal(next_filter, group_by__rest);
             result[filters[group_by__head_s][fi]] = next_res;
             let sum;
             if (next_res[TOT]) {
@@ -152,7 +153,7 @@ export let Stat = function(mode_id, raw) {
             else {
                 sum = next_res;
             }
-            for (let i = 0; i < stat.data_size; ++i) {
+            for (let i = 0; i < this.stat.data_size; ++i) {
                 tot[i] += sum[i];
             }
         }
@@ -162,19 +163,19 @@ export let Stat = function(mode_id, raw) {
     }
 
     // Return an Aggregate object with count, wins and losses aggregated on group_by entities. And filtered by filters.
-    object.filter_aggregate = function(filters, group_by) {
-        filters.versions = filters.versions || stat.version_ids;
-        filters.regions = filters.regions   || stat.region_ids;
-        filters.leagues = filters.leagues   || stat.league_ids;
-        filters.races = filters.races       || stat.race_ids;
+    filter_aggregate(filters, group_by) {
+        filters.versions = filters.versions || this.stat.version_ids;
+        filters.regions = filters.regions   || this.stat.region_ids;
+        filters.leagues = filters.leagues   || this.stat.league_ids;
+        filters.races = filters.races       || this.stat.race_ids;
 
-        const aggregated = copy_non_data(raw);
-        aggregated.data = filter_aggregate(filters, group_by);
-        return Aggregate(mode_id, filters, group_by, aggregated);
-    };
-
-    return object;
-};
+        // TODO Check usage.
+        const {id, data_time, mode_id, season_id, season_version, stat_version} = this.raw;
+        const aggregated = {id, data_time, mode_id, season_id, season_version, stat_version};
+        aggregated.data = this.filter_aggregate_internal(filters, group_by);
+        return Aggregate(this.mode_id, filters, group_by, aggregated);
+    }
+}
 
 
 //
@@ -196,19 +197,19 @@ export class Mode {
                 break;
             }
         }
-        return Stat(this.mode_id, raw);
+        return new Stat(this.mode_id, raw);
     }
 
     // Get last stat.
     get_last() {
-        return Stat(this.mode_id, this.raws[this.raws.length - 1])
+        return new Stat(this.mode_id, this.raws[this.raws.length - 1])
     }
 
     // Iterate over raws in order. Skip raws that are of season version lower than min.
     each(fun, min_version) {
         for (let i = 0; i < this.raws.length; ++i) {
             if (min_version == null || min_version <= this.raws[i].season_version) {
-                fun(Stat(this.mode_id, this.raws[i]), i);
+                fun(new Stat(this.mode_id, this.raws[i]), i);
             }
         }
     }
@@ -217,7 +218,7 @@ export class Mode {
     each_reverse(fun, min_version) {
         for (let i = this.raws.length - 1; i >= 0; --i) {
             if (min_version == null || min_version <= this.raws[i].season_version) {
-                fun(Stat(this.mode_id, this.raws[i]), i);
+                fun(new Stat(this.mode_id, this.raws[i]), i);
             }
         }
     }
