@@ -23,7 +23,7 @@
       {% if nav_header_message %}
         <div class="message">
           <p>
-            {{ nav_header_message }}
+            {{ nav_header_message|safe }}
           </p>
         </div>
       {% endif %}
