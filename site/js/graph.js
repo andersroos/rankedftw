@@ -382,7 +382,6 @@ export class GraphBase {
     
     // Resize canwas based on 0.30 proportions.
     resize_canvas() {
-        console.info("resize_canvas", this.container.offsetWidth, Math.max(280, Math.round(this.container.offsetHeight * 0.30)));
         this.canvas.width = this.container.offsetWidth;
         this.canvas.height = Math.max(280, Math.round(this.container.offsetWidth * 0.30));
     }
