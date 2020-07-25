@@ -27,7 +27,7 @@ export class LeagueDistributionTable {
     controls_change(name, value) {
         this.settings[name] = value;
         
-        const stats = Mode(this.mode_id).get_last();
+        const stats = new Mode(this.mode_id).get_last();
         
         const filters = {versions: [parseInt(this.settings.v)]};
         
@@ -145,7 +145,7 @@ export class LeagueDistributionGraph extends GraphBase {
             
         const all = [];
         let last_season = -1;
-        const stats = Mode(this.mode_id);
+        const stats = new Mode(this.mode_id);
         stats.each_reverse(stat => {
             const point = {
                 season_id: stat.season_id,

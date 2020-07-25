@@ -178,49 +178,48 @@ export let Stat = function(mode_id, raw) {
 
 
 //
-// Create a stats object for all stats for a mode.
+// Create a stats object to handle all stats for a mode.
 //
-// TODO OLD OBJECT
-export let Mode = function(mode_id) {
-    const object = {};
-    
-    const raws = stats_data.get_raws(mode_id);
+export class Mode {
+
+    constructor(mode_id) {
+        this.mode_id = mode_id;
+        this.raws = stats_data.get_raws(mode_id);
+    }
     
     // Get stat by ranking id, return another one close to it if not present.
-    object.get = function(ranking_id) {
+    get(ranking_id) {
         let raw;
-        for (let i = 0; i < raws.length; ++i) {
-            raw = raws[i];  // Will cause a missing raws to get another raw.
+        for (let i = 0; i < this.raws.length; ++i) {
+            raw = this.raws[i];  // Will cause a missing raws to get another raw.
             if (raw.id === ranking_id) {
                 break;
             }
         }
-        return Stat(mode_id, raw);
-    };
+        return Stat(this.mode_id, raw);
+    }
 
-    // Get lst stat.
-    object.get_last = function() {
-        return Stat(mode_id, raws[raws.length - 1])
-    };
+    // Get last stat.
+    get_last() {
+        return Stat(this.mode_id, this.raws[this.raws.length - 1])
+    }
 
     // Iterate over raws in order. Skip raws that are of season version lower than min.
-    object.each = function(fun, min_version) {
-        for (let i = 0; i < raws.length; ++i) {
-            if (min_version == null || min_version <= raws[i].season_version) {
-                fun(Stat(mode_id, raws[i]), i);
+    each(fun, min_version) {
+        for (let i = 0; i < this.raws.length; ++i) {
+            if (min_version == null || min_version <= this.raws[i].season_version) {
+                fun(Stat(this.mode_id, this.raws[i]), i);
             }
         }
-    };
+    }
 
     // Iterate over raws in reverse order. Skip raws that are of season version lower than min.
-    object.each_reverse = function(fun, min_version) {
-        for (let i = raws.length - 1; i >= 0; --i) {
-            if (min_version == null || min_version <= raws[i].season_version) {
-                fun(Stat(mode_id, raws[i]), i);
+    each_reverse(fun, min_version) {
+        for (let i = this.raws.length - 1; i >= 0; --i) {
+            if (min_version == null || min_version <= this.raws[i].season_version) {
+                fun(Stat(this.mode_id, this.raws[i]), i);
             }
         }
-    };
-
-    return object;
-};
+    }
+}
 

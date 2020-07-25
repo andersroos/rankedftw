@@ -26,7 +26,7 @@ export class PopulationTable {
     controls_change(name, value) {
         this.settings[name] = value;
     
-        const stat = Mode(this.mode_id).get_last();
+        const stat = new Mode(this.mode_id).get_last();
     
         const filters = {versions: [parseInt(this.settings.v)]};
     
@@ -120,7 +120,7 @@ export class PopulationGraph extends GraphBase {
         
         this.max_y = 0.001;
         let last_season = -1;
-        const stats = Mode(this.mode_id);
+        const stats = new Mode(this.mode_id);
         stats.each_reverse(stat => {
             const aggregate = stat.filter_aggregate(filters, []);
             const season = seasons.by_id[stat.season_id];

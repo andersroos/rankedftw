@@ -31,7 +31,7 @@ export class RaceDistributionTable {
     controls_change(name, value) {
         this.settings[name] = value;
         
-        const stat = Mode(this.mode_id).get_last();
+        const stat = new Mode(this.mode_id).get_last();
         
         const filters = {versions: [parseInt(this.settings.v)]};
         
@@ -150,7 +150,7 @@ export class RaceDistributionGraph extends GraphBase {
         this.max_value = 1;
         
         const all = [];
-        const stats = Mode(this.mode_id);
+        const stats = new Mode(this.mode_id);
         stats.each(stat => {
             const aggregate = stat.filter_aggregate(filters, ['race']);
             const point = {

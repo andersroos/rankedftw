@@ -366,7 +366,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
                 floor.push({x: x, y: o.y_value(count, count)});
             }
             if (o.settings.bg === 'leagues') {
-                let stat = Mode(mode_id).get(ranking.id);
+                let stat = new Mode(mode_id).get(ranking.id);
                 filters.versions = [ranking.version];
                 let agg = stat.filter_aggregate(filters, ['league']);
                 let ly = 0;
