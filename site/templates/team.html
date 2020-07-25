@@ -23,8 +23,30 @@
   
 </div>
 
-<div id="graph-container"></div>
-
+<div id="graph-container" class="data-container wait">
+  <div class="controls"><div class="content"></div></div>
+  <canvas class="graph"></canvas>
+  <div class="tooltip">
+    <table>
+      <tbody>
+        <tr><th>Date: </th><td class="date"></td></tr>
+        <tr><th>Version: </th><td class="version"></td></tr>
+        <tr><th>World: </th><td class="world_rank"></td></tr>
+        <tr><th>Region: </th><td class="region_rank"></td></tr>
+        <tr><th>League: </th><td class="league_rank"></td></tr>
+        <tr><th>Ladder: </th><td class="ladder_rank"></td></tr>
+        <tr><th>Season: </th><td class="season"></td></tr>
+        <tr><th>MMR: </th><td class="mmr"></td></tr>
+        <tr><th>Points: </th><td class="points"></td></tr>
+        <tr><th>Wins: </th><td class="wins"></td></tr>
+        <tr><th>Losses: </th><td class="losses"></td></tr>
+        <tr><th>Race: </th><td class="race"></td></tr>
+        <tr><th>League: </th><td class="league"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+  
 <div class="content">
   <h2>LotV, HotS or WoL?</h2>
   <p>
@@ -43,6 +65,6 @@
 {% endblock page %}
 
 {% block body_js %}
-  sc2.team.RankingGraph("graph-container", {{ team.id }}, {{ team.member0.region }}, {{ team.member0.league }}, {{ team.mode }});
+  new sc2.RankingGraph("#graph-container", {{ team.id }}, {{ team.member0.region }}, {{ team.member0.league }}, {{ team.mode }});
 {% endblock body_js %}
 

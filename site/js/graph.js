@@ -201,7 +201,7 @@ export class GraphBase {
         let season;
         for (let i = 0; i < seasons.sorted.length; ++i) {
             season = seasons.sorted[i];
-            if (season.end > this.x_ax.left_value && season.start < this.x_ax.right_value) {
+            if (season.end >= this.x_ax.left_value && season.start <= this.x_ax.right_value) {
                 const x_to = Math.min(this.epoch_to_pixels(season.end), this.width);
                 
                 // Draw the colored season line, add x_margin to the end (all but the last line will be overwritten by
