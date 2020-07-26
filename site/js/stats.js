@@ -36,36 +36,45 @@ class StatsData {
 export let stats_data = new StatsData();
 
 //
-// Wrapper object for a filtered and aggregated object.
+// Filtered and aggregated stats.
 //
-// TODO OLD OBJECT
-export let Aggregate = function(mode_id, filters, group_by, raw) {
-    const object = Object.assign({}, filters);
-    
-    function create_accessor(type) {
-        return function() {
-            let data = raw.data;
-            for (let i = 0; i < arguments.length; ++i) {
-                data = data[arguments[i]];
-            }
-            if (group_by.length !== arguments.length) {
-                data = data[TOT];
-            }
-            return data[type];
-        };
+export class Aggregate {
+    constructor(mode_id, filters, group_by, aggregated_data) {
+        this.mode_id = mode_id;
+        const {leagues, regions, races} = filters;
+        this.regions = regions;
+        this.leagues = leagues;
+        this.races = races;
+        this.group_by = group_by;
+        this.aggregated_data = aggregated_data;
     }
-
-    // Get the count at the id sub path of group_by enums.
-    object.count = create_accessor(COUNT);
-
-    // Get the wins at the id sub path of group_by enums.
-    object.wins = create_accessor(WINS);
-
-    // Get the losses at the id sub path of group_by enums.
-    object.losses = create_accessor(LOSSES);
-
-    return object;
-};
+    
+    // Return the aggregated value of type at "entity_id_path". "entity_id_path" is a list of entity ids of the entities in "group_by" in each segment. If "entity_id_path" is shorter than group_by
+    // the aggregate of everything at that path is returned. For example if group_by = "region", "race" then get_aggreate(COUNT, [0]) will return the count in EU and get_aggreate(COUNT, [0, 0])
+    // will return the zerg count in EU.
+    get_aggregate(type, entity_id_path) {
+        let data = this.aggregated_data;
+        for (let i = 0; i < entity_id_path.length; ++i) {
+            data = data[entity_id_path[i]];
+        }
+        if (this.group_by.length !== entity_id_path.length) {
+            data = data[TOT];
+        }
+        return data[type];
+    }
+    
+    count(...entity_id_path) {
+        return this.get_aggregate(COUNT, entity_id_path);
+    }
+    
+    wins(...entity_id_path) {
+        return this.get_aggregate(WINS, entity_id_path);
+    }
+    
+    losses(...entity_id_path) {
+        return this.get_aggregate(LOSSES, entity_id_path);
+    }
+}
 
 //
 // Wrapper object for single raw stat to help with filtering and aggregation.
@@ -162,18 +171,15 @@ export class Stat {
         return result;
     }
 
-    // Return an Aggregate object with count, wins and losses aggregated on group_by entities. And filtered by filters.
+    // Return an Aggregate object with count, wins and losses aggregated on group_by entities (list). And filtered by filters.
     filter_aggregate(filters, group_by) {
         filters.versions = filters.versions || this.stat.version_ids;
         filters.regions = filters.regions   || this.stat.region_ids;
         filters.leagues = filters.leagues   || this.stat.league_ids;
         filters.races = filters.races       || this.stat.race_ids;
 
-        // TODO Check usage.
-        const {id, data_time, mode_id, season_id, season_version, stat_version} = this.raw;
-        const aggregated = {id, data_time, mode_id, season_id, season_version, stat_version};
-        aggregated.data = this.filter_aggregate_internal(filters, group_by);
-        return Aggregate(this.mode_id, filters, group_by, aggregated);
+        const aggregated_data = this.filter_aggregate_internal(filters, group_by);
+        return new Aggregate(this.mode_id, filters, group_by, aggregated_data);
     }
 }
 

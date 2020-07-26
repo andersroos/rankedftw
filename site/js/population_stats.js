@@ -30,12 +30,12 @@ export class PopulationTable {
     
         const filters = {versions: [parseInt(this.settings.v)]};
     
-        const regions = stat.filter_aggregate(filters, ['region']);
+        const region_aggregate = stat.filter_aggregate(filters, ['region']);
     
-        regions.regions.forEach(region => {
-            document.querySelector(`#r${region} .number`).textContent = format_int(regions.count(region));
+        region_aggregate.regions.forEach(region => {
+            document.querySelector(`#r${region} .number`).textContent = format_int(region_aggregate.count(region));
         });
-        document.querySelector("#r-2 .number").textContent = format_int(regions.count());
+        document.querySelector("#r-2 .number").textContent = format_int(region_aggregate.count());
     }
     
     init() {

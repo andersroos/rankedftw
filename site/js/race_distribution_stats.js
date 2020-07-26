@@ -39,12 +39,12 @@ export class RaceDistributionTable {
             filters.regions = [parseInt(this.settings.r)];
         }
         
-        const races_by_league = stat.filter_aggregate(filters, ['league', 'race']);
+        const league_race_aggregate = stat.filter_aggregate(filters, ['league', 'race']);
         
-        races_by_league.leagues.forEach(league => {
-            const t = races_by_league.count(league);
-            races_by_league.races.forEach(race => {
-                let c = races_by_league.count(league, race);
+        league_race_aggregate.leagues.forEach(league => {
+            const t = league_race_aggregate.count(league);
+            league_race_aggregate.races.forEach(race => {
+                let c = league_race_aggregate.count(league, race);
                 document.querySelector(`#l${league}-r${race} .number`).textContent = format_int(c);
                 document.querySelector(`#l${league}-r${race} .percent`).textContent = "(" + (c * 100 / t).toFixed(2) + "%)";
             });
@@ -152,16 +152,16 @@ export class RaceDistributionGraph extends GraphBase {
         const all = [];
         const stats = new Mode(this.mode_id);
         stats.each(stat => {
-            const aggregate = stat.filter_aggregate(filters, ['race']);
+            const race_aggregate = stat.filter_aggregate(filters, ['race']);
             const point = {
                 season_id: stat.season_id,
                 data_time: stat.data_time,
-                aggregate: aggregate,
+                aggregate: race_aggregate,
             };
             all.push(point);
             const t = point.aggregate.count();
             if (t) {
-                aggregate.races.forEach(race => {
+                race_aggregate.races.forEach(race => {
                     this.max_value = Math.max(this.max_value, point.aggregate.count(race) / t * 100);
                 });
             }

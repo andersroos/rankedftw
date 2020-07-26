@@ -317,12 +317,12 @@ export class RankingGraph extends GraphBase {
             if (this.settings.bg === 'leagues') {
                 const stat = new Mode(this.mode_id).get(ranking.id);
                 filters.versions = [ranking.version];
-                let agg = stat.filter_aggregate(filters, ['league']);
+                const league_aggreate = stat.filter_aggregate(filters, ['league']);
                 let ly = 0;
                 rev_each(settings.enums_info.league_ranking_ids, lid => {
                     this.league_areas[lid] = this.league_areas[lid] || [];
                     this.league_areas[lid].push({x: x, y: this.y_value(ly, count)});
-                    ly += agg.count(lid);
+                    ly += league_aggreate.count(lid);
                 });
             }
             

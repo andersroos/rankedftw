@@ -380,7 +380,7 @@ export class GraphBase {
     // Functions. TODO ????
     //
     
-    // Resize canwas based on 0.30 proportions.
+    // Resize canvas based on 0.30 proportions.
     resize_canvas() {
         this.canvas.width = this.container.offsetWidth;
         this.canvas.height = Math.max(280, Math.round(this.container.offsetWidth * 0.30));

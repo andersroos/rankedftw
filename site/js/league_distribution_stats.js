@@ -31,23 +31,23 @@ export class LeagueDistributionTable {
         
         const filters = {versions: [parseInt(this.settings.v)]};
         
-        const leagues_by_region = stats.filter_aggregate(filters, ['region', 'league']);
-        const leagues = stats.filter_aggregate(filters, ['league']);
+        const region_league_aggreage = stats.filter_aggregate(filters, ['region', 'league']);
+        const league_aggregate = stats.filter_aggregate(filters, ['league']);
         
-        leagues_by_region.regions.forEach(region => {
-            const t = leagues_by_region.count(region);
+        region_league_aggreage.regions.forEach(region => {
+            const t = region_league_aggreage.count(region);
             document.querySelector(`#r${region}-pop .number`).textContent = format_int(t);
-            leagues_by_region.leagues.forEach(league => {
-                const c = leagues_by_region.count(region, league);
+            region_league_aggreage.leagues.forEach(league => {
+                const c = region_league_aggreage.count(region, league);
                 document.querySelector(`#r${region}-l${league} .number`).textContent = format_int(c);
                 document.querySelector(`#r${region}-l${league} .percent`).textContent = "(" + (c * 100 / t).toFixed(2) + "%)";
             });
         });
         
-        const t = leagues.count();
+        const t = league_aggregate.count();
         document.querySelector("#r-2-pop .number").textContent = format_int(t);
-        leagues.leagues.forEach(league => {
-            const c = leagues.count(league);
+        league_aggregate.leagues.forEach(league => {
+            const c = league_aggregate.count(league);
             document.querySelector(`#r-2-l${league} .number`).textContent = format_int(c);
             document.querySelector(`#r-2-l${league} .percent`).textContent = "(" + (c * 100 / t).toFixed(2) + "%)";
         });
