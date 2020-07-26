@@ -442,7 +442,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         // League icons.
         
         for (let i = 0; i < leagues.length; ++i) {
-            o.ctx.drawImage(document.getElementById('league' + leagues[i].league), leagues[i].x - 8, leagues[i].y - 8);
+            o.ctx.drawImage(document.getElementById('league' + leagues[i].league), leagues[i].x - 8, leagues[i].y - 8, 16, 16);
         }
     };
 
