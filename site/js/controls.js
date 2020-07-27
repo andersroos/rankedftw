@@ -1,4 +1,4 @@
-import {get_hash, to_jq_element} from "./utils";
+import {get_hash} from "./utils";
 import {get_cookie} from "./utils";
 import {set_cookie} from "./utils";
 import {set_hash} from "./utils";
@@ -79,13 +79,12 @@ export class Radio {
 
     // Render and register.
     constructor(container, key, heading, options, default_value, on_select) {
-        const jq_container = to_jq_element(container);
         this.key = key;
         this.heading = heading;
-        this.ul = $("<ul class='" + key + "'/>");
         this.on_select = on_select;
 
-        jq_container.append(this.ul);
+        container.insertAdjacentHTML("beforeend", `<ul class="${key}"/>`);
+        this.ul = container.lastElementChild;
 
         this.update(options, default_value);
     }
@@ -95,25 +94,23 @@ export class Radio {
         this.default_value = typeof default_value === "undefined" ? this.default_value : String(default_value);
         this.allowed_values = options.map(o => String(o.value));
 
-        this.ul.empty();
-        this.ul.append("<span>" + this.heading + "</span>");
+        this.ul.innerHTML = null;
+        this.ul.insertAdjacentHTML("beforeend", `<span>${this.heading}</span>`);
         options.forEach(option => {
-            
-            let a = $("<a data-ctrl-value='" + option.value + "' title='" + (option.tooltip || '') + "'>");
+            let html = `<a data-ctrl-value="${option.value}" title="${option.tooltip || ''}">`;
             if (option.heading) {
-                a.append("<span>" + option.heading + "</span>");
+                html += `<span>${option.heading}</span>`;
             }
             if (option.src) {
-                a.append("<img src='" + option.src + "'>");
+                html += `<img src="${option.src}"/>`;
             }
-            this.ul.append(a);
+            html += "</a";
+            this.ul.insertAdjacentHTML("beforeend", html);
         });
 
         // Setup click callback.
-        this.ul.find('a').each((_, e) => {
-            $(e).click(event => {
-                registry.set_value(this.key, $(event.delegateTarget).attr('data-ctrl-value'));
-            });
+        Array.from(this.ul.getElementsByTagName('a')).forEach(e => {
+            e.onclick = () => registry.set_value(this.key, e.dataset.ctrlValue);
         });
     }
 
@@ -127,13 +124,12 @@ export class Radio {
         this.value = new_value;
 
         // Highlight selected.
-        this.ul.find('a').each((_, e) => {
-            e = $(e);
-            if (e.attr('data-ctrl-value') === this.value) {
-                e.addClass('selected');
+        Array.from(this.ul.getElementsByTagName('a')).forEach(e => {
+            if (e.dataset.ctrlValue === this.value) {
+                e.classList.add('selected');
             }
             else {
-                e.removeClass('selected');
+                e.classList.remove('selected');
             }
         });
 
