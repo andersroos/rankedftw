@@ -5,14 +5,13 @@ import {GraphBase} from "./graph";
 import {create_league_control, create_region_control, create_version_control} from "./stats_graph";
 import {settings} from "./settings";
 import {Mode, stats_data, TOT} from "./stats";
-import {deferred_doc_ready, format_int} from "./utils";
+import {doc_ready, format_int} from "./utils";
 import {seasons} from "./seasons";
 import {images} from "./images";
 
 //
 // Race distribution table.
 //
-// TODO JQ PROMISE
 export class RaceDistributionTable {
     constructor(mode_id) {
         this.settings = {};
@@ -21,11 +20,11 @@ export class RaceDistributionTable {
         this.version_control = create_version_control(this.container, this.controls_change.bind(this));
         this.region_control = create_region_control(this.container, this.controls_change.bind(this));
     
-        $.when(
-            deferred_doc_ready(),
-            stats_data.deferred_fetch_mode(mode_id),
-            images.deferred_load_races()
-        ).done(() => this.init());
+        Promise.all([
+            doc_ready(),
+            stats_data.fetch_mode(mode_id),
+            images.fetch_races()
+        ]).then(() => this.init());
     }
     
     controls_change(name, value) {
@@ -58,7 +57,6 @@ export class RaceDistributionTable {
     }
 }
 
-// TODO JQ PROMISE
 export class RaceDistributionGraph extends GraphBase {
     
     // Create a race distribution graph for mode_id.
@@ -76,11 +74,10 @@ export class RaceDistributionGraph extends GraphBase {
         this.region_control = create_region_control(this.container, this.controls_change.bind(this));
         this.league_control = create_league_control(this.container, this.controls_change.bind(this));
     
-        $.when(
-            deferred_doc_ready(),
-            stats_data.deferred_fetch_mode(mode_id)
-        ).done(this.init.bind(this));
-        
+        Promise.all([
+            doc_ready(),
+            stats_data.fetch_mode(mode_id),
+        ]).then(() => this.init());
     }
     
     // Update units based on resize or new settings.

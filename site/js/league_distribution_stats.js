@@ -1,5 +1,5 @@
 import {create_region_control, create_version_control, create_x_axis_control} from "./stats_graph";
-import {deferred_doc_ready, format_int} from "./utils";
+import {doc_ready, format_int} from "./utils";
 import {Mode, stats_data, TOT} from "./stats";
 import {GraphBase} from "./graph";
 import {settings} from "./settings";
@@ -9,7 +9,6 @@ import {seasons} from "./seasons";
 //
 // League distribution table.
 //
-// TODO JQ PROMISE
 // TODO Very simliar to RaceDistributionTable, maybe reuse something?
 export class LeagueDistributionTable {
     constructor(mode_id) {
@@ -17,11 +16,11 @@ export class LeagueDistributionTable {
         this.mode_id = mode_id;
         this.settings = {};
         this.version_control = create_version_control(this.container, this.controls_change.bind(this));
-
-        $.when(
-            deferred_doc_ready(),
-            stats_data.deferred_fetch_mode(this.mode_id)
-        ).done(() => this.init());
+    
+        Promise.all([
+            doc_ready(),
+            stats_data.fetch_mode(mode_id),
+        ]).then(() => this.init());
     }
     
     controls_change(name, value) {
@@ -62,7 +61,6 @@ export class LeagueDistributionTable {
 //
 // League distribution graph.
 //
-// TODO JQ PROMISE
 export class LeagueDistributionGraph extends GraphBase {
     constructor(mode_id) {
         super("#leagues-graph-container");
@@ -76,10 +74,10 @@ export class LeagueDistributionGraph extends GraphBase {
     
         this.lines = {};  // Lines between races by race key (bronze to gm).
     
-        $.when(
-            deferred_doc_ready(),
-            stats_data.deferred_fetch_mode(mode_id)
-        ).done(this.init.bind(this));
+        Promise.all([
+            doc_ready(),
+            stats_data.fetch_mode(mode_id),
+        ]).then(() => this.init());
     }
     
     // Update units based on resize or new settings.

@@ -74,7 +74,6 @@ let registry = new Registry();
 // add itself to the registry to be linked with other controls of the same key. Option values will be
 // converted to strings and on_select will be called with a string.
 //
-// TODO JQ TEMPLATE, JQ DATA, JQ EVENT
 export class Radio {
 
     // Render and register.

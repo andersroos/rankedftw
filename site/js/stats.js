@@ -1,4 +1,5 @@
 import {settings} from "./settings";
+import {fetch_json} from "./utils";
 
 export const TOT = -2;
 export const COUNT = 0;
@@ -12,21 +13,16 @@ export const LOSSES = 2;
 class StatsData {
     
     constructor() {
-        this.deferred = {};
         this.raw_by_mode = {};
     }
     
-    // Return deferred for when mode data is available.
-    deferred_fetch_mode(mode_id) {
-        if (typeof this.deferred[mode_id] === "undefined") {
-            // TODO JQ AJAX
-            this.deferred[mode_id] = $.ajax({
-                dataType: "json",
-                url: settings.dynamic_url + 'stats/raw/' + mode_id + '/',
-                success: (data) => { this.raw_by_mode[mode_id] = data; }
-            });
-        }
-        return this.deferred[mode_id];
+    // Return promise for when mode data is available.
+    fetch_mode(mode_id) {
+        const url = `${settings.dynamic_url}stats/raw/${mode_id}/`;
+        return fetch_json(url).then(data => {
+            this.raw_by_mode[mode_id] = data;
+            return null;
+        });
     }
 
     get_raws(mode_id) {

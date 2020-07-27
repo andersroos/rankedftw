@@ -1,36 +1,44 @@
-
-// TODO QJ PROMISE
-
 //
 // Format an int with spaces.
 //
 export let format_int = function(int) {
-    var str = "" + int;
-    var res = "";
-    for (var i = 0; i < str.length; i+=3) {
+    let str = "" + int;
+    let res = "";
+    for (let i = 0; i < str.length; i+=3) {
         res = str.substring(str.length - i - 3, str.length - i) + " " + res;
     }
     return res.trim();
 };
 
+//
+// Return a promise of body parsed as json, non 200 or failed parsing body as json is reject.
+//
+export const fetch_json = url => fetch(url)
+    .then(response => {
+        if (!response.ok) throw new Error(`failed to fetch from ${url}: ${response}`);
+        return response.json();
+    })
 
 //
-// Deferred resolved when document is ready.
+// Returns a promise for when the document is ready.
 //
-export let deferred_doc_ready = () => {
-    var deferred = $.Deferred();
-    $(() => deferred.resolve());
-    return deferred;
-};
+export const doc_ready = () => new Promise(resolve => {
+    if (document.readyState === "complete") {
+        resolve();
+    }
+    else {
+        document.addEventListener("DOMContentLoaded", resolve);
+    }
+});
 
 
 //
 // Get value from fragment identifier.
 //
 export let get_hash = function(key) {
-    var vars = window.location.hash.substring(1).split("&");
-    for (var i = 0; i < vars.length; ++i) {
-        var pair = vars[i].split('=');
+    const vars = window.location.hash.substring(1).split("&");
+    for (let i = 0; i < vars.length; ++i) {
+        const pair = vars[i].split('=');
         if (pair[0] === key) {
             return pair[1];
         }
@@ -42,10 +50,10 @@ export let get_hash = function(key) {
 // Set value in fragment identifier.
 //
 export let set_hash = function(key, value) {
-    var vars = window.location.hash.substring(1).split("&").filter(function(x) { return x !== ''; });
-    var item = key + '=' + value;
-    for (var i = 0; i < vars.length; ++i) {
-        var pair = vars[i].split('=');
+    const vars = window.location.hash.substring(1).split("&").filter(function(x) { return x !== ''; });
+    let item = key + '=' + value;
+    for (let i = 0; i < vars.length; ++i) {
+        const pair = vars[i].split('=');
         if (pair[0] === key) {
             vars[i] = item;
             item = null;
@@ -71,11 +79,11 @@ export let set_cookie = function(name, value, path, expiry) {
 // Get cookie.
 //
 export let get_cookie = function(name) {
-    var value;
+    let value;
     if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 value = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
@@ -96,7 +104,7 @@ export let min_max = function(min, value, max) {
 // Like each but reverse.
 //
 export let rev_each = function(list, fun) {
-    for (var i = list.length - 1; i >= 0; --i) {
+    for (let i = list.length - 1; i >= 0; --i) {
         fun(list[i], i);
     }
 };

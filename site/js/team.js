@@ -3,10 +3,8 @@ import {settings} from "./settings";
 import {seasons} from "./seasons";
 import {images} from "./images";
 import {Radio} from "./controls";
-import {deferred_doc_ready, rev_each, format_int} from "./utils";
+import {doc_ready, rev_each, format_int, fetch_json} from "./utils";
 import {stats_data, Mode} from "./stats";
-
-// TODO JQ CLASS, JQ TEMPLATE, JQ AJAX, JQ PROMISE
 
 //
 // The ranking graph object.
@@ -93,7 +91,7 @@ export class RankingGraph extends GraphBase {
         // Data for the graph.
         //
         
-        this.points = [];         // Points {x, y, m} calcualted from rankings (m is the index in this.rankings).
+        this.points = [];         // Points {x, y, m} calculated from rankings (m is the index in this.rankings).
         this.leagues = [];        // List of {x, y, league} for when league changes.
         this.floor = [];          // Points {x, y} used when there is an absolute floor.
         this.league_areas = {};   // Map from leagues to lists of league area points, league areas should be drawn in
@@ -103,23 +101,23 @@ export class RankingGraph extends GraphBase {
         // Load resources and add init trigger when complete.
         //
     
-        $.when(
-            deferred_doc_ready(),
-            $.ajax({dataType: "json",
-                url: settings.dynamic_url + 'team/' + team_id + '/rankings/',
-                success: data => {
-                    this.rankings = data;
+        Promise.all([
+            doc_ready(),
+            stats_data.fetch_mode(mode_id),
+            fetch_json(`${settings.dynamic_url}team/${team_id}/rankings/`).then(data => {
+                this.rankings = data;
+    
+                // Add index to each ranking to be able to find it in global list after filtering.
+                this.rankings.forEach((r, i) => r.index = i);
+    
+                // Update race control based on actual data.
+                if (this.race_control) this.race_control.update(this.get_race_options(this.rankings));
                 
-                    // Add index to each ranking to be able to find it in global list after filtering.
-                    this.rankings.forEach((r, i) => r.index = i);
-                
-                    // Update race control based on actual data.
-                    if (this.race_control) this.race_control.update(this.get_race_options(this.rankings));
-                }}),
-            stats_data.deferred_fetch_mode(mode_id),
-            images.deferred_load_leagues(),
-            images.deferred_load_races()
-        ).done(this.init.bind(this));
+                return null;
+            }),
+            images.fetch_leagues(),
+            images.fetch_races()
+        ]).then(() => this.init());
     }
     
     // Updating of units needs to be done after a resize or after settings changed.

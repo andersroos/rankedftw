@@ -3,8 +3,7 @@
         "browser": true
     },
     "globals": {
-        "$",
-        "_"
+        "Promise"
     },
     "plugins": [
     ],
