@@ -4,29 +4,27 @@ import {settings} from "./settings";
 // Image bank.
 //
 
-// TODO JQ PROMISE, JQ TEMPLATE
+// TODO JQ PROMISE
 class Images {
 
-    constructor(bank_id) {
+    constructor() {
         this.league_deferred = $.Deferred();
         this.races_deferred = $.Deferred();
-        this.bank = $('#' + bank_id);
-        if (this.bank.length === 0) {
-            this.bank = $("<div id=bank_id style='display: none;'>");
-            this.bank.appendTo('body');
-        }
+        this.bank = document.getElementById("sc2-image-bank");
     }
 
     deferred_load_leagues() {
         settings.enums_info.league_ranking_ids.forEach(league_id => {
             const league_tag = settings.enums_info.league_key_by_ids[league_id];
-            const img = $("<img id='league" + league_id + "' src='" + settings.static_url + "img/leagues/" + league_tag + "-16x16.png' />");
-            img.one("load", () => {
-                if (settings.enums_info.league_ranking_ids.every(lid => $('#league' + lid)[0].complete)) {
+            const id = `league${league_id}`;
+            this.bank.insertAdjacentHTML("beforeend", `<img id="${id}" src="${settings.static_url}img/leagues/${league_tag}-16x16.png"/>`);
+            const checkComplete = () => {
+                if (settings.enums_info.league_ranking_ids.every(lid => (document.getElementById(`league${lid}`) || {}).complete)) {
                     this.league_deferred.resolve();
                 }
-            });
-            img.appendTo(this.bank);
+            };
+            this.bank.lastElementChild.onload = checkComplete;
+            checkComplete();
         });
         return this.league_deffered;
     }
@@ -34,17 +32,20 @@ class Images {
     deferred_load_races() {
         settings.enums_info.race_ranking_ids.forEach(race_id => {
             const race_tag = settings.enums_info.race_key_by_ids[race_id];
-            const img = $("<img id='race" + race_id + "' src='" + settings.static_url + "img/races/" + race_tag + "-16x16.png' />");
-            img.one("load", () => {
-                if (settings.enums_info.race_ranking_ids.every(rid => $('#race' + rid)[0].complete)) {
+    
+            const id = `race${race_id}`;
+            this.bank.insertAdjacentHTML("beforeend", `<img id="${id}" src="${settings.static_url}img/races/${race_tag}-16x16.png"/>`);
+            const checkComplete = () => {
+                if (settings.enums_info.race_ranking_ids.every(rid => (document.getElementById(`race${rid}`) || {}).complete)) {
                     this.races_deferred.resolve();
                 }
-            });
-            img.appendTo(this.bank);
+            };
+            this.bank.lastElementChild.onload = checkComplete;
+            checkComplete();
         });
 
         return this.races_deferred;
     }
 }
 
-export let images = new Images('sc2-image-bank');
+export let images = new Images();

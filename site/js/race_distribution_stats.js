@@ -58,7 +58,7 @@ export class RaceDistributionTable {
     }
 }
 
-// TODO JQ SELECT, JQ PROMISE
+// TODO JQ PROMISE
 export class RaceDistributionGraph extends GraphBase {
     
     // Create a race distribution graph for mode_id.
