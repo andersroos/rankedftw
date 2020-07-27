@@ -113,7 +113,7 @@ export class RaceDistributionGraph extends GraphBase {
         }
         
         settings.enums_info.race_ranking_ids.forEach(race_id => {
-            $.merge(new_points, this.lines[race_id]);
+            new_points.push(...this.lines[race_id]);
         });
         
         // Update points.

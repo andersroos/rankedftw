@@ -62,7 +62,7 @@ export class LeagueDistributionTable {
 //
 // League distribution graph.
 //
-// TODO JQ MERGE ARRAY, JQ PROMISE
+// TODO JQ PROMISE
 export class LeagueDistributionGraph extends GraphBase {
     constructor(mode_id) {
         super("#leagues-graph-container");
@@ -119,7 +119,7 @@ export class LeagueDistributionGraph extends GraphBase {
                     y: last_line[i].y - this.y_per_unit * this.data[i].aggregate.count(league) / this.data[i].aggregate.count() * 100,
                     m: i});
             }
-            $.merge(new_points, line);
+            new_points.push(...line);
             this.lines[league] = line;
         });
         

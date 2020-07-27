@@ -1,9 +1,9 @@
 
-// TODO JQ UTIL, QJ PROMISE
+// TODO QJ PROMISE
 
 //
 //
-//
+// TODO JQ ELEMENT
 export const to_jq_element = element => (element instanceof HTMLElement) ? $(element) : element;
 
 //
@@ -15,7 +15,7 @@ export let format_int = function(int) {
     for (var i = 0; i < str.length; i+=3) {
         res = str.substring(str.length - i - 3, str.length - i) + " " + res;
     }
-    return $.trim(res);
+    return res.trim();
 };
 
 
@@ -80,7 +80,7 @@ export let get_cookie = function(name) {
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
-            var cookie = $.trim(cookies[i]);
+            var cookie = cookies[i].trim();
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 value = decodeURIComponent(cookie.substring(name.length + 1));
                 break;

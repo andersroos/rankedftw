@@ -334,14 +334,14 @@ export class RankingGraph extends GraphBase {
 
         // Make the areas areas.
         if (this.settings.bg === 'floor') {
-            $.merge(this.floor, [{x: this.width, y: 0}, {x: 0, y: 0}]);
+            this.floor.push({x: this.width, y: 0}, {x: 0, y: 0});
         }
         else if (this.settings.bg === 'leagues') {
             this.floor.reverse();
                 rev_each(settings.enums_info.league_ranking_ids, lid => {
-                    $.merge(this.league_areas[lid], this.floor);
+                    this.league_areas[lid].push(...this.floor);
             });
-            $.merge(this.floor, [{x: 0, y: this.height}, {x: this.width, y: this.height}]);
+            this.floor.push({x: 0, y: this.height}, {x: this.width, y: this.height});
         }
     }
 
