@@ -381,10 +381,25 @@ export let GraphBase = function(container_selector, edges, x_margin) {
     // Functions.
     //
 
-    // Resize canwas based on 0.30 proportions.
+    // Resize canvas based on 0.30 proportions, but taking the display's pixel
+    // ratio into account. This prevents the canvas appearing blurry on
+    // high-dpi displays. This is done by drawing everything at the native
+    // resolution but scaling the canvas back using CSS attributes.
     o.resize_canvas = function() {
-        o.canvas[0].width = o.container.width();
-        o.canvas[0].height = Math.max(280, Math.round(o.container.width() * 0.30));
+        var width = o.container.width();
+        var height = Math.max(280, Math.round(o.container.width() * 0.30));
+
+        // Get the device pixel ratio, falling back to 1.
+        var dpr = window.devicePixelRatio || 1;
+
+        // Scale the canvas and the context by the dpr
+        o.canvas[0].width = width * dpr;
+        o.canvas[0].height = height * dpr;
+        o.canvas[0].getContext('2d').scale(dpr, dpr);
+
+        // Ensure the display is not affected by the dpr
+        o.canvas[0].style.width = width + "px";
+        o.canvas[0].style.height = height + "px";
     };
     
     // Set new size, call new_size and redraw.
