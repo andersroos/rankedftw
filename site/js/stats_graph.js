@@ -580,9 +580,13 @@ export let RaceDistributionGraph = function(mode_id) {
         });
 
         _.each(settings.enums_info.race_ranking_ids, function(race) {
-            o.ctx.drawImage(document.getElementById('race' + race),
-                            lines[race][0].x - 8 + o.edges.left,
-                            lines[race][0].y - 8 + o.edges.top);
+            const elem = document.getElementById('race' + race);
+            const x_offset = elem.width / 2;
+            const y_offset = elem.height / 2;
+            o.ctx.drawImage(elem,
+                            lines[race][0].x - x_offset + o.edges.left,
+                            lines[race][0].y - y_offset + o.edges.top,
+                            elem.width, elem.height);
         });
         o.y_axis("percent");
         o.time_x_axis("year");

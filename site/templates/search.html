@@ -33,7 +33,7 @@
               <span class="number">{{ offset | add:forloop.counter }}</span>
               <img src="{{ STATIC_URL }}img/regions/{{ item.region | region_key }}-16x16.png" /><span class="region">{{ item.region | region_name }}</span>
               <img class="league" src="{{ STATIC_URL }}img/leagues/{{ item.league  | league_key }}-16x16.png" />
-              <img class="race" src="{{ STATIC_URL }}img/races/{{ item.race | race_key }}-16x16.png" />
+              <img class="race" src="{{ STATIC_URL }}img/races/{{ item.race | race_key }}.svg" height="16px" width="16px" />
               {% if item.tag %}<span class="tag">{{ item.tag | tag_braces }}</span>{% endif %}<span class="name">{{ item.name }}</span>
             </li>
           </a>

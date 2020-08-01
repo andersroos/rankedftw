@@ -99,7 +99,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         let races_present = rankings.map(r => r.race0);
         options.push(...settings.enums_info.race_ranking_ids.filter(rid => rid >= 0 && races_present.includes(rid)).map(rid => ({
             value: rid,
-            src: settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[rid] + '-16x16.png',
+            src: settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[rid] + '.svg',
             tooltip:'Show only ' + settings.enums_info.race_name_by_ids[rid] + ' data points.',
         })));
         return options;
@@ -465,7 +465,7 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         $('.points', o.tooltip).text(r.points);
         $('.wins', o.tooltip).text(r.wins);
         $('.losses', o.tooltip).text(r.losses);
-        $('.race', o.tooltip).empty().append('<img src="'+ settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[r.race0] + '-16x16.png"/>');
+        $('.race', o.tooltip).empty().append('<img src="'+ settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[r.race0] + '.svg" height="16px" width="16px"/>');
         $('.league', o.tooltip).empty().append('<img style="margin-bottom: -3px" src="'+ settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[r.league] + '-16x16.png"/><span style="margin-bottom: 2px; padding-left: 3px;"> ' + (r.tier + 1) + '</span>');
 
         return 218;
