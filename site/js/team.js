@@ -106,8 +106,24 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
     };
 
     o.data_control = new Radio(controls, 'td', 'Data:', [
-            {value: 'world', heading: 'World', src: settings.static_url + 'img/regions/world-16x16.png', tooltip: 'Show world ranking for team.'},
-            {value: 'region', heading: 'Region', src: settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '-16x16.png', tooltip: 'Show region ranking for team.'},
+            {
+                value: 'world',
+                heading: 'World',
+                srcset: [
+                    settings.static_url + 'img/regions/world-16x16.png 1x',
+                    settings.static_url + 'img/regions/world.svg 2x',
+                ].join(", "),
+                tooltip: 'Show world ranking for team.',
+            },
+            {
+                value: 'region',
+                heading: 'Region',
+                srcset: [
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '-16x16.png 1x',
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '.svg 2x'
+                ].join(", "),
+                tooltip: 'Show region ranking for team.'
+            },
             {value: 'league', heading: 'League', src: settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[league_id] + '-128x128.png', tooltip: 'Show league ranking (in region) for team.'},
         ], 'world', o.controls_change);
 

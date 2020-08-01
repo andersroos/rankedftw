@@ -23,7 +23,10 @@ let create_region_control = (graph_jq, cb) => {
             .map(rid => ({
                 value: rid,
                 heading: settings.enums_info.region_name_by_ids[rid],
-                src: settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '-16x16.png'
+                srcset: [
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '-16x16.png 1x',
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '.svg 2x',
+                ].join(", "),
             })),
         settings.ALL, cb)
 };

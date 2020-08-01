@@ -104,6 +104,9 @@ export class Radio {
             if (option.src) {
                 a.append("<img src='" + option.src + "' height='16px' width='16px'>");
             }
+            else if (option.srcset) {
+                a.append("<img srcset='" + option.srcset + "' height='16px'>");
+            }
             this.ul.append(a);
         });
 

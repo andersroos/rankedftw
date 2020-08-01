@@ -36,7 +36,7 @@
       <thead>
         <th></th>
         {% for region in regions %}
-          <th><img src="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png"/><span>{{ region | region_name }}</span></th>
+          <th><img srcset="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png 1x, {{ STATIC_URL }}img/regions/{{ region | region_key }}.svg 2x" height="16px"/><span>{{ region | region_name }}</span></th>
         {% endfor %}
       </thead>
       <tbody>

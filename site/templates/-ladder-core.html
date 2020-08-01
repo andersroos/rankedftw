@@ -22,7 +22,7 @@
     <a {% if team.team_id %}href="{% url 'team' team_id=team.team_id %}" style="cursor: pointer;" role="gridcell" class="row {% if team.team_id == highlight_team_id %} highlight-team{% endif %}{% endif %}">
       <div role="gridcell" class="cell number">{{ team.rank }}</div>
 
-      <div role="gridcell" class="cell img"><img src="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}-16x16.png" /></div>
+      <div role="gridcell" class="cell img"><img srcset="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}-16x16.png 1x, {{ STATIC_URL }}img/regions/{{ team.region | region_key }}.svg 2x" height="16px"/></div>
 
       <div role="gridcell" class="cell img">{% if team.league %}<img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-128x128.png" height="16px" width="16px" />{% endif %}</div>
 
