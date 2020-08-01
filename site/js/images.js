@@ -19,7 +19,7 @@ class Images {
     deferred_load_leagues() {
         _.each(settings.enums_info.league_ranking_ids, (league_id) => {
             var league_tag = settings.enums_info.league_key_by_ids[league_id];
-            var img = $("<img id='league" + league_id + "' src='" + settings.static_url + "img/leagues/" + league_tag + "-16x16.png' />");
+            var img = $("<img id='league" + league_id + "' src='" + settings.static_url + "img/leagues/" + league_tag + "-128x128.png' height='16px' width='16px' />");
             img.one("load", () => {
                 if (_.every(_.map(settings.enums_info.league_ranking_ids,
                                   (lid) => $('#league' + lid)[0].complete))) {

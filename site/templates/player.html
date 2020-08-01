@@ -23,7 +23,7 @@
         {% endif %}
           
         --><a class="team" tabindex="{{ forloop.counter }}" href='{% url "team" team_id=team.id %}' title="Team ranking page">
-          <img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league | league_key }}-16x16.png" />
+          <img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league | league_key }}-128x128.png" height="16px" width="16px" />
           <span class="mode">{{ team.mode | mode_name }}</span>
         </a>
 
@@ -60,7 +60,7 @@
 
 <div class="image-bank">
   {% for league in leagues %}
-    <img id="league{{ forloop.counter | add:-1 }}" src="{{ STATIC_URL }}img/leagues/{{ league }}-16x16.png" />
+    <img id="league{{ forloop.counter | add:-1 }}" src="{{ STATIC_URL }}img/leagues/{{ league }}-128x128.png" height="16px" width="16px" />
   {% endfor %}
 </div>
    

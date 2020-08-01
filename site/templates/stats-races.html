@@ -42,7 +42,7 @@
           <tbody>
             {% for league in leagues %}
               <tr>
-                <th><span>{{ league | league_name }}</span><img src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-16x16.png"/></th>
+                <th><span>{{ league | league_name }}</span><img src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-128x128.png" height="16px" width="16px"/></th>
                 {% for race in races %}
                   <td id="l{{ league }}-r{{ race }}"><span class="number"></span><span class="percent"></span></td>
                 {% endfor %}
