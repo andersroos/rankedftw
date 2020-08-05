@@ -4,7 +4,7 @@ from random import choice
 from threading import Thread
 
 from django.utils import timezone
-from django.conf import settings
+from common.settings import config
 
 epoch = datetime.utcfromtimestamp(0).replace(tzinfo=timezone.utc)
 
@@ -48,7 +48,7 @@ def localtoday():
 def api_data_purge_date(keep_days=None):
     """ Return the date when api data from this date needs to be purged due to Blizzard API terms of use. Terms says
     30 days, but need some margin to have time to purge. """
-    return utctoday() - timedelta(days=int(settings.KEEP_API_DATA_DAYS) if keep_days is None else keep_days)
+    return utctoday() - timedelta(days=int(config.KEEP_API_DATA_DAYS) if keep_days is None else keep_days)
 
 
 def uniqueid(length=12):
