@@ -23,7 +23,10 @@ let create_region_control = (graph_jq, cb) => {
             .map(rid => ({
                 value: rid,
                 heading: settings.enums_info.region_name_by_ids[rid],
-                src: settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '-16x16.png'
+                srcset: [
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '-16x16.png 1x',
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '.svg 2x',
+                ].join(", "),
             })),
         settings.ALL, cb)
 };
@@ -36,7 +39,7 @@ let create_league_control = (graph_jq, cb) => {
             .map(lid => ({
                 value: lid,
                 heading: lid === settings.ALL ? settings.enums_info.league_name_by_ids[lid] : null,
-                src: lid === settings.ALL ? null : settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[lid] + '-16x16.png',
+                src: lid === settings.ALL ? null : settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[lid] + '-128x128.png',
                 tooltip: settings.enums_info.league_name_by_ids[lid],
             })),
         settings.ALL, cb);
@@ -580,9 +583,13 @@ export let RaceDistributionGraph = function(mode_id) {
         });
 
         _.each(settings.enums_info.race_ranking_ids, function(race) {
-            o.ctx.drawImage(document.getElementById('race' + race),
-                            lines[race][0].x - 8 + o.edges.left,
-                            lines[race][0].y - 8 + o.edges.top);
+            const elem = document.getElementById('race' + race);
+            const x_offset = elem.width / 2;
+            const y_offset = elem.height / 2;
+            o.ctx.drawImage(elem,
+                            lines[race][0].x - x_offset + o.edges.left,
+                            lines[race][0].y - y_offset + o.edges.top,
+                            elem.width, elem.height);
         });
         o.y_axis("percent");
         o.time_x_axis("year");

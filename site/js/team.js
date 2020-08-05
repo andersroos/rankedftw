@@ -99,16 +99,32 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         let races_present = rankings.map(r => r.race0);
         options.push(...settings.enums_info.race_ranking_ids.filter(rid => rid >= 0 && races_present.includes(rid)).map(rid => ({
             value: rid,
-            src: settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[rid] + '-16x16.png',
+            src: settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[rid] + '.svg',
             tooltip:'Show only ' + settings.enums_info.race_name_by_ids[rid] + ' data points.',
         })));
         return options;
     };
 
     o.data_control = new Radio(controls, 'td', 'Data:', [
-            {value: 'world', heading: 'World', src: settings.static_url + 'img/regions/world-16x16.png', tooltip: 'Show world ranking for team.'},
-            {value: 'region', heading: 'Region', src: settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '-16x16.png', tooltip: 'Show region ranking for team.'},
-            {value: 'league', heading: 'League', src: settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[league_id] + '-16x16.png', tooltip: 'Show league ranking (in region) for team.'},
+            {
+                value: 'world',
+                heading: 'World',
+                srcset: [
+                    settings.static_url + 'img/regions/world-16x16.png 1x',
+                    settings.static_url + 'img/regions/world.svg 2x',
+                ].join(", "),
+                tooltip: 'Show world ranking for team.',
+            },
+            {
+                value: 'region',
+                heading: 'Region',
+                srcset: [
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '-16x16.png 1x',
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '.svg 2x'
+                ].join(", "),
+                tooltip: 'Show region ranking for team.'
+            },
+            {value: 'league', heading: 'League', src: settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[league_id] + '-128x128.png', tooltip: 'Show league ranking (in region) for team.'},
         ], 'world', o.controls_change);
 
     o.y_axis_control = new Radio(controls, 'ty', 'Y-Axis:', [
@@ -442,7 +458,14 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         // League icons.
         
         for (let i = 0; i < leagues.length; ++i) {
-            o.ctx.drawImage(document.getElementById('league' + leagues[i].league), leagues[i].x - 8, leagues[i].y - 8);
+            const elem = document.getElementById('league' + leagues[i].league);
+            const x_offset = elem.width / 2;
+            const y_offset = elem.height / 2;
+            o.ctx.drawImage(elem,
+                            leagues[i].x - x_offset,
+                            leagues[i].y - y_offset,
+                            elem.width,
+                            elem.height);
         }
     };
 
@@ -465,8 +488,8 @@ export let RankingGraph = function(container_id, team_id, region_id, league_id, 
         $('.points', o.tooltip).text(r.points);
         $('.wins', o.tooltip).text(r.wins);
         $('.losses', o.tooltip).text(r.losses);
-        $('.race', o.tooltip).empty().append('<img src="'+ settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[r.race0] + '-16x16.png"/>');
-        $('.league', o.tooltip).empty().append('<img style="margin-bottom: -3px" src="'+ settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[r.league] + '-16x16.png"/><span style="margin-bottom: 2px; padding-left: 3px;"> ' + (r.tier + 1) + '</span>');
+        $('.race', o.tooltip).empty().append('<img src="'+ settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[r.race0] + '.svg" height="16px" width="16px"/>');
+        $('.league', o.tooltip).empty().append('<img style="margin-bottom: -3px" src="'+ settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[r.league] + '-128x128.png" height="16px" width="16px"/><span style="margin-bottom: 2px; padding-left: 3px;"> ' + (r.tier + 1) + '</span>');
 
         return 218;
     };
