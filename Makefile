@@ -32,6 +32,7 @@ NOSE_COVERAGE := coverage3 run --parallel-mode --timid /usr/bin/nosetests3
 # Running
 
 DEV_PORT := 8000
+KEEP_API_DATA_DAYS := 14
 
 # Override
 
@@ -120,13 +121,13 @@ lib/migrate: $(MIGRATE_OBJS)
 	$(CXX) -o $@ $^ $(MIGRATE_LIBS)
 
 run: build
-	PROD_JS=$(PROD_JS) ./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch" "./lib/server"
+	PROD_JS=$(PROD_JS) KEEP_API_DATA_DAYS=$(KEEP_API_DATA_DAYS) ./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch" "./lib/server"
 
 run-web: build
-	PROD_JS=$(PROD_JS) ./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch"
+	PROD_JS=$(PROD_JS) KEEP_API_DATA_DAYS=$(KEEP_API_DATA_DAYS) ./aid/tools/run.py "$(SITE_MANAGE) runserver 0.0.0.0:$(DEV_PORT)" "$(WEBPACK) --watch"
 
 run-server: build
-	./aid/tools/run.py "./lib/server"
+	KEEP_API_DATA_DAYS=$(KEEP_API_DATA_DAYS) ./aid/tools/run.py "./lib/server"
 
 create-migration:
 	$(SITE_MANAGE) makemigrations

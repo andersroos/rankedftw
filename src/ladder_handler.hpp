@@ -11,8 +11,8 @@
 // user wants.
 struct ladder_handler
 {
-   ladder_handler(const std::string& db_name) :
-      _db_name(db_name), _last_checked(), _ranking(0, 0, 0, 0, 0) {}
+   ladder_handler(const std::string& db_name, uint32_t keep_api_data_days) :
+      _db_name(db_name), _keep_api_data_days(keep_api_data_days), _last_checked(), _ranking(0, 0, 0, 0, 0) {}
 
    // Get a ladder slice of the ladder offseted by team_id or offset in the request. Return the teams in that
    // slice. Sorting and filtering possible.
@@ -32,6 +32,7 @@ private:
    void refresh_ranking(bool force=false);
 
    std::string _db_name;
+   uint32_t _keep_api_data_days;
    uint64_t _last_checked;
    ranking_t _ranking;
    mutable boost::mutex _mutex;

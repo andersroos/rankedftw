@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
       po::options_description desc("Usage");
       desc.add_options()
          ("db,d", po::value<string>()->default_value(DEFAULT_DB), "Database name to use.")
+         ("keep-api-data-days,k", po::value<uint32_t>(), "Filter data older than this number of days, read from environment variable KEEP_API_DATA_DAYS if unset or default 14.")
          ("log,l", po::value<string>(), "Output log to file.")
          ("help,h", "Print help.")
          ;
@@ -86,12 +87,25 @@ int main(int argc, char *argv[])
          set_log_output(&log_os);
          LOG_INFO("logging to file %s", log_filename.c_str());
       }
-      
+
+      uint32_t keep_api_data_days = 14;
+      const char* env_str = getenv("KEEP_API_DATA_DAYS");
+      if (env_str != nullptr && strlen(env_str) != 0) {
+         keep_api_data_days = boost::lexical_cast<uint32_t>(env_str);
+      }
+      if (vm.count("keep-api-data-days")) {
+         keep_api_data_days = vm["keep-api-data-days"].as<uint32_t>();
+      }
+      LOG_INFO("keep_api_data_days is %d", keep_api_data_days);
+
+      string db(vm["db"].as<string>());
+      LOG_INFO("db is %s", db.c_str());
+
       signal_handler signal_handler;
       boost::thread signal_handler_thread(signal_handler);
       
       tcp_handler tcp_handler(4747);
-      ladder_handler ladder_handler(vm["db"].as<string>());
+      ladder_handler ladder_handler(db, keep_api_data_days);
 
       glo::status_server status_server("/server", 22200);
       

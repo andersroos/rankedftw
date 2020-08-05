@@ -13,7 +13,7 @@ void
 ladder_handler::refresh_ranking(bool force)
 {
    uint64_t now = now_us();
-   double data_time_low_limit = (now / 1e6) - KEEP_API_DATA_DAYS * 24 * 3600;
+   double data_time_low_limit = (now / 1e6) - _keep_api_data_days * 24 * 3600;
    
    boost::lock_guard<boost::mutex> lock(_mutex);
    // Check for new data every 1 minutes.
