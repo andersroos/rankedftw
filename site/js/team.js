@@ -29,16 +29,29 @@ export class RankingGraph extends GraphBase {
             let races_present = rankings.map(r => r.race0);
             options.push(...settings.enums_info.race_ranking_ids.filter(rid => rid >= 0 && races_present.includes(rid)).map(rid => ({
                 value: rid,
-                src: settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[rid] + '-16x16.png',
+                src: settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[rid] + '.svg',
                 tooltip:'Show only ' + settings.enums_info.race_name_by_ids[rid] + ' data points.',
             })));
             return options;
         };
         
         this.data_control = new Radio(this.controls, 'td', 'Data:', [
-            {value: 'world', heading: 'World', src: settings.static_url + 'img/regions/world-16x16.png', tooltip: 'Show world ranking for team.'},
-            {value: 'region', heading: 'Region', src: settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '-16x16.png', tooltip: 'Show region ranking for team.'},
-            {value: 'league', heading: 'League', src: settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[league_id] + '-16x16.png', tooltip: 'Show league ranking (in region) for team.'},
+            {
+                value: 'world',
+                heading: 'World',
+                srcset: [settings.static_url + 'img/regions/world-16x16.png 1x', settings.static_url + 'img/regions/world.svg 2x',].join(", "),
+                tooltip: 'Show world ranking for team.'
+            },
+            {
+                value: 'region',
+                heading: 'Region',
+                srcset: [
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '-16x16.png 1x',
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[region_id] + '.svg 2x'
+                ].join(", "),
+                tooltip: 'Show region ranking for team.'
+            },
+            {value: 'league', heading: 'League', src: settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[league_id] + '-128x128.png', tooltip: 'Show league ranking (in region) for team.'},
         ], 'world', this.controls_change.bind(this));
         
         this.y_axis_control = new Radio(this.controls, 'ty', 'Y-Axis:', [
@@ -391,7 +404,10 @@ export class RankingGraph extends GraphBase {
         // League icons.
         
         for (let i = 0; i < this.leagues.length; ++i) {
-            this.ctx.drawImage(document.getElementById('league' + this.leagues[i].league), this.leagues[i].x - 8, this.leagues[i].y - 8);
+            const elem = document.getElementById('league' + this.leagues[i].league);
+            const x_offset = elem.width / 2;
+            const y_offset = elem.height / 2;
+            this.ctx.drawImage(elem, this.leagues[i].x - x_offset, this.leagues[i].y - y_offset, elem.width, elem.height);
         }
     }
 
@@ -414,9 +430,8 @@ export class RankingGraph extends GraphBase {
         this.tooltip.querySelector(".points").textContent = r.points;
         this.tooltip.querySelector(".wins").textContent = r.wins;
         this.tooltip.querySelector(".losses").textContent = r.losses;
-        this.tooltip.querySelector(".race").innerHTML = '<img src="'+ settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[r.race0] + '-16x16.png"/>';
-        this.tooltip.querySelector(".league").innerHTML = '<img style="margin-bottom: -3px" src="'+ settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[r.league] + '-16x16.png"/><span style="margin-bottom: 2px; padding-left: 3px;"> ' + (r.tier + 1) + '</span>';
-
+        this.tooltip.querySelector(".race").innerHTML = '<img src="'+ settings.static_url + 'img/races/' + settings.enums_info.race_key_by_ids[r.race0] + '.svg" height="16px" width="16px"/>';
+        this.tooltip.querySelector(".league").innerHTML = '<img style="margin-bottom: -3px" src="'+ settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[r.league] + '-128x128.png" height="16px" width="16px"/><span style="margin-bottom: 2px; padding-left: 3px;"> ' + (r.tier + 1) + '</span>';
         return 218;
     }
 

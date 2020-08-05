@@ -182,9 +182,10 @@ export class RaceDistributionGraph extends GraphBase {
         });
         
         settings.enums_info.race_ranking_ids.forEach(race => {
-            this.ctx.drawImage(document.getElementById('race' + race),
-                this.lines[race][0].x - 8 + this.edges.left,
-                this.lines[race][0].y - 8 + this.edges.top);
+            const elem = document.getElementById('race' + race);
+            const x_offset = elem.width / 2;
+            const y_offset = elem.height / 2;
+            this.ctx.drawImage(elem, this.lines[race][0].x - x_offset + this.edges.left, this.lines[race][0].y - y_offset + this.edges.top, elem.width, elem.height);
         });
         this.y_axis("percent");
         this.time_x_axis("year");

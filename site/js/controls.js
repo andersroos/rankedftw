@@ -101,9 +101,12 @@ export class Radio {
                 html += `<span>${option.heading}</span>`;
             }
             if (option.src) {
-                html += `<img src="${option.src}"/>`;
+                html += `<img src="${option.src}" height="16px" width="16px"/>`;
             }
-            html += "</a";
+            else if (option.srcset) {
+                html += `<img srcset="${option.srcset}" height="16px"/>`;
+            }
+            html += "</a>";
             this.ul.insertAdjacentHTML("beforeend", html);
         });
 

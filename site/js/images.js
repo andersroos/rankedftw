@@ -16,7 +16,7 @@ class Images {
             settings.enums_info.league_ranking_ids.forEach(league_id => {
                 const league_tag = settings.enums_info.league_key_by_ids[league_id];
                 const id = `league${league_id}`;
-                this.bank.insertAdjacentHTML("beforeend", `<img id="${id}" src="${settings.static_url}img/leagues/${league_tag}-16x16.png"/>`);
+                this.bank.insertAdjacentHTML("beforeend", `<img id="${id}" src="${settings.static_url}img/leagues/${league_tag}-128x128.png" height="16px" width="16px"/>`);
                 const checkComplete = () => {
                     if (settings.enums_info.league_ranking_ids.every(lid => (document.getElementById(`league${lid}`) || {}).complete)) {
                         resolve();
@@ -35,7 +35,7 @@ class Images {
                 const race_tag = settings.enums_info.race_key_by_ids[race_id];
             
                 const id = `race${race_id}`;
-                this.bank.insertAdjacentHTML("beforeend", `<img id="${id}" src="${settings.static_url}img/races/${race_tag}-16x16.png"/>`);
+                this.bank.insertAdjacentHTML("beforeend", `<img id="${id}" src="${settings.static_url}img/races/${race_tag}.svg" height="16px" width="16px"/>`);
                 const checkComplete = () => {
                     if (settings.enums_info.race_ranking_ids.every(rid => (document.getElementById(`race${rid}`) || {}).complete)) {
                         resolve();

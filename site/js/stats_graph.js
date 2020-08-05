@@ -18,7 +18,10 @@ export const create_region_control = (graph, cb) => {
             .map(rid => ({
                 value: rid,
                 heading: settings.enums_info.region_name_by_ids[rid],
-                src: settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '-16x16.png'
+                srcset: [
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '-16x16.png 1x',
+                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '.svg 2x',
+                ].join(", "),
             })),
         settings.ALL, cb)
 };
@@ -31,7 +34,7 @@ export const create_league_control = (graph, cb) => {
             .map(lid => ({
                 value: lid,
                 heading: lid === settings.ALL ? settings.enums_info.league_name_by_ids[lid] : null,
-                src: lid === settings.ALL ? null : settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[lid] + '-16x16.png',
+                src: lid === settings.ALL ? null : settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[lid] + '-128x128.png',
                 tooltip: settings.enums_info.league_name_by_ids[lid],
             })),
         settings.ALL, cb);
