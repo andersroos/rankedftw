@@ -5,7 +5,7 @@ import init_django
 
 from django.db import transaction
 
-from common.utils import utcnow, KEEP_API_DATA_DAYS
+from common.utils import utcnow
 from main.archive import DataArchiver
 from main.delete import DataDeleter
 from main.models import Ranking

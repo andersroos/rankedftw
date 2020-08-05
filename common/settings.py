@@ -35,6 +35,8 @@ def common_settings():
     config.get('API_KEY', log_value=False)
     config.get('API_SECRET', log_value=False)
     config.get('ACCESS_TOKEN', FileContent(join(config.CONF_DIR, 'access_token')), log_value=False)
+    
+    config.get('KEEP_API_DATA_DAYS', env, default="14")
 
     #
     # Django settings.

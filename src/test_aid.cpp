@@ -74,7 +74,7 @@ test_aid::log_test()
 string
 test_aid::direct_ladder_handler_request_ladder(const string& db_name, const string& request)
 {
-   ladder_handler ladder_handler(db_name);
+   ladder_handler ladder_handler(db_name, 14);
 
    Json::Reader reader;
    Json::FastWriter writer;
@@ -87,7 +87,7 @@ test_aid::direct_ladder_handler_request_ladder(const string& db_name, const stri
 string
 test_aid::direct_ladder_handler_request_clan(const string& db_name, const string& request)
 {
-   ladder_handler ladder_handler(db_name);
+   ladder_handler ladder_handler(db_name, 14);
 
    Json::Reader reader;
    Json::FastWriter writer;
