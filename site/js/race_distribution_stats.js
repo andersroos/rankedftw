@@ -197,15 +197,15 @@ export class RaceDistributionGraph extends GraphBase {
         
         const d = this.data[m];
         const season = seasons.by_id[d.season_id];
-        $('.date', this.tooltip).text(new Date(d.data_time * 1000).toLocaleDateString());
-        $('.season', this.tooltip).text(season.id + " (" + season.number + " - " + season.year + ")");
+        this.tooltip.querySelector(".date").textContent = new Date(d.data_time * 1000).toLocaleDateString();
+        this.tooltip.querySelector(".season").textContent = season.id + " (" + season.number + " - " + season.year + ")";
         const t = d.aggregate.count();
         settings.enums_info.race_ranking_ids.forEach(race => {
             const e = format_tooltip_data(d.aggregate.count(race), t);
-            $('.r' + race + '-n', this.tooltip).text(e.n);
-            $('.r' + race + '-p', this.tooltip).text(e.p);
+            this.tooltip.querySelector(`.r${race}-n`).textContent = e.n;
+            this.tooltip.querySelector(`.r${race}-p`).textContent = e.p;
         });
-        $('.pop-n', this.tooltip).text(format_int(t));
+        this.tooltip.querySelector(`.pop-n`).textContent = format_int(t);
         return 210;
     }
     
