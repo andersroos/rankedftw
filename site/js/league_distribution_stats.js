@@ -146,6 +146,8 @@ export class LeagueDistributionGraph extends GraphBase {
         }
         this.y_axis(units, "percent");
         this.x_axis(units, "year");
+    
+        this.draw_crosshair();
         
         return points;
     }

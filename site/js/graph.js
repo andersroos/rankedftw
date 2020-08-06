@@ -1,5 +1,5 @@
 import {seasons} from "./seasons";
-import {doc_ready, min_max} from "./utils";
+import {min_max} from "./utils";
 
 // Graph units used to map data to pixels.
 export class GraphUnits {
@@ -421,7 +421,6 @@ export class GraphBase {
     redraw() {
         this.clear();
         this.points = this.draw_graph();
-        this.draw_crosshair();
     }
 
     //
