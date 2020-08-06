@@ -115,10 +115,6 @@ export class Radio {
         Array.from(this.ul.getElementsByTagName('a')).forEach(e => {
             e.onclick = () => registry.set_value(this.key, e.dataset.ctrlValue);
         });
-    }
-
-    // Get initial value from persistent store and set it, or set default.
-    init() {
         registry.register(this);
     }
 
@@ -182,7 +178,7 @@ export const create_league_control = graph => {
 
 
 export const create_y_axis_control = graph => {
-    return new Radio(graph.querySelector(".controls .content"), 'sy', 'Y-Axis:', [
+    return new Radio(graph.container.querySelector(".controls .content"), 'sy', 'Y-Axis:', [
         {value: 'c', heading: 'Teams', tooltip: 'Number of ranked teams in the season.'},
         {value: 'g', heading: 'Games/Day', tooltip: 'Average number of played games per day.'},
     ], 'c', graph.on_control_change.bind(graph));
@@ -190,7 +186,7 @@ export const create_y_axis_control = graph => {
 
 
 export const create_x_axis_control = graph => {
-    return new Radio(graph.querySelector(".controls .content"), 'sx', 'X-Axis:', [
+    return new Radio(graph.container.querySelector(".controls .content"), 'sx', 'X-Axis:', [
         {value: 'a', heading: 'All', tooltip: 'Show all data'},
         {value: 'sl', heading: 'Season Last', tooltip: 'Show only one point in graph for each season.'},
     ], 'a', graph.on_control_change.bind(graph))

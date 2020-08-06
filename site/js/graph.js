@@ -1,5 +1,62 @@
 import {seasons} from "./seasons";
-import {min_max} from "./utils";
+import {doc_ready, min_max} from "./utils";
+
+// Graph units used to map data to pixels.
+export class GraphUnits {
+    
+    constructor({width, height, x_start_value, x_end_value, y_top_value, y_bottom_value}) {
+
+        this.width = width;
+        this.height = height;
+        
+        this.x_start_value = x_start_value;
+        this.x_end_value = x_end_value;
+
+        this.y_top_value = y_top_value;
+        this.y_bottom_value = y_bottom_value;
+    
+        this.x_per_unit = width / (x_end_value - x_start_value);
+        this.y_per_unit = height / (y_top_value - y_bottom_value);
+    }
+    
+    // Converts x value a pixel offset in the graph.
+    x_value_to_pixel(value) {
+        return (value - this.x_start_value) * this.x_per_unit;
+    }
+    
+    // Converts y value a pixel offset in the graph.
+    y_value_to_pixel(value) {
+        return this.height - (value - this.y_bottom_value) * this.y_per_unit;
+    }
+    
+    // Converts y fraction from bottom to top to value.
+    y_fraction_to_value(fraction) {
+        return this.y_bottom_value + fraction * (this.y_top_value - this.y_bottom_value);
+    }
+    
+    // Absolute range of values.
+    y_range_size() {
+        return Math.abs(this.y_top_value - this.y_bottom_value)
+    }
+    
+    // Return absolute max value.
+    y_max_value() {
+        return Math.max(Math.abs(this.y_top_value), Math.abs(this.y_bottom_value));
+    }
+    
+    // Converts a date to an x pixel offset, assumes that x values are seconds.
+    x_date_to_pixel(year, month, day) {
+        day = day || 0;
+        month = month || 0;
+        return this.x_value_to_pixel(new Date(year, month, day).getTime() / 1000);
+    }
+    
+    // Convert x pixel offset to date, assumes that x values are seconds.
+    x_pixel_to_date(x) {
+        return new Date((x / this.x_per_unit + this.x_start_value) * 1000);
+    }
+    
+}
 
 // Base class for all graphs.
 export class GraphBase {
@@ -14,34 +71,42 @@ export class GraphBase {
         this.tooltip = this.container.querySelector(".tooltip");
         this.ctx = this.canvas.getContext("2d");
     
-        //
-        // Calculated after resize or settings changes.
-        // TODO Move to where they are changed=
-        //
-    
+        this.initialized = false;
         this.settings = {};
-        this.initialized = false;  // TODO Try to remove.
-    
-        this.width = 100;          // With of the canvas.
-        this.height = 100;         // Height of the canvas.
-    
-        this.y_ax = {
-            top_value: null,       // The actual value at the top of the graph.
-            bottom_value: null,    // The actual value at the bottom of the graph.
-        };
-        this.y_per_unit = null;    // Y-pixels per unit whatever it is.
-    
-        this.x_ax = {
-            left_value: null,      // The actual leftmost value.
-            right_value: null,     // The actual rightmost value.
-        };
-        this.x_per_unit = null;    // X-pixels per unit whatever it is.
+        
+        this.width = 100;          // With of the graph (canvas - edges).
+        this.height = 100;         // Height of the graph (canvas - edges).
     
         this.points = null;        // Array of points on the graph, used for mouse over functionality.
     
         this.crosshair = null;     // Crosshair coordinates when shown.
     
-        this.resize_canvas(); // TODO Figure out how things should be initialized.
+        this.on_resize();
+    }
+    
+    //
+    // Call when data for graph is available.
+    //
+    init() {
+        window.onresize = () => this.on_resize();
+        this.container.classList.remove("wait");
+        this.initialized = true;
+        this.redraw();
+        this.canvas.onmousemove = e => this.on_mouse_move(e);
+    }
+    
+    //
+    // Callbacks to implement for graphs.
+    //
+    
+    // Draw the graph, should return {points} where each point {x, y, m (mouseover data)} is used for tooltip and crosshair.
+    draw_graph() {
+        throw new Error("method needs to be implemented for graph");
+    }
+    
+    // Update the tooltip data, will be called with mousever data from point.
+    update_tooltip() {
+        throw new Error("method needs to be implemented for graph");
     }
     
     //
@@ -118,6 +183,11 @@ export class GraphBase {
         this.area(style, points, this.edges.left, this.edges.top);
     }
     
+    // Same as garea but draw area in league color.
+    league_garea(league_id, points) {
+        this.area(this.league_styles[league_id], points, this.edges.left, this.edges.top);
+    }
+    
     // Just like line but text.
     text(text, x_offset, y_offset, align, baseline, style) {
         this.ctx.font ="normal 13px sans-serif ";
@@ -127,23 +197,26 @@ export class GraphBase {
         this.ctx.fillText(text, x_offset, y_offset)
     }
     
-    // Draw the y-axis, y_axis_type can be "int" or "percent", the direction of the int or percent is decided by the values.
-    y_axis(y_axis_type) {
-        y_axis_type = y_axis_type ||  "int";
+    //
+    // Draw the y-axis.
+    //   units: the units to use to draw axis
+    //   y_axis_type: "int" or "percent", the direction of the int or percent is decided by the values.
+    //
+    y_axis(units, y_axis_type = "int") {
         
         this.line("#ffffff", 2, [{x: this.edges.left - this.x_margin, y: this.edges.top}, {x: this.edges.left - this.x_margin, y: this.edges.top + this.height}]);
         
         for (let pos = 0; pos <= 10; ++pos) {
-            const value = (this.y_ax.bottom_value - this.y_ax.top_value) / 10 * pos + this.y_ax.top_value;
-            const y = Math.round(this.edges.top + (value - this.y_ax.top_value) * this.y_per_unit) + 0.5;
+            const value = units.y_fraction_to_value(pos / 10);
+            const y = Math.round(this.edges.top + units.y_value_to_pixel(value) + 0.5);
             
             let label;
             
             if (y_axis_type === 'percent') {
-                if (Math.max(Math.abs(this.y_ax.top_value), Math.abs(this.y_ax.bottom_value)) < 10) {
+                if (units.y_range_size() < 1) {
                     label = value.toFixed(2) + "%"
                 }
-                else if (Math.abs(this.y_ax.bottom_value - this.y_ax.top_value) < 10) {
+                else if (units.y_range_size() < 10) {
                     label = value.toFixed(1) + "%"
                 }
                 else {
@@ -154,7 +227,7 @@ export class GraphBase {
                 if (value === 1) {
                     label = "1";
                 }
-                else if (this.y_ax.bottom_value > 100000 || this.y_ax.top_value > 10000) {
+                else if (units.y_max_value() > 10000) {
                     label = Math.round(value / 1000) + "k"
                 }
                 else {
@@ -173,26 +246,8 @@ export class GraphBase {
         }
     }
     
-    // Converts epoch (in seconds) to an x value (in the graph).
-    epoch_to_pixels(epoch) {
-        return (epoch - this.x_ax.left_value) * this.x_per_unit;
-    }
-    
-    // Converts a date to an x value (not including the edges).
-    date_to_pixels(year, month, day) {
-        day = day || 0;
-        month = month || 0;
-        return (new Date(year, month, day).getTime() / 1000 - this.x_ax.left_value) * this.x_per_unit;
-    }
-
-    // Convert x value to date.
-    pixel_to_date(x) {
-        return new Date((x / this.x_per_unit + this.x_ax.left_value) * 1000);
-    }
-    
-    // Draw a time x-axis, x_axis_type can be "year" (year labels), "season" (season labels) or "month" (month labels).
-    time_x_axis(x_axis_type) {
-        x_axis_type = x_axis_type || "year";
+    // Draw a x-axis, x_axis_type can be "year" (data is time, yearlabels), "season" (data is time, season labels) or "month" (data is time, month labels)
+    x_axis(units, x_axis_type = "year") {
         
         // Draw season colored base line and labels.
         
@@ -201,8 +256,8 @@ export class GraphBase {
         let season;
         for (let i = 0; i < seasons.sorted.length; ++i) {
             season = seasons.sorted[i];
-            if (season.end >= this.x_ax.left_value && season.start <= this.x_ax.right_value) {
-                const x_to = Math.min(this.epoch_to_pixels(season.end), this.width);
+            if (season.end >= units.x_start_value && season.start <= units.x_end_value) {
+                const x_to = Math.min(units.x_value_to_pixel(season.end), this.width);
                 
                 // Draw the colored season line, add x_margin to the end (all but the last line will be overwritten by
                 // another color causing the last one to be extended just like the first one).
@@ -225,19 +280,19 @@ export class GraphBase {
         
         let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         
-        let start_year = this.pixel_to_date(-this.x_margin).getFullYear();
-        let end_year = this.pixel_to_date(this.width + this.x_margin).getFullYear();
+        let start_year = units.x_pixel_to_date(-this.x_margin).getFullYear();
+        let end_year = units.x_pixel_to_date(this.width + this.x_margin).getFullYear();
         
         for (let year = start_year; year <= end_year; ++year) {
             
-            let year_x = this.date_to_pixels(year);
+            let year_x = units.x_date_to_pixel(year);
             if (year_x > -this.x_margin && year_x < this.width + this.x_margin) {
                 this.gline("#ffffff", 2, [{x: year_x, y: this.height - 7}, {x: year_x, y: this.height + 7}]);
             }
             
             for (let month = 0; month < 12; ++month) {
-                let month_start_x = Math.round(this.date_to_pixels(year, month)) + 0.5;
-                let month_end_x = Math.round(this.date_to_pixels(year, month + 1)) + 0.5;
+                let month_start_x = Math.round(units.x_date_to_pixel(year, month)) + 0.5;
+                let month_end_x = Math.round(units.x_date_to_pixel(year, month + 1)) + 0.5;
                 
                 // Month bar.
                 if (month_start_x > -this.x_margin && month_start_x < this.width + this.x_margin) {
@@ -255,7 +310,7 @@ export class GraphBase {
             // Year label.
             if (x_axis_type === 'year') {
                 let label_x = min_max(this.ctx.measureText(year).width / 2,
-                    this.date_to_pixels(year, 6),
+                    units.x_date_to_pixel(year, 6),
                     this.width - this.ctx.measureText(year).width / 2);
                 this.text(year, this.edges.left + label_x, this.edges.top + this.height + 3, 'center', 'top');
             }
@@ -264,7 +319,7 @@ export class GraphBase {
         // Draw lotv release line and mmr avaiable line.
         
         const draw_event_line =(label, yr, m, d) => {
-            const x = this.date_to_pixels(yr, m, d);
+            const x = units.x_date_to_pixel(yr, m, d);
             this.gline('#ffff00', 2, [{x: x, y: this.height + 5}, {x: x, y: this.height - 5}]);
             this.text(label, this.edges.left + x, this.edges.top + this.height - 5 , 'center', 'bottom', '#ffff00');
         };
@@ -282,16 +337,6 @@ export class GraphBase {
             const y = Math.round(this.crosshair.y + this.edges.top) + 0.5;
             this.line("#ffffff", 1, [{x: 0, y: y}, {x: this.canvas.width, y: y}]);
             this.line("#ffffff", 1, [{x: x, y: 0}, {x: x, y: this.canvas.height}]);
-        }
-    }
-    
-    // Generic controls change value, use this for callback when registring controls.
-    on_control_change(name, value) {
-        this.settings[name] = value;
-        
-        if (this.initialized) {
-            this.new_settings();
-            this.redraw();
         }
     }
     
@@ -351,34 +396,6 @@ export class GraphBase {
         this.mouse_off();
     }
     
-    //
-    // Callbacks to implement for graphs.
-    //
-    
-    // Calculate everything needed after new settings. New settings will be set on o.
-    new_settings() {
-        throw new Error("method needs to be implemented for graph");
-    }
-    
-    // Calculate everything needed after new size. New size will be set on this.
-    new_size() {
-        throw new Error("method needs to be implemented for graph");
-    }
-    
-    // Redraw the graph.
-    redraw() {
-        throw new Error("method needs to be implemented for graph");
-    }
-    
-    // Update the tooltip data.
-    update_tooltip() {
-        throw new Error("method needs to be implemented for graph");
-    }
-    
-    //
-    // Functions. TODO ????
-    //
-
     // Resize canvas based on 0.30 proportions, but taking the display's pixel
     // ratio into account. This prevents the canvas appearing blurry on
     // high-dpi displays. This is done by drawing everything at the native
@@ -400,26 +417,33 @@ export class GraphBase {
         this.canvas.style.height = `${height}px`;
     }
     
-    // Set new size, call new_size and redraw.
-    resize() {
+    // Clear and draw graph again.
+    redraw() {
+        this.clear();
+        this.points = this.draw_graph();
+        this.draw_crosshair();
+    }
+
+    //
+    // Event handling.
+    //
+    
+    // Handle resizing of window.
+    on_resize() {
         this.resize_canvas();
-        
         this.width = this.canvas.width - this.edges.left - this.edges.right;
         this.height = this.canvas.height - this.edges.top - this.edges.bottom;
+        this.setup_league_styles();
         
-        this.new_size();
-        this.redraw();
+        if (this.initialized) this.redraw();
     }
     
-    // Init everything based on the data requested/provided in the constructor.
-    init() {
-        window.onresize = () => this.resize();
-        this.new_settings();
-        this.resize();
+    // Callback when controls change.
+    on_control_change(name, value) {
+        this.settings[name] = value;
         
-        this.canvas.onmousemove = e => this.on_mouse_move(e);
-        
-        this.container.classList.remove("wait");
-        this.initialized = true;
+        if (this.initialized) {
+            this.redraw();
+        }
     }
 }

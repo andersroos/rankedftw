@@ -1,31 +1,24 @@
 import {doc_ready, format_int} from "./utils";
 import {Mode, stats_data, TOT} from "./stats";
-import {GraphBase} from "./graph";
+import {GraphBase, GraphUnits} from "./graph";
 import {settings} from "./settings";
 import {seasons} from "./seasons";
 import {create_region_control, create_version_control, create_x_axis_control} from "./controls";
+import {TableBase} from "./table";
 
 
 //
 // League distribution table.
 //
-// TODO Very simliar to RaceDistributionTable, maybe reuse something?
-export class LeagueDistributionTable {
+export class LeagueDistributionTable extends TableBase {
     constructor(mode_id) {
-        this.container = document.querySelector("#leagues-table-container");
+        super("#leagues-table-container");
         this.mode_id = mode_id;
-        this.settings = {};
-        this.version_control = create_version_control(this);
-    
-        Promise.all([
-            doc_ready(),
-            stats_data.fetch_mode(mode_id),
-        ]).then(() => this.init());
+        create_version_control(this);
+        stats_data.fetch_mode(mode_id).then(() => this.init());
     }
     
-    on_control_change(name, value) {
-        this.settings[name] = value;
-        
+    update() {
         const stats = new Mode(this.mode_id).get_last();
         
         const filters = {versions: [parseInt(this.settings.v)]};
@@ -51,11 +44,6 @@ export class LeagueDistributionTable {
             document.querySelector(`#r-2-l${league} .percent`).textContent = "(" + (c * 100 / t).toFixed(2) + "%)";
         });
     }
-
-    init() {
-        this.version_control.init();
-        this.container.classList.remove("wait");
-    }
 }
 
 //
@@ -66,13 +54,11 @@ export class LeagueDistributionGraph extends GraphBase {
         super("#leagues-graph-container");
 
         this.mode_id = mode_id;
-        this.version_control = create_version_control(this);
-        this.region_control = create_region_control(this);
-        this.x_axis_control = create_x_axis_control(this);
+        create_version_control(this);
+        create_region_control(this);
+        create_x_axis_control(this);
     
         this.data = [];   // Filtered and aggregated data.
-    
-        this.lines = {};  // Lines between races by race key (bronze to gm).
     
         Promise.all([
             doc_ready(),
@@ -80,67 +66,15 @@ export class LeagueDistributionGraph extends GraphBase {
         ]).then(() => this.init());
     }
     
-    // Update units based on resize or new settings.
-    update_units() {
-        this.y_ax.top_value = 0;
-        this.y_ax.bottom_value = 100;
-        this.y_per_unit = this.height / 100;
-        
-        this.x_ax.left_value = this.data[0].data_time;
-        this.x_ax.right_value = this.data[this.data.length - 1].data_time;
-        this.x_per_unit = this.width / (this.x_ax.right_value - this.x_ax.left_value);
-    }
-        
-    // Update points based on new data or resize.
-    update_points() {
-        this.update_units();
-        
-        const new_points = [];
-        
-        let line = [];
-        let last_line;
-        
-        // Baseline.
-        
-        for (let i = 0; i < this.data.length; ++i) {
-            line.push({x: this.epoch_to_pixels(this.data[i].data_time), y: this.height});
-        }
-            
-        // Add up for each league.
-        
-        settings.enums_info.league_ranking_ids.forEach(league => {
-            last_line = line;
-            line = [];
-            for (let i = 0; i < this.data.length; ++i) {
-                // Push the line and use data index as mouse over key.
-                line.push({x: last_line[i].x,
-                    y: last_line[i].y - this.y_per_unit * this.data[i].aggregate.count(league) / this.data[i].aggregate.count() * 100,
-                    m: i});
-            }
-            new_points.push(...line);
-            this.lines[league] = line;
-        });
-        
-        // Update points.
-        
-        this.points = new_points;
-    }
-        
-    //
-    // Graph callbacks.
-    //
-        
-    new_settings() {
-            
-        // Get new data.
-        
+    // Calculate new graph data based on settings.
+    calculate_data() {
         const version = parseInt(this.settings.v);
         const filters = {versions: [version]};
-        
+    
         if (parseInt(this.settings.r) !== TOT) {
             filters.regions = [parseInt(this.settings.r)];
         }
-            
+    
         const all = [];
         let last_season = -1;
         const stats = new Mode(this.mode_id);
@@ -156,28 +90,64 @@ export class LeagueDistributionGraph extends GraphBase {
             }
         }, version);
         all.reverse();
-        this.data = all;
-        
-        // Update points.
-            
-        this.update_points();
+        return all;
     }
+    
+    // Update points based on new data or resize.
+    calculate_points(units) {
+        const points = [];
+        const lines = {};  // Lines between races by race key (bronze to gm).
+    
+        let line = [];
+        let last_line;
         
-    new_size() {
-        this.update_points();
-    }
+        // Baseline.
         
-    redraw() {
-        this.clear();
-        this.setup_league_styles();
-            
-        for (let li = settings.enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
-            this.garea(this.league_styles[li], [{x: this.width, y: this.height}, {x: 0, y: this.height}].concat(this.lines[settings.enums_info.league_ranking_ids[li]]));
+        for (let i = 0; i < this.data.length; ++i) {
+            line.push({x: units.x_value_to_pixel(this.data[i].data_time), y: units.y_value_to_pixel(100)});
         }
-            
-        this.y_axis("percent");
-        this.time_x_axis("year");
-        this.draw_crosshair();
+        
+        // Add up for each league.
+        
+        settings.enums_info.league_ranking_ids.forEach(league => {
+            last_line = line;
+            line = [];
+            for (let i = 0; i < this.data.length; ++i) {
+                // Push the line and use data index as mouse over key.
+                line.push({
+                    x: last_line[i].x,
+                    y: last_line[i].y + units.y_per_unit * this.data[i].aggregate.count(league) / this.data[i].aggregate.count() * 100,
+                    m: i
+                });
+            }
+            points.push(...line);
+            lines[league] = line;
+        });
+        
+        return {points, lines};
+    }
+    
+    draw_graph() {
+        this.data = this.calculate_data();
+    
+        const units = new GraphUnits({
+            width: this.width,
+            height: this.height,
+            x_start_value: this.data[0].data_time,
+            x_end_value: this.data[this.data.length - 1].data_time,
+            y_top_value: 0,
+            y_bottom_value: 100,
+        });
+        
+        const {points, lines} = this.calculate_points(units);
+        
+        for (let li = settings.enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
+            this.league_garea(li, [{x: this.width, y: this.height}, {x: 0, y: this.height}].concat(lines[settings.enums_info.league_ranking_ids[li]]));
+        }
+        this.y_axis(units, "percent");
+        this.x_axis(units, "year");
+        
+        return points;
     }
         
     update_tooltip(m) {
@@ -196,16 +166,5 @@ export class LeagueDistributionGraph extends GraphBase {
         this.tooltip.querySelector(`.pop-n`).textContent = format_int(t);
         
         return 210;
-    }
-        
-    //
-    // Init functions.
-    //
-    
-    init() {
-        this.version_control.init();
-        this.region_control.init();
-        this.x_axis_control.init();
-        super.init();
     }
 }
