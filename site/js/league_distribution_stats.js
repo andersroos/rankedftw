@@ -1,9 +1,9 @@
-import {create_region_control, create_version_control, create_x_axis_control} from "./stats_graph";
 import {doc_ready, format_int} from "./utils";
 import {Mode, stats_data, TOT} from "./stats";
 import {GraphBase} from "./graph";
 import {settings} from "./settings";
 import {seasons} from "./seasons";
+import {create_region_control, create_version_control, create_x_axis_control} from "./controls";
 
 
 //
@@ -15,7 +15,7 @@ export class LeagueDistributionTable {
         this.container = document.querySelector("#leagues-table-container");
         this.mode_id = mode_id;
         this.settings = {};
-        this.version_control = create_version_control(this.container, this.controls_change.bind(this));
+        this.version_control = create_version_control(this);
     
         Promise.all([
             doc_ready(),
@@ -23,7 +23,7 @@ export class LeagueDistributionTable {
         ]).then(() => this.init());
     }
     
-    controls_change(name, value) {
+    on_control_change(name, value) {
         this.settings[name] = value;
         
         const stats = new Mode(this.mode_id).get_last();
@@ -66,9 +66,9 @@ export class LeagueDistributionGraph extends GraphBase {
         super("#leagues-graph-container");
 
         this.mode_id = mode_id;
-        this.version_control = create_version_control(this.container, this.controls_change.bind(this));
-        this.region_control = create_region_control(this.container, this.controls_change.bind(this));
-        this.x_axis_control = create_x_axis_control(this.container, this.controls_change.bind(this));
+        this.version_control = create_version_control(this);
+        this.region_control = create_region_control(this);
+        this.x_axis_control = create_x_axis_control(this);
     
         this.data = [];   // Filtered and aggregated data.
     

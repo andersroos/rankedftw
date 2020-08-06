@@ -52,33 +52,33 @@ export class RankingGraph extends GraphBase {
                 tooltip: 'Show region ranking for team.'
             },
             {value: 'league', heading: 'League', src: settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[league_id] + '-128x128.png', tooltip: 'Show league ranking (in region) for team.'},
-        ], 'world', this.controls_change.bind(this));
+        ], 'world', this.on_control_change.bind(this));
         
         this.y_axis_control = new Radio(this.controls, 'ty', 'Y-Axis:', [
             {value: 'c', heading: 'Percent', tooltip: 'Percent on y-axis, % of teams ranked above team.'},
             {value: 'm', heading: 'MMR', tooltip: 'MMR on y-axis, 0 at the bottom. Note that this graph does not change for different types of data since the points are always the same. This will hide all parts of the graph where mmr was not avaiable.'},
             {value: 'r', heading: 'Rank', tooltip: 'Absolute rank on y-axis, no 1 at the top. The grey area (or league distribution area) indicates all ranked teams from the top to the bottom at that point in time.'},
-        ], 'c', this.controls_change.bind(this));
+        ], 'c', this.on_control_change.bind(this));
         
         if (settings.enums_info.mode_key_by_ids[this.mode_id] === '1v1') {
-            this.race_control = new Radio(this.controls, 'ra', 'Race:', this.get_race_options([]), 'best', this.controls_change.bind(this));
+            this.race_control = new Radio(this.controls, 'ra', 'Race:', this.get_race_options([]), 'best', this.on_control_change.bind(this));
         }
 
         this.y_zoom_control = new Radio(this.controls, 'tyz', 'Y-Zoom:', [
             {value: '0', heading: 'Off', tooltip: 'No zoom, show full scale to see teams position relative to everyone.'},
             {value: '1', heading: 'On', tooltip: 'This will cause the graph to zoom in to make the graph line fill the y-space.'},
-        ], 0, this.controls_change.bind(this));
+        ], 0, this.on_control_change.bind(this));
 
         this.x_axis_control = new Radio(this.controls, 'tx', 'X-Axis:', [
             {value: 'a', heading: 'All', tooltip: 'Show all data.'},
             {value: 's', heading: 'Season', tooltip: 'Show current/last available season for this player.'},
             {value: '60', heading: '60-Days', tooltip: 'Show last 60 days.'},
-        ], 'a', this.controls_change.bind(this));
+        ], 'a', this.on_control_change.bind(this));
 
         this.background_control = new Radio(this.controls, 'tl', 'Leagues:', [
             {value: '0', heading: 'Off', tooltip: 'League distribution background off.'},
             {value: '1', heading: 'On', tooltip: 'League distribution background on, there will be no league background for "league" graph.'},
-        ], 1, this.controls_change.bind(this));
+        ], 1, this.on_control_change.bind(this));
     
         //
         // Calculated units by settings and size.

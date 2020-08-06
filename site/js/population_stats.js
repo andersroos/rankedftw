@@ -1,10 +1,9 @@
 
-import {create_region_control, create_version_control, create_x_axis_control, create_y_axis_control} from "./stats_graph";
 import {doc_ready, format_int} from "./utils";
 import {Mode, stats_data, TOT} from "./stats";
 import {GraphBase} from "./graph";
 import {seasons} from "./seasons";
-import {Radio} from "./controls";
+import {create_region_control, create_version_control, create_x_axis_control, create_y_axis_control} from "./controls";
 
 //
 // Population table.
@@ -14,7 +13,7 @@ export class PopulationTable {
         this.mode_id = mode_id;
         this.container = document.querySelector("#pop-table-container");
         this.settings = {v: null};
-        this.version_control = create_version_control(this.container, this.controls_change.bind(this));
+        this.version_control = create_version_control(this);
     
         Promise.all([
             doc_ready(),
@@ -22,7 +21,7 @@ export class PopulationTable {
         ]).then(() => this.init());
     }
     
-    controls_change(name, value) {
+    on_control_change(name, value) {
         this.settings[name] = value;
     
         const stat = new Mode(this.mode_id).get_last();
@@ -51,10 +50,10 @@ export class PopulationGraph extends GraphBase {
         super("#pop-graph-container");
     
         this.mode_id = mode_id;
-        this.version_control = create_version_control(this.container, this.controls_change.bind(this));
-        this.region_control = create_region_control(this.container, this.controls_change.bind(this));
-        this.y_axis_control = create_y_axis_control(this.container, this.controls_change.bind(this));
-        this.x_axis_control = create_x_axis_control(this.container, this.controls_change.bind(this));
+        this.version_control = create_version_control(this);
+        this.region_control = create_region_control(this);
+        this.y_axis_control = create_y_axis_control(this);
+        this.x_axis_control = create_x_axis_control(this);
     
         this.data = [];     // Filtered and aggregated data.
         

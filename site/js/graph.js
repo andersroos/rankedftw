@@ -286,8 +286,7 @@ export class GraphBase {
     }
     
     // Generic controls change value, use this for callback when registring controls.
-    // TODO Is this a good way to do this? Rename to on_controls_change??
-    controls_change(name, value) {
+    on_control_change(name, value) {
         this.settings[name] = value;
         
         if (this.initialized) {
@@ -356,7 +355,7 @@ export class GraphBase {
     // Callbacks to implement for graphs.
     //
     
-    // Calculate everyhing needed after new settings. New settings will be set on o.
+    // Calculate everything needed after new settings. New settings will be set on o.
     new_settings() {
         throw new Error("method needs to be implemented for graph");
     }

@@ -2,12 +2,12 @@
 // Race distribution graph.
 //
 import {GraphBase} from "./graph";
-import {create_league_control, create_region_control, create_version_control} from "./stats_graph";
 import {settings} from "./settings";
 import {Mode, stats_data, TOT} from "./stats";
 import {doc_ready, format_int} from "./utils";
 import {seasons} from "./seasons";
 import {images} from "./images";
+import {create_league_control, create_region_control, create_version_control} from "./controls";
 
 //
 // Race distribution table.
@@ -17,8 +17,8 @@ export class RaceDistributionTable {
         this.settings = {};
         this.mode_id = mode_id;
         this.container = document.querySelector("#races-table-container");
-        this.version_control = create_version_control(this.container, this.controls_change.bind(this));
-        this.region_control = create_region_control(this.container, this.controls_change.bind(this));
+        this.version_control = create_version_control(this);
+        this.region_control = create_region_control(this);
     
         Promise.all([
             doc_ready(),
@@ -27,7 +27,7 @@ export class RaceDistributionTable {
         ]).then(() => this.init());
     }
     
-    controls_change(name, value) {
+    on_control_change(name, value) {
         this.settings[name] = value;
         
         const stat = new Mode(this.mode_id).get_last();
@@ -70,9 +70,9 @@ export class RaceDistributionGraph extends GraphBase {
     
         this.max_value = 1;
     
-        this.version_control = create_version_control(this.container, this.controls_change.bind(this));
-        this.region_control = create_region_control(this.container, this.controls_change.bind(this));
-        this.league_control = create_league_control(this.container, this.controls_change.bind(this));
+        this.version_control = create_version_control(this);
+        this.region_control = create_region_control(this);
+        this.league_control = create_league_control(this);
     
         Promise.all([
             doc_ready(),
