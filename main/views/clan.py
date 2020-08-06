@@ -104,7 +104,6 @@ class ClanView(MainNavMixin, TemplateView, LadderCommon):
         team_ranks = data['teams']
 
         for tr in team_ranks:
-            # TODO Make common with ladder to make less error prone?
             t = teams[tr["team_id"]]
             tr['rank'] += 1
             tr['tier'] += 1

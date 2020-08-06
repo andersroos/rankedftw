@@ -20,7 +20,7 @@ export class GraphBase {
         //
     
         this.settings = {};
-        this.initialized = false;  // Try to remove.
+        this.initialized = false;  // TODO Try to remove.
     
         this.width = 100;          // With of the canvas.
         this.height = 100;         // Height of the canvas.

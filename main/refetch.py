@@ -114,7 +114,6 @@ def refetch_past_season(season, now, check_stop, bnet_client):
 
     # This is kind of bad but since c++ works in it's own db connection we can't fetch ladders and update
     # ranking in same transaction, which in turn means that if the code fails here ranking needs to be repaired.
-    # TODO Move updating of cache to cpp? How is this done in update?
     
     cpp = sc2.RankingData(get_db_name(), Enums.INFO)
     cpp.load(ranking.id)

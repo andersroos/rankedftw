@@ -1,5 +1,5 @@
 
-import {create_region_control, create_version_control, create_x_axis_control} from "./stats_graph";
+import {create_region_control, create_version_control, create_x_axis_control, create_y_axis_control} from "./stats_graph";
 import {doc_ready, format_int} from "./utils";
 import {Mode, stats_data, TOT} from "./stats";
 import {GraphBase} from "./graph";
@@ -53,11 +53,7 @@ export class PopulationGraph extends GraphBase {
         this.mode_id = mode_id;
         this.version_control = create_version_control(this.container, this.controls_change.bind(this));
         this.region_control = create_region_control(this.container, this.controls_change.bind(this));
-        // TODO Why is helper not used here?
-        this.y_axis_control = new Radio(this.container.querySelector(".controls .content"), 'sy', 'Y-Axis:', [
-            {value: 'c', heading: 'Teams', tooltip: 'Number of ranked teams in the season.'},
-            {value: 'g', heading: 'Games/Day', tooltip: 'Average number of played games per day.'},
-        ], 'c', this.controls_change.bind(this));
+        this.y_axis_control = create_y_axis_control(this.container, this.controls_change.bind(this));
         this.x_axis_control = create_x_axis_control(this.container, this.controls_change.bind(this));
     
         this.data = [];     // Filtered and aggregated data.

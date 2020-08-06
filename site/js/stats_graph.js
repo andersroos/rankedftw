@@ -41,6 +41,13 @@ export const create_league_control = (graph, cb) => {
 };
 
 
+export const create_y_axis_control = (graph, cb) => {
+    return new Radio(graph.querySelector(".controls .content"), 'sy', 'Y-Axis:', [
+        {value: 'c', heading: 'Teams', tooltip: 'Number of ranked teams in the season.'},
+        {value: 'g', heading: 'Games/Day', tooltip: 'Average number of played games per day.'},
+    ], 'c', cb);
+};
+
 export const create_x_axis_control = (graph, cb) => {
     return new Radio(graph.querySelector(".controls .content"), 'sx', 'X-Axis:', [
             {value: 'a', heading: 'All', tooltip: 'Show all data'},
