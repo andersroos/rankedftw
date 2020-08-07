@@ -104,7 +104,8 @@ export class GraphBase {
         throw new Error("method needs to be implemented for graph");
     }
     
-    // Update the tooltip data, will be called with mousever data from point.
+    // Update the tooltip data, will be called with mousever data from point. To place tooltip in a good place
+    // this method should respond with the approximate with of the tooltip.
     update_tooltip() {
         throw new Error("method needs to be implemented for graph");
     }
@@ -342,7 +343,7 @@ export class GraphBase {
     
     // Show tooltip and crosshair.
     mouse_on(x, y, m) {
-        const width = this.update_tooltip(m);  // TODO What?? Return value? Document this.
+        const width = this.update_tooltip(m) || 210;
         this.tooltip.style.display = "block";
         const absolute_x = this.canvas.offsetLeft + Math.min(x + this.edges.left + 20, this.canvas.width - width - 10);
         const absolute_y = this.canvas.offsetTop + y + this.edges.top + 20;
@@ -355,8 +356,8 @@ export class GraphBase {
     // Hide tooltop and crosshair.
     mouse_off() {
         this.tooltip.style.display = "none";
+        this.crosshair = null;
         this.redraw();
-        this.crosshair = null;  // TODO Why this after redraw?
     }
     
     // Callback on mouse move.

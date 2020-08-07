@@ -124,33 +124,50 @@ export class Stat {
     }
 
     filter_aggregate_internal(filters, group_by) {
-        // Calculate a generic filtered map [of maps ..]  of sums. The
-        // aggregate will only consist of data points that is in the filter
+        //
+        // Calculate a generic filtered map [of maps ..] of sums.
+        //
+        // This method is called recursively until group_by is empty. For each level of group_by
+        // processed filters is specialized to make a sum for each entity of that group.
+        //
+        // The aggregate will only contain data points that is in the filter
         // for each dimension (making it possible to aggregate EU + AM but not
-        // include SEA). Filters is a map with index lists into the type
-        // arrays. The group_by list is the type names of lists that should be
+        // include SEA).
+        //
+        // Filters is a map with index lists into the type
+        // arrays.
+        //
+        // The group_by list is the type names of lists that should be
         // included (with sum) in the result. The order of group_by is
         // important. For example group_by = ['regions', 'races'] will return a
         // map of region_ids => map of race_ids => sums. The race_ids map will also
         // include a TOT which is the total in that region. The region_ids map
         // will also include a TOT which is a total of everything.
-
+        //
+        // Examples:
+        // group_by=["races"] => result[ZERG][COUNT] is count for zerg
+        // group_by=["races"] => result[TOT][COUNT] is count for all races
+        // group_by=["races", "regions"] => result[ZERG][EU][WINS] is win count for zergs in eu
+        // group_by=["races", "regions"] => result[ZERG][TOT][WINS] is win count for zergs in world
+        //
+        
         if (group_by.length === 0) {
             return this.filter_sum(filters);
         }
-    
-        // TODO Try to make this core understandable.
+
         const result = {};
         const group_by__head = group_by[0];
-        const group_by__head_s = group_by__head + 's';
         const group_by__rest = group_by.slice(1, group_by.length);
         const tot = [0, 0, 0, 0];
-    
-        for (let fi in filters[group_by__head_s]) {
+
+        filters[group_by__head].forEach(entity_id => {
+            // For each entity in group, create filter and aggregate on it.
             const next_filter = Object.assign({}, filters);
-            next_filter[group_by__head_s] = [filters[group_by__head_s][fi]];
+            next_filter[group_by__head] = [filters[group_by__head][entity_id]];
             const next_res = this.filter_aggregate_internal(next_filter, group_by__rest);
-            result[filters[group_by__head_s][fi]] = next_res;
+            result[filters[group_by__head][entity_id]] = next_res;
+          
+            // Sum for total in result (exists at each group level), next_res either has a total or is a leaf.
             let sum;
             if (next_res[TOT]) {
                 sum = next_res[TOT];
@@ -161,19 +178,30 @@ export class Stat {
             for (let i = 0; i < this.stat.data_size; ++i) {
                 tot[i] += sum[i];
             }
-        }
+        })
         result[TOT] = tot;
-
+        
         return result;
     }
 
     // Return an Aggregate object with count, wins and losses aggregated on group_by entities (list). And filtered by filters.
     filter_aggregate(filters, group_by) {
+        
+        // Make sure group_by is legal.
+        
+        group_by.forEach(group => {
+            if (group !== "versions" && group !== "regions" && group !== "races" && group !== "leagues") {
+                throw new Error(`bad group_by ${group}`)
+            }
+        });
+        
+        // Replace null filter with all ids.
+        
         filters.versions = filters.versions || this.stat.version_ids;
         filters.regions = filters.regions   || this.stat.region_ids;
         filters.leagues = filters.leagues   || this.stat.league_ids;
         filters.races = filters.races       || this.stat.race_ids;
-
+        
         const aggregated_data = this.filter_aggregate_internal(filters, group_by);
         return new Aggregate(this.mode_id, filters, group_by, aggregated_data);
     }

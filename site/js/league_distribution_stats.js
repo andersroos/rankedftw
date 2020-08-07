@@ -20,8 +20,8 @@ export class LeagueDistributionTable extends TableBase {
         
         const filters = {versions: [parseInt(this.settings.v)]};
         
-        const region_league_aggreage = stats.filter_aggregate(filters, ['region', 'league']);
-        const league_aggregate = stats.filter_aggregate(filters, ['league']);
+        const region_league_aggreage = stats.filter_aggregate(filters, ['regions', 'leagues']);
+        const league_aggregate = stats.filter_aggregate(filters, ['leagues']);
         
         region_league_aggreage.regions.forEach(region => {
             const t = region_league_aggreage.count(region);
@@ -48,12 +48,9 @@ export class LeagueDistributionGraph extends GraphBase {
     constructor(mode_id) {
         super("#leagues-graph-container");
 
-        this.mode_id = mode_id;
         create_version_control(this);
         create_region_control(this);
         create_x_axis_control(this);
-    
-        this.data = [];   // Filtered and aggregated data.
     
         stats_data.fetch_mode(mode_id).then(() => {
             this.mode_stats = new Mode(mode_id);
@@ -78,12 +75,12 @@ export class LeagueDistributionGraph extends GraphBase {
         
         const stat_points = [];
         let last_season = -1;
-        
+
         this.mode_stats.each_reverse(stat => {
             const point = {
                 season_id: stat.season_id,
                 data_time: stat.data_time,
-                aggregate: stat.filter_aggregate(filters, ['league']),
+                aggregate: stat.filter_aggregate(filters, ['leagues']),
             };
             if (this.settings.sx === SX_ALL || (this.settings.sx === SX_SEASON_LAST && last_season !== point.season_id)) {
                 stat_points.push(point);
@@ -124,7 +121,6 @@ export class LeagueDistributionGraph extends GraphBase {
         });
         
         // Draw league lines as areas on top of each other.
-        
         
         settings.enums_info.league_ranking_ids.forEach(league_id => {
             this.league_garea(league_id, [{x: max_x, y: 0}, {x: 0, y: 0}].concat(lines[league_id]));

@@ -1,120 +1,77 @@
 
-import {doc_ready, format_int} from "./utils";
+import {format_int} from "./utils";
 import {Mode, stats_data, TOT} from "./stats";
-import {GraphBase} from "./graph";
+import {GraphBase, GraphUnits} from "./graph";
 import {seasons} from "./seasons";
-import {create_region_control, create_version_control, create_x_axis_control, create_y_axis_control} from "./controls";
+import {create_region_control, create_version_control, create_x_axis_control, create_y_axis_control, SX_ALL, SX_SEASON_LAST, SY_GAMES_PER_DAY, SY_TEAMS} from "./controls";
+import {TableBase} from "./table";
 
-//
-// Population table.
-//
-export class PopulationTable {
-    constructor(mode_id) {
-        this.mode_id = mode_id;
-        this.container = document.querySelector("#pop-table-container");
-        this.settings = {v: null};
-        this.version_control = create_version_control(this);
+
+export class PopulationTable extends TableBase {
     
-        Promise.all([
-            doc_ready(),
-            stats_data.fetch_mode(mode_id),
-        ]).then(() => this.init());
+    constructor(mode_id) {
+        super("#pop-table-container");
+        this.mode_id = mode_id;
+        this.settings = {v: null};
+        
+        create_version_control(this);
+    
+        stats_data.fetch_mode(mode_id).then(() => this.init());
     }
     
-    on_control_change(name, value) {
-        this.settings[name] = value;
-    
+    update() {
         const stat = new Mode(this.mode_id).get_last();
     
         const filters = {versions: [parseInt(this.settings.v)]};
     
-        const region_aggregate = stat.filter_aggregate(filters, ['region']);
+        const region_aggregate = stat.filter_aggregate(filters, ['regions']);
     
         region_aggregate.regions.forEach(region => {
             document.querySelector(`#r${region} .number`).textContent = format_int(region_aggregate.count(region));
         });
         document.querySelector("#r-2 .number").textContent = format_int(region_aggregate.count());
     }
-    
-    init() {
-        this.version_control.init();
-        this.container.classList.remove("wait");
-    }
 }
 
-//
-// Population graph.
-//
 export class PopulationGraph extends GraphBase {
     constructor(mode_id) {
         super("#pop-graph-container");
     
-        this.mode_id = mode_id;
-        this.version_control = create_version_control(this);
-        this.region_control = create_region_control(this);
-        this.y_axis_control = create_y_axis_control(this);
-        this.x_axis_control = create_x_axis_control(this);
+        create_version_control(this);
+        create_region_control(this);
+        create_y_axis_control(this);
+        create_x_axis_control(this);
     
-        this.data = [];     // Filtered and aggregated data.
-        
-        this.max_y = 0.001;     // Max y value.
-
-        Promise.all([
-            doc_ready(),
-            stats_data.fetch_mode(mode_id),
-        ]).then(() => this.init());
+        stats_data.fetch_mode(mode_id).then(() => {
+            this.mode_stats = new Mode(mode_id);
+            this.init();
+        });
     }
     
-    // Update units based on resize or new settings.
-    update_units() {
-        this.y_ax.top_value = this.max_y;
-        this.y_ax.bottom_value = 0;
-        this.y_per_unit = this.height / (this.y_ax.bottom_value - this.y_ax.top_value);
-        
-        this.x_ax.left_value = this.data[0].data_time;
-        this.x_ax.right_value = this.data[this.data.length - 1].data_time;
-        this.x_per_unit = this.width / (this.x_ax.right_value - this.x_ax.left_value);
-    }
-        
     // Update points based on new data or resize.
     update_points() {
         
         this.update_units();
             
-        const new_points = [];
-            
-        for (let i = 0; i < this.data.length; ++i) {
-            new_points.push({
-                x: this.epoch_to_pixels(this.data[i].data_time),
-                y: this.height + this.y_per_unit * this.data[i].y_value,
-                m: i
-            });
-        }
-            
-        this.points = new_points;
     }
         
-    //
-    // Graph callbacks.
-    //
+    draw_graph() {
     
-    new_settings() {
-
-        // Get new data.
-            
+        // Stats filter based on settings.
+    
         const version = parseInt(this.settings.v);
+        const region = parseInt(this.settings.r);
         const filters = {versions: [version]};
-            
-        if (parseInt(this.settings.r) !== TOT) {
-            filters.regions = [parseInt(this.settings.r)];
+    
+        if (region !== TOT) {
+            filters.regions = [region];
         }
-            
-        this.data = [];
-        
-        this.max_y = 0.001;
+    
+        // Gather stats data.
+    
+        const stat_points = [];
         let last_season = -1;
-        const stats = new Mode(this.mode_id);
-        stats.each_reverse(stat => {
+        this.mode_stats.each_reverse(stat => {
             const aggregate = stat.filter_aggregate(filters, []);
             const season = seasons.by_id[stat.season_id];
             const point = {
@@ -124,78 +81,73 @@ export class PopulationGraph extends GraphBase {
                 count: aggregate.count(),
                 games: aggregate.wins() + aggregate.losses(),
             };
-            if (this.settings.sx === 'a' || (this.settings.sx === 'sl' && last_season !== point.season_id)) {
-                this.data.push(point);
+            if (this.settings.sx === SX_ALL || (this.settings.sx === SX_SEASON_LAST && last_season !== point.season_id)) {
+                stat_points.push(point);
                 last_season = point.season_id;
             }
         }, version);
-        this.data.reverse();
-        const first_season = last_season;
-        
-        last_season = -1;
-        for (let i = 0; i < this.data.length; ++i) {
-            let point = this.data[i];
-            if (first_season !== last_season) {
-                point.d_games = point.games;
-                point.d_age = point.season_age;
+        stat_points.reverse();
+    
+        let max_y_value = 0.001;
+
+        stat_points.forEach(stat_point => {
+            // This code is wrong, see: https://github.com/andersroos/rankedftw/issues/12
+            stat_point.delta_games = stat_point.games
+            stat_point.delta_age = stat_point.season_age
+            
+            stat_point.games_per_day = stat_point.delta_games / stat_point.delta_age;
+    
+            if (this.settings.sy === SY_TEAMS) {
+                stat_point.y_value = stat_point.count;
             }
-            else {
-                point.d_games = point.games - this.data[i - 1].games;
-                point.d_age = point.season_age - this.data[i - 1].season_age;
+            else if (this.settings.sy === SY_GAMES_PER_DAY) {
+                stat_point.y_value = stat_point.games_per_day;
             }
-            point.games_per_day = point.d_games / point.d_age;
-                
-            if (this.settings.sy === 'c') {
-                point.y_value = point.count;
-            }
-            else if (this.settings.sy === 'g') {
-                point.y_value = point.games_per_day;
-            }
-                
-            this.max_y = Math.max(this.max_y, point.y_value);
-        }
+            
+            max_y_value = Math.max(max_y_value, stat_point.y_value);
+        });
+    
+        // Create graph units.
+    
+        const units = new GraphUnits({
+            width: this.width,
+            height: this.height,
+            x_start_value: stat_points[0].data_time,
+            x_end_value: stat_points[stat_points.length - 1].data_time,
+            y_top_value: max_y_value,
+            y_bottom_value: 0,
+        });
+
+        // Draw population stats line.
         
-        // Update points.
+        const points = stat_points.map(stat_point => ({
+            x: units.x_value_to_pixel(stat_point.data_time),
+            y: units.y_value_to_pixel(stat_point.y_value),
+            m: stat_point,
+        }));
+        this.gline("#ffffaa", 2, points);
+    
+        // Draw axis and crosshair.
         
-        this.update_points();
-    }
-        
-    new_size() {
-        this.update_points();
-    }
-        
-    redraw() {
-        this.clear();
-        this.setup_league_styles();
-        this.gline("#ffffaa", 2, this.points);
-        this.y_axis("int");
-        this.time_x_axis("year");
+        this.y_axis(units, "int");
+        this.x_axis(units, "year");
         this.draw_crosshair();
+    
+        // Return points to use for mouse over.
+        
+        return points;
     }
     
-    update_tooltip(m) {
-        const d = this.data[m];
-        const season = seasons.by_id[d.season_id];
-        this.tooltip.querySelector(".date").textContent = new Date(d.data_time * 1000).toLocaleDateString();
+    update_tooltip(stat_point) {
+        const season = seasons.by_id[stat_point.season_id];
+        this.tooltip.querySelector(".date").textContent = new Date(stat_point.data_time * 1000).toLocaleDateString();
         this.tooltip.querySelector(".season").textContent = season.id + " (" + season.number + " - " + season.year + ")";
-        this.tooltip.querySelector(".season-age").textContent = Math.round(d.season_age) + " days";
-        this.tooltip.querySelector(".pop-n").textContent = format_int(d.count);
-        this.tooltip.querySelector(".gpd").textContent = format_int(Math.round(d.games_per_day));
-        this.tooltip.querySelector(".games").textContent = format_int(Math.round(d.games));
+        this.tooltip.querySelector(".season-age").textContent = Math.round(stat_point.season_age) + " days";
+        this.tooltip.querySelector(".pop-n").textContent = format_int(stat_point.count);
+        this.tooltip.querySelector(".gpd").textContent = format_int(Math.round(stat_point.games_per_day));
+        this.tooltip.querySelector(".games").textContent = format_int(Math.round(stat_point.games));
             
         return 188;
-    }
-        
-    //
-    // Init functions.
-    //
-    
-    init() {
-        this.version_control.init();
-        this.region_control.init();
-        this.y_axis_control.init();
-        this.x_axis_control.init();
-        super.init();
     }
 }
 

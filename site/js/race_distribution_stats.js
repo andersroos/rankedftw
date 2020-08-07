@@ -31,7 +31,7 @@ export class RaceDistributionTable extends TableBase {
             filters.regions = [parseInt(this.settings.r)];
         }
         
-        const league_race_aggregate = stat.filter_aggregate(filters, ['league', 'race']);
+        const league_race_aggregate = stat.filter_aggregate(filters, ['leagues', 'races']);
         
         league_race_aggregate.leagues.forEach(league => {
             const t = league_race_aggregate.count(league);
@@ -93,7 +93,7 @@ export class RaceDistributionGraph extends GraphBase {
         let max_percentage = 0;
 
         this.mode_stats.each(stat => {
-            const race_aggregate = stat.filter_aggregate(filters, ['race']);
+            const race_aggregate = stat.filter_aggregate(filters, ['races']);
             const point = {
                 season_id: stat.season_id,
                 data_time: stat.data_time,

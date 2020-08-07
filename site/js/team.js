@@ -307,7 +307,7 @@ export class RankingGraph extends GraphBase {
                     const count = ranking[this.settings.td + "_count"];
                     const stat = new Mode(this.mode_id).get(ranking.id);
                     filters.versions = [ranking.version];
-                    const league_aggreate = stat.filter_aggregate(filters, ['league']);
+                    const league_aggreate = stat.filter_aggregate(filters, ['leagues']);
                     let ly = 0;
                     rev_each(settings.enums_info.league_ranking_ids, lid => {
                         league_areas[lid] = league_areas[lid] || [];
