@@ -99,7 +99,7 @@ def refetch_past_season(season, now, check_stop, bnet_client, force=False):
 
         last_updated = ladders_query.aggregate(Min('updated'))['updated__min']
 
-        if not force or need_refetch_limit < last_updated:
+        if not force and need_refetch_limit < last_updated:
             logger.info(f"skipping refetch of season {season.id}, it was refetched {last_updated.date()}")
             return
 
