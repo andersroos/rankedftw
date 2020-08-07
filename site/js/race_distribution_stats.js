@@ -50,7 +50,7 @@ export class RaceDistributionGraph extends GraphBase {
     // Create a race distribution graph for mode_id.
     constructor(mode_id) {
         super("#races-graph-container");
-    
+        
         create_version_control(this);
         create_region_control(this);
         create_league_control(this);

@@ -163,9 +163,9 @@ export class Stat {
         filters[group_by__head].forEach(entity_id => {
             // For each entity in group, create filter and aggregate on it.
             const next_filter = Object.assign({}, filters);
-            next_filter[group_by__head] = [filters[group_by__head][entity_id]];
+            next_filter[group_by__head] = [entity_id];
             const next_res = this.filter_aggregate_internal(next_filter, group_by__rest);
-            result[filters[group_by__head][entity_id]] = next_res;
+            result[entity_id] = next_res;
           
             // Sum for total in result (exists at each group level), next_res either has a total or is a leaf.
             let sum;
