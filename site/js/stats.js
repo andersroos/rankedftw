@@ -207,7 +207,7 @@ export class Mode {
         return new Stat(this.mode_id, this.raws[this.raws.length - 1])
     }
 
-    // Iterate over raws in order. Skip raws that are of season version lower than min.
+    // Iterate over raw ranking stats in order. Skip raws that are of season version lower than min.
     each(fun, min_version) {
         for (let i = 0; i < this.raws.length; ++i) {
             if (min_version == null || min_version <= this.raws[i].season_version) {
@@ -216,7 +216,7 @@ export class Mode {
         }
     }
 
-    // Iterate over raws in reverse order. Skip raws that are of season version lower than min.
+    // Iterate over raw ranking stats in reverse order. Skip raws that are of season version lower than min.
     each_reverse(fun, min_version) {
         for (let i = this.raws.length - 1; i >= 0; --i) {
             if (min_version == null || min_version <= this.raws[i].season_version) {

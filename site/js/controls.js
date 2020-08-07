@@ -177,17 +177,21 @@ export const create_league_control = graph => {
 };
 
 
+export const SY_TEAMS = "c";
+export const SY_GAMES_PER_DAY = "g";
 export const create_y_axis_control = graph => {
     return new Radio(graph.container.querySelector(".controls .content"), 'sy', 'Y-Axis:', [
-        {value: 'c', heading: 'Teams', tooltip: 'Number of ranked teams in the season.'},
-        {value: 'g', heading: 'Games/Day', tooltip: 'Average number of played games per day.'},
+        {value: SY_TEAMS, heading: 'Teams', tooltip: 'Number of ranked teams in the season.'},
+        {value: SY_GAMES_PER_DAY, heading: 'Games/Day', tooltip: 'Average number of played games per day.'},
     ], 'c', graph.on_control_change.bind(graph));
 };
 
 
+export const SX_ALL = "a";
+export const SX_SEASON_LAST = "sl";
 export const create_x_axis_control = graph => {
     return new Radio(graph.container.querySelector(".controls .content"), 'sx', 'X-Axis:', [
-        {value: 'a', heading: 'All', tooltip: 'Show all data'},
-        {value: 'sl', heading: 'Season Last', tooltip: 'Show only one point in graph for each season.'},
+        {value: SX_ALL, heading: 'All', tooltip: 'Show all data'},
+        {value: SX_SEASON_LAST, heading: 'Season Last', tooltip: 'Show only one point in graph for each season.'},
     ], 'a', graph.on_control_change.bind(graph))
 };

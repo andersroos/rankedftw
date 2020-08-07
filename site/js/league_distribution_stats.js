@@ -1,15 +1,12 @@
-import {doc_ready, format_int} from "./utils";
+import {format_int, rev_each} from "./utils";
 import {Mode, stats_data, TOT} from "./stats";
 import {GraphBase, GraphUnits} from "./graph";
 import {settings} from "./settings";
 import {seasons} from "./seasons";
-import {create_region_control, create_version_control, create_x_axis_control} from "./controls";
+import {create_region_control, create_version_control, create_x_axis_control, SX_ALL, SX_SEASON_LAST} from "./controls";
 import {TableBase} from "./table";
 
 
-//
-// League distribution table.
-//
 export class LeagueDistributionTable extends TableBase {
     constructor(mode_id) {
         super("#leagues-table-container");
@@ -46,9 +43,7 @@ export class LeagueDistributionTable extends TableBase {
     }
 }
 
-//
-// League distribution graph.
-//
+
 export class LeagueDistributionGraph extends GraphBase {
     constructor(mode_id) {
         super("#leagues-graph-container");
@@ -60,108 +55,106 @@ export class LeagueDistributionGraph extends GraphBase {
     
         this.data = [];   // Filtered and aggregated data.
     
-        Promise.all([
-            doc_ready(),
-            stats_data.fetch_mode(mode_id),
-        ]).then(() => this.init());
+        stats_data.fetch_mode(mode_id).then(() => {
+            this.mode_stats = new Mode(mode_id);
+            this.init();
+        });
     }
     
-    // Calculate new graph data based on settings.
-    calculate_data() {
+    draw_graph() {
+
+        // Create stat filter based on settings.
+        
         const version = parseInt(this.settings.v);
+        const region = parseInt(this.settings.r);
+        
         const filters = {versions: [version]};
     
-        if (parseInt(this.settings.r) !== TOT) {
-            filters.regions = [parseInt(this.settings.r)];
+        if (region !== TOT) {
+            filters.regions = [region];
         }
     
-        const all = [];
+        // Gather stats data.
+        
+        const stat_points = [];
         let last_season = -1;
-        const stats = new Mode(this.mode_id);
-        stats.each_reverse(stat => {
+        
+        this.mode_stats.each_reverse(stat => {
             const point = {
                 season_id: stat.season_id,
                 data_time: stat.data_time,
                 aggregate: stat.filter_aggregate(filters, ['league']),
             };
-            if (this.settings.sx === 'a' || (this.settings.sx === 'sl' && last_season !== point.season_id)) {
-                all.push(point);
+            if (this.settings.sx === SX_ALL || (this.settings.sx === SX_SEASON_LAST && last_season !== point.season_id)) {
+                stat_points.push(point);
                 last_season = point.season_id;
             }
         }, version);
-        all.reverse();
-        return all;
-    }
+        stat_points.reverse();
     
-    // Update points based on new data or resize.
-    calculate_points(units) {
-        const points = [];
-        const lines = {};  // Lines between races by race key (bronze to gm).
-    
-        let line = [];
-        let last_line;
-        
-        // Baseline.
-        
-        for (let i = 0; i < this.data.length; ++i) {
-            line.push({x: units.x_value_to_pixel(this.data[i].data_time), y: units.y_value_to_pixel(100)});
-        }
-        
-        // Add up for each league.
-        
-        settings.enums_info.league_ranking_ids.forEach(league => {
-            last_line = line;
-            line = [];
-            for (let i = 0; i < this.data.length; ++i) {
-                // Push the line and use data index as mouse over key.
-                line.push({
-                    x: last_line[i].x,
-                    y: last_line[i].y + units.y_per_unit * this.data[i].aggregate.count(league) / this.data[i].aggregate.count() * 100,
-                    m: i
-                });
-            }
-            points.push(...line);
-            lines[league] = line;
-        });
-        
-        return {points, lines};
-    }
-    
-    draw_graph() {
-        this.data = this.calculate_data();
-    
+        // Create graph units.
+
         const units = new GraphUnits({
             width: this.width,
             height: this.height,
-            x_start_value: this.data[0].data_time,
-            x_end_value: this.data[this.data.length - 1].data_time,
+            x_start_value: stat_points[0].data_time,
+            x_end_value: stat_points[stat_points.length - 1].data_time,
             y_top_value: 0,
             y_bottom_value: 100,
         });
         
-        const {points, lines} = this.calculate_points(units);
+        // Calculate line for each league id (bronze to gm).
+    
+        const lines = {};
+        let max_x = 0;
+        stat_points.forEach(stat_point => {
+            let percentage_offset = 0;
+            const count = stat_point.aggregate.count();
+            if (count) {
+                rev_each(settings.enums_info.league_ranking_ids, league_id => {
+                    lines[league_id] = lines[league_id] || [];
+                    const percentage = percentage_offset + stat_point.aggregate.count(league_id) / count * 100;
+                    const x = units.x_value_to_pixel(stat_point.data_time);
+                    const y = units.y_value_to_pixel(percentage);
+                    lines[league_id].push({x, y, m: stat_point});
+                    percentage_offset = percentage;
+                    max_x = Math.max(x, max_x);
+                });
+            }
+        });
         
-        for (let li = settings.enums_info.league_ranking_ids.length - 1; li >= 0; --li) {
-            this.league_garea(li, [{x: this.width, y: this.height}, {x: 0, y: this.height}].concat(lines[settings.enums_info.league_ranking_ids[li]]));
-        }
+        // Draw league lines as areas on top of each other.
+        
+        
+        settings.enums_info.league_ranking_ids.forEach(league_id => {
+            this.league_garea(league_id, [{x: max_x, y: 0}, {x: 0, y: 0}].concat(lines[league_id]));
+        });
+        
+        // Draw axis and crosshair.
+        
         this.y_axis(units, "percent");
         this.x_axis(units, "year");
-    
         this.draw_crosshair();
+    
+        // Build points for mouse over.
+    
+        let points = [];
+        settings.enums_info.league_ranking_ids.forEach(league_id => {
+            points.push(...lines[league_id]);
+        });
         
         return points;
     }
         
-    update_tooltip(m) {
+    update_tooltip(stat_point) {
         const format_tooltip_data = (c, t) => ({n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"});
         
-        const d = this.data[m];
-        const season = seasons.by_id[d.season_id];
-        this.tooltip.querySelector(".date").textContent = new Date(d.data_time * 1000).toLocaleDateString();
+        const season = seasons.by_id[stat_point.season_id];
+        this.tooltip.querySelector(".date").textContent = new Date(stat_point.data_time * 1000).toLocaleDateString();
         this.tooltip.querySelector(".season").textContent = season.id + " (" + season.number + " - " + season.year + ")";
-        const t = d.aggregate.count();
-        d.aggregate.leagues.forEach(league => {
-            const e = format_tooltip_data(d.aggregate.count(league), t);
+        const t = stat_point.aggregate.count();
+        stat_point.aggregate.leagues.forEach(league => {
+            const e = format_tooltip_data(stat_point.aggregate.count(league), t);
             this.tooltip.querySelector(`.l${league}-n`).textContent = e.n;
             this.tooltip.querySelector(`.l${league}-p`).textContent = e.p;
         });

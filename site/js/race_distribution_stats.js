@@ -1,35 +1,28 @@
 //
 // Race distribution graph.
 //
-import {GraphBase} from "./graph";
+import {GraphBase, GraphUnits} from "./graph";
 import {settings} from "./settings";
 import {Mode, stats_data, TOT} from "./stats";
-import {doc_ready, format_int} from "./utils";
+import {format_int} from "./utils";
 import {seasons} from "./seasons";
 import {images} from "./images";
 import {create_league_control, create_region_control, create_version_control} from "./controls";
+import {TableBase} from "./table";
 
-//
-// Race distribution table.
-//
-export class RaceDistributionTable {
-    constructor(mode_id) {
-        this.settings = {};
-        this.mode_id = mode_id;
-        this.container = document.querySelector("#races-table-container");
-        this.version_control = create_version_control(this);
-        this.region_control = create_region_control(this);
+
+export class RaceDistributionTable extends TableBase {
     
-        Promise.all([
-            doc_ready(),
-            stats_data.fetch_mode(mode_id),
-            images.fetch_races()
-        ]).then(() => this.init());
+    constructor(mode_id) {
+        super("#races-table-container");
+        this.mode_id = mode_id;
+        create_version_control(this);
+        create_region_control(this);
+    
+        stats_data.fetch_mode(mode_id).then(() => this.init());
     }
     
-    on_control_change(name, value) {
-        this.settings[name] = value;
-        
+    update() {
         const stat = new Mode(this.mode_id).get_last();
         
         const filters = {versions: [parseInt(this.settings.v)]};
@@ -49,174 +42,137 @@ export class RaceDistributionTable {
             });
         });
     }
-    
-    init() {
-        this.version_control.init();
-        this.region_control.init();
-        this.container.classList.remove("wait");
-    }
 }
+
 
 export class RaceDistributionGraph extends GraphBase {
     
     // Create a race distribution graph for mode_id.
     constructor(mode_id) {
         super("#races-graph-container");
-        this.mode_id = mode_id;
     
-        this.data = [];   // Filtered and aggregated data for the graph.
-    
-        this.lines = {};  // Lines between races by race key (bronze to gm).
-    
-        this.max_value = 1;
-    
-        this.version_control = create_version_control(this);
-        this.region_control = create_region_control(this);
-        this.league_control = create_league_control(this);
+        create_version_control(this);
+        create_region_control(this);
+        create_league_control(this);
     
         Promise.all([
-            doc_ready(),
             stats_data.fetch_mode(mode_id),
-        ]).then(() => this.init());
-    }
-    
-    // Update units based on resize or new settings.
-    // TODO Too integrated, make a better interface to base class.
-    update_units() {
-        this.y_ax.top_value = this.max_value;
-        this.y_ax.bottom_value = 0;
-        this.y_per_unit = this.height / (this.y_ax.bottom_value - this.y_ax.top_value);
-        
-        this.x_ax.left_value = this.data[0].data_time;
-        this.x_ax.right_value = this.data[this.data.length - 1].data_time;
-        this.x_per_unit = this.width / (this.x_ax.right_value - this.x_ax.left_value);
-    }
-    
-    // Update points based on new data or resize.
-    update_points() {
-        
-        this.update_units();
-        
-        this.lines = {};
-        const new_points = [];
-        
-        for (let i = 0; i < this.data.length; ++i) {
-            let x = this.epoch_to_pixels(this.data[i].data_time);
-            settings.enums_info.race_ranking_ids.forEach(race_id => {
-                let y = this.y_per_unit * (this.data[i].aggregate.count(race_id) / this.data[i].aggregate.count() * 100 - this.max_value);
-                this.lines[race_id] = this.lines[race_id] || [];
-                this.lines[race_id].push({x: x, y: y, m: i});
-            });
-        }
-        
-        settings.enums_info.race_ranking_ids.forEach(race_id => {
-            new_points.push(...this.lines[race_id]);
+            images.fetch_races()
+        ]).then(() => {
+            this.mode_stats = new Mode(mode_id);
+            this.init();
         });
-        
-        // Update points.
-        
-        // TODO Just set points in base class like this???
-        this.points = new_points;
     }
     
-    //
-    // Graph callbacks.
-    //
+    draw_graph() {
+        
+        // Stats filter based on settings.
     
-    new_settings() {
-        // Get new data.
-        const v = parseInt(this.settings.v);
-        const r = parseInt(this.settings.r);
-        const l = parseInt(this.settings.l);
-        
-        const filters = {versions: [v]};
-        
-        if (r !== TOT) {
-            filters.regions = [r];
+        const version = parseInt(this.settings.v);
+        const region = parseInt(this.settings.r);
+        const league = parseInt(this.settings.l);
+    
+        const filters = {versions: [version]};
+    
+        if (region !== TOT) {
+            filters.regions = [region];
         }
-        
-        if (l !== TOT) {
-            filters.leagues = [l];
+    
+        if (league !== TOT) {
+            filters.leagues = [league];
         }
-        
-        if (l === 6 && v === 0) {
+    
+        if (league === 6 && version === 0) {
             // GM WoL data is totally broken, let's just not show it.
             filters.leagues = [];
         }
         
-        this.max_value = 1;
-        
-        const all = [];
-        const stats = new Mode(this.mode_id);
-        stats.each(stat => {
+        // Gather stats data and max_percentage.
+    
+        const stat_points = [];
+        let max_percentage = 0;
+
+        this.mode_stats.each(stat => {
             const race_aggregate = stat.filter_aggregate(filters, ['race']);
             const point = {
                 season_id: stat.season_id,
                 data_time: stat.data_time,
                 aggregate: race_aggregate,
             };
-            all.push(point);
-            const t = point.aggregate.count();
-            if (t) {
+            stat_points.push(point);
+            const total_count = point.aggregate.count();
+            if (total_count) {
                 race_aggregate.races.forEach(race => {
-                    this.max_value = Math.max(this.max_value, point.aggregate.count(race) / t * 100);
+                    max_percentage = Math.max(max_percentage, point.aggregate.count(race) / total_count * 100);
                 });
             }
-        }, v);
-        this.data = all;
+        }, version);
+
+        // Create graph units.
         
-        // Update points.
-        
-        this.update_points();
-    }
-    
-    new_size() {
-        this.update_points();
-    }
-    
-    redraw() {
-        this.clear();
-        
-        settings.enums_info.race_ranking_ids.forEach(race => {
-            this.gline(settings.race_colors[race], 2, this.lines[race]);
+        const units = new GraphUnits({
+            width: this.width,
+            height: this.height,
+            x_start_value: stat_points[0].data_time,
+            x_end_value: stat_points[stat_points.length - 1].data_time,
+            y_top_value: max_percentage,
+            y_bottom_value: 0,
         });
+
+        // Calculate line for each race id.
         
-        settings.enums_info.race_ranking_ids.forEach(race => {
-            const elem = document.getElementById('race' + race);
+        const lines = {};
+        stat_points.forEach(stat_point => {
+            const x = units.x_value_to_pixel(stat_point.data_time);
+            settings.enums_info.race_ranking_ids.forEach(race_id => {
+                const y = units.y_value_to_pixel(stat_point.aggregate.count(race_id) / stat_point.aggregate.count() * 100);
+                lines[race_id] = lines[race_id] || [];
+                lines[race_id].push({x, y, m: stat_point});
+            });
+        });
+    
+        // Draw graph.
+    
+        settings.enums_info.race_ranking_ids.forEach(race_id => {
+            // Line.
+            this.gline(settings.race_colors[race_id], 2, lines[race_id]);
+
+            // Race icon.
+            const elem = document.getElementById('race' + race_id);
             const x_offset = elem.width / 2;
             const y_offset = elem.height / 2;
-            this.ctx.drawImage(elem, this.lines[race][0].x - x_offset + this.edges.left, this.lines[race][0].y - y_offset + this.edges.top, elem.width, elem.height);
+            this.ctx.drawImage(elem, lines[race_id][0].x - x_offset + this.edges.left, lines[race_id][0].y - y_offset + this.edges.top, elem.width, elem.height);
         });
-        this.y_axis("percent");
-        this.time_x_axis("year");
+        
+        // Draw axis and crosshair.
+        
+        this.y_axis(units, "percent");
+        this.x_axis(units, "year");
         this.draw_crosshair();
+    
+        // Build points for mouse over.
+        
+        const points = [];
+        settings.enums_info.race_ranking_ids.forEach(race_id => {
+            points.push(...lines[race_id]);
+        });
+    
+        return points;
     }
     
-    update_tooltip(m) {
+    update_tooltip(stat_point) {
         const format_tooltip_data = (c, t) => ({n: format_int(c), p: "(" + (c * 100 / t).toFixed(2) + "%)"});
         
-        const d = this.data[m];
-        const season = seasons.by_id[d.season_id];
-        this.tooltip.querySelector(".date").textContent = new Date(d.data_time * 1000).toLocaleDateString();
+        const season = seasons.by_id[stat_point.season_id];
+        this.tooltip.querySelector(".date").textContent = new Date(stat_point.data_time * 1000).toLocaleDateString();
         this.tooltip.querySelector(".season").textContent = season.id + " (" + season.number + " - " + season.year + ")";
-        const t = d.aggregate.count();
+        const t = stat_point.aggregate.count();
         settings.enums_info.race_ranking_ids.forEach(race => {
-            const e = format_tooltip_data(d.aggregate.count(race), t);
+            const e = format_tooltip_data(stat_point.aggregate.count(race), t);
             this.tooltip.querySelector(`.r${race}-n`).textContent = e.n;
             this.tooltip.querySelector(`.r${race}-p`).textContent = e.p;
         });
         this.tooltip.querySelector(`.pop-n`).textContent = format_int(t);
         return 210;
-    }
-    
-    //
-    // Init functions.
-    //
-    
-    init() {
-        this.version_control.init();
-        this.region_control.init();
-        this.league_control.init();
-        super.init();
     }
 }
