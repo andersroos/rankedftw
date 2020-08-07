@@ -17,9 +17,11 @@ class Main(Command):
                          " NOTE: It will not handle ladders that is no longer"
                          " in the season (in case you think fixing bad seasons for old ladders will work).",
                          pid_file=True, stoppable=True)
+        self.add_argument('--season-id', '-s', dest="season_id", type=int, default=None,
+                          help="Force refetch of a specific season.")
 
     def run(self, args, logger):
-        refetch_past_seasons(check_stop=self.check_stop)
+        refetch_past_seasons(check_stop=self.check_stop, season_id=args.season_id)
 
         return 0
 

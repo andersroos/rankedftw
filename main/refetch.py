@@ -81,7 +81,7 @@ def refetch_missing(region=None, max_retries=None, min_age=None, check_stop=lamb
                 logger.info("status is %d, updated cache, retry_count %d" % (cache.status, cache.retry_count))
 
 
-def refetch_past_season(season, now, check_stop, bnet_client):
+def refetch_past_season(season, now, check_stop, bnet_client, force=False):
     """ Refetch ladders for past seasons. """
 
     start = perf_counter()
@@ -99,12 +99,14 @@ def refetch_past_season(season, now, check_stop, bnet_client):
 
         last_updated = ladders_query.aggregate(Min('updated'))['updated__min']
 
-        if need_refetch_limit < last_updated:
+        if not force or need_refetch_limit < last_updated:
             logger.info(f"skipping refetch of season {season.id}, it was refetched {last_updated.date()}")
             return
 
-        ladders = list(ladders_query.filter(updated__lt=need_refetch_limit))
+        if not force:
+            ladders_query = ladders_query.filter(updated__lt=need_refetch_limit)
 
+        ladders = list(ladders_query)
         ladders_count = ladders_query.count()
 
         logger.info(f"{len(ladders)} (of {ladders_count}) to refetch for season {season.id}")
@@ -163,26 +165,37 @@ def refetch_past_season(season, now, check_stop, bnet_client):
     
 
 @log_context(feature='past', region='ALL')
-def refetch_past_seasons(check_stop=lambda: None, bnet_client=None, now=None, skip_fetch_new=False):
+def refetch_past_seasons(check_stop=lambda: None, bnet_client=None, now=None, skip_fetch_new=False, season_id=None):
 
     bnet_client = bnet_client or BnetClient()
     now = now or utcnow()
 
-    # Wait for this date before refetching season.
-    season_end_limit = now - timedelta(days=Season.REFETCH_PAST_MIN_DAYS_AFTER_SEASON_END)
-
-    # Fetch new for a while after season close to make sure we got all ladders. Since we don't save non 200 leagues
-    # we can still miss ladders here, but unlikely. There is no point in continuing after need_refetch_limit since they
-    # will not be picked up in the ranking anyway.
-    prev_season = Season.get_current_season().get_prev()
-    need_refetch_limit = prev_season.end_time() + timedelta(days=Season.REFETCH_PAST_UNTIL_DAYS_AFTER_SEASON_END)
-    if not skip_fetch_new and prev_season.end_time() < now <= need_refetch_limit:
+    if season_id:
+        season = Season.objects.get(id=season_id)
         for region in Region.ranking_ids:
-            fetch_new_in_region(check_stop, bnet_client, prev_season, region)
+            if region != Region.SEA:
+                fetch_new_in_region(check_stop, bnet_client, season, region)
 
-    # Refetch all past seasons, skip if refreshed recently. Skip seasons before 28 since they are not available in
-    # the api.
-    for season in Season.objects.filter(id__gte=LAST_AVAILABLE_SEASON, end_date__lt=season_end_limit).order_by('-id'):
-        refetch_past_season(season, now, check_stop, bnet_client)
-        check_stop()
+        refetch_past_season(season, now, check_stop, bnet_client, force=True)
+        
+    else:
+
+        # Wait for this date before refetching season.
+        season_end_limit = now - timedelta(days=Season.REFETCH_PAST_MIN_DAYS_AFTER_SEASON_END)
+    
+        # Fetch new for a while after season close to make sure we got all ladders. Since we don't save non 200 leagues
+        # we can still miss ladders here, but unlikely. There is no point in continuing after need_refetch_limit
+        # since they will not be picked up in the ranking anyway.
+        prev_season = Season.get_current_season().get_prev()
+        need_refetch_limit = prev_season.end_time() + timedelta(days=Season.REFETCH_PAST_UNTIL_DAYS_AFTER_SEASON_END)
+        if not skip_fetch_new and prev_season.end_time() < now <= need_refetch_limit:
+            for region in Region.ranking_ids:
+                if region != Region.SEA:
+                    fetch_new_in_region(check_stop, bnet_client, prev_season, region)
+    
+        # Refetch all past seasons, skip if refreshed recently. Skip seasons before 28 since they are not available in
+        # the api.
+        for season in Season.objects.filter(id__gte=LAST_AVAILABLE_SEASON, end_date__lt=season_end_limit).order_by('-id'):
+            refetch_past_season(season, now, check_stop, bnet_client)
+            check_stop()
 

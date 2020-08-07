@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.utils.http import http_date, parse_http_date
 
 from common.utils import to_unix, utcnow
-from main.views.base import MainNavMixin, Nav, rankings_view_client, CachingTemplateView, get_season_list,\
+from main.views.base import Nav, rankings_view_client, CachingTemplateView, get_season_list,\
     last_updated_info
 from common.cache import cache_value, cache_control
 from main.models import RankingStats, League, Region, Race, Mode, Version
