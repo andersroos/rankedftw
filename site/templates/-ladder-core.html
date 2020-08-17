@@ -24,7 +24,7 @@
 
       <div role="gridcell" class="cell img"><img srcset="{{ STATIC_URL }}img/regions/{{ team.region | region_key }}-16x16.png 1x, {{ STATIC_URL }}img/regions/{{ team.region | region_key }}.svg 2x" height="16px"/></div>
 
-      <div role="gridcell" class="cell img">{% if team.league %}<img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-128x128.png" height="16px" width="16px" />{% endif %}</div>
+      <div role="gridcell" class="cell img">{% if team.league is not None %}<img class="league" src="{{ STATIC_URL }}img/leagues/{{ team.league  | league_key }}-128x128.png" height="16px" width="16px" />{% endif %}</div>
 
       <div role="gridcell" class="cell img">{{ team.tier }}</div>
 
