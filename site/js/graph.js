@@ -416,6 +416,10 @@ export class GraphBase {
         // Ensure the display is not affected by the dpr
         this.canvas.style.width = `${width}px`;
         this.canvas.style.height = `${height}px`;
+
+        // Update the logical width
+        this.width = width - this.edges.left - this.edges.right;
+        this.height = height - this.edges.top - this.edges.bottom;
     }
     
     // Clear and draw graph again.
@@ -431,8 +435,6 @@ export class GraphBase {
     // Handle resizing of window.
     on_resize() {
         this.resize_canvas();
-        this.width = this.canvas.width - this.edges.left - this.edges.right;
-        this.height = this.canvas.height - this.edges.top - this.edges.bottom;
         this.setup_league_styles();
         
         if (this.initialized) this.redraw();
