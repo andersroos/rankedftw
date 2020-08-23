@@ -119,7 +119,7 @@ export class GraphBase {
         alpha = alpha || 1.0;
         this.ctx.globalAlpha = alpha;
         this.ctx.fillStyle = "#000000";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.fullWidth, this.fullHeight);
         this.ctx.globalAlpha = 1.0;
     }
     
@@ -336,8 +336,8 @@ export class GraphBase {
         if (this.crosshair) {
             const x = Math.round(this.crosshair.x + this.edges.left) + 0.5;
             const y = Math.round(this.crosshair.y + this.edges.top) + 0.5;
-            this.line("#ffffff", 1, [{x: 0, y: y}, {x: this.canvas.width, y: y}]);
-            this.line("#ffffff", 1, [{x: x, y: 0}, {x: x, y: this.canvas.height}]);
+            this.line("#ffffff", 1, [{x: 0, y: y}, {x: this.fullWidth, y: y}]);
+            this.line("#ffffff", 1, [{x: x, y: 0}, {x: x, y: this.fullHeight}]);
         }
     }
     
@@ -345,7 +345,7 @@ export class GraphBase {
     mouse_on(x, y, m) {
         const width = this.update_tooltip(m) || 210;
         this.tooltip.style.display = "block";
-        const absolute_x = this.canvas.offsetLeft + Math.min(x + this.edges.left + 20, this.canvas.width - width - 10);
+        const absolute_x = this.canvas.offsetLeft + Math.min(x + this.edges.left + 20, this.fullWidth - width - 10);
         const absolute_y = this.canvas.offsetTop + y + this.edges.top + 20;
         this.tooltip.style.left = `${absolute_x}px`;
         this.tooltip.style.top = `${absolute_y}px`;
@@ -418,6 +418,8 @@ export class GraphBase {
         this.canvas.style.height = `${height}px`;
 
         // Update the logical width
+        this.fullWidth = width;
+        this.fullHeight = height;
         this.width = width - this.edges.left - this.edges.right;
         this.height = height - this.edges.top - this.edges.bottom;
     }

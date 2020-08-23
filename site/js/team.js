@@ -333,8 +333,8 @@ export class RankingGraph extends GraphBase {
             }
             
             // Clear the area outside the graph.
-            let c_width = this.canvas.width;
-            let c_height = this.canvas.height;
+            let c_width = this.fullWidth;
+            let c_height = this.fullHeight;
             this.area('#000000', [{x: 0, y: 0}, {x: c_width, y: 0}, {x: c_width, y: this.edges.top}, {x: 0, y: this.edges.top}]);
             this.area('#000000', [{x: 0, y: this.edges.top + this.height}, {x: c_width, y: this.edges.top + this.height}, {x: c_width, y: c_height}, {x: 0, y: c_height}]);
         }
