@@ -21,7 +21,7 @@ class Main(Command):
 
         data_deleter = DataDeleter(dry_run=args.dry_run)
         data_deleter.delete_old_rankings()
-        data_deleter.delete_old_cache_data()
+        data_deleter.delete_old_cache_data(keep_days=3)
 
         return 0
 

@@ -102,13 +102,13 @@ class DataDeleter(object):
                     logger.info("keeping ranking %d beacuse %s" % (rr[0].id, rr[2]))
 
     @log_context(feature='del')
-    def delete_old_cache_data(self):
+    def delete_old_cache_data(self, keep_days=30):
         """ Delete all cache data that is no longer linked from rankings or ladders but only if older than 30 days. """
 
         with transaction.atomic():
             objects = Cache.objects.filter(ladder__isnull=True, ranking__isnull=True, status=200,
                                            type__in=(Cache.LADDER, Cache.PLAYER, Cache.PLAYER_LADDERS, Cache.SEASON),
-                                           updated__lt=utcnow() - timedelta(days=30))
+                                           updated__lt=utcnow() - timedelta(days=keep_days))
 
             count = objects.count()
             logger.info("%sremoving unreferenced %d cache objects" % (self.prefix, count))
