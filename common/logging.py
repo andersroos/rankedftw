@@ -64,7 +64,7 @@ def log_context(feature=None, region=None):
             if r is None and args:
                 r = getattr(args[0], 'region', None)
             with LogContext(region=r, feature=f):
-                func(*args, **kwargs)
+                return func(*args, **kwargs)
         return wrapper
     return dec
 

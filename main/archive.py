@@ -4,9 +4,11 @@ import gzip
 
 from django.db import transaction
 from logging import getLogger
-from datetime import timedelta
+from datetime import timedelta, date
 
 from common.settings import config
+from common.utils import utcnow, to_unix, iterate_query_chunked
+from main.battle_net import LAST_AVAILABLE_SEASON
 from main.models import Cache, Ranking
 from common.logging import log_context
 
@@ -31,7 +33,33 @@ class DataArchiver(object):
 
     def stop(self):
         self._stop = True
-        
+
+    def write_caches(self, file, caches, check_stop=lambda: None):
+        for obj in iterate_query_chunked(caches):
+            check_stop()
+    
+            struct = dict(
+                id=obj.id,
+                url=obj.url,
+                region=obj.region,
+                bid=obj.bid,
+                type=obj.type,
+                status=obj.status,
+                created=obj.created.isoformat(),
+                updated=obj.updated.isoformat(),
+                data=None if obj.data is None else json.loads(obj.data),
+                ladder_id=obj.ladder_id,
+            )
+            s = json.dumps(struct, allow_nan=False)
+            file.write(s.encode('utf-8'))
+            file.write(b'\n')
+
+    def read_cache_obj(self, raw, ranking_id=None):
+        struct = json.loads(raw.decode('utf-8'))
+        struct['data'] = None if struct.get('data') is None else json.dumps(struct['data'], indent=4)
+        struct['ranking_id'] = ranking_id
+        return struct
+
     def archive_ranking(self, ranking, check_stop=lambda: None):
         """ Archive ranking. """
         with transaction.atomic():
@@ -62,25 +90,8 @@ class DataArchiver(object):
                 s = json.dumps(struct, allow_nan=False)
                 file.write(s.encode('utf-8'))
                 file.write(b'\n')
-        
-                for obj in caches.all():
-            
-                    check_stop()
-            
-                    struct = dict(
-                        id=obj.id,
-                        url=obj.url,
-                        region=obj.region,
-                        bid=obj.bid,
-                        type=obj.type,
-                        status=obj.status,
-                        created=obj.created.isoformat(),
-                        updated=obj.updated.isoformat(),
-                        data=json.loads(obj.data),
-                    )
-                    s = json.dumps(struct, allow_nan=False)
-                    file.write(s.encode('utf-8'))
-                    file.write(b'\n')
+
+                self.write_caches(file, caches.all(), check_stop)
         
                 # Do the actual removes.
         
@@ -104,7 +115,7 @@ class DataArchiver(object):
 
     @log_context(feature='arch')
     def load_ranking_archive(self, filename):
-        """ This method is mostly for testing, it will read the caches in the files into memory. """
+        """ This method is mostly for testing, it will read the caches in the files into database. """
 
         with gzip.open(filename, mode='rb') as file:
 
@@ -119,7 +130,36 @@ class DataArchiver(object):
                 ranking_id = None
 
             for row in file:
-                struct = json.loads(row.decode('utf-8'))
-                struct['data'] = json.dumps(struct['data'], indent=4)
-                struct['ranking_id'] = ranking_id
+                Cache.objects.create(**(self.read_cache_obj(row, ranking_id)))
+
+    @log_context(feature='arch')
+    def archive_unused_caches(self, check_stop=lambda: None):
+        """ One off archive of cache data that is no lunger used or updated save each all data in a data dir file. """
+    
+        with transaction.atomic():
+            filename = "%s/archive-ladder-caches-%d.gz" % (self.dir, to_unix(utcnow()))
+
+            logger.info(f"archiving unused caches to {filename}")
+            
+            with gzip.open(filename, mode='wb') as file:
+                def move_to_file(caches):
+                    self.write_caches(file, caches, check_stop)
+                    caches.delete()
+
+                move_to_file(Cache.objects.filter(type=Cache.PLAYER_LADDERS))
+                move_to_file(Cache.objects.filter(ladder__season_id__lt=LAST_AVAILABLE_SEASON, ranking__isnull=True,
+                                                  type=Cache.LADDER))
+                move_to_file(Cache.objects.filter(ladder__isnull=True, ranking__isnull=True, type=Cache.LADDER))
+            
+            return filename
+
+    @log_context(feature='arch')
+    def load_unused_cache_archive(self, filename):
+        """ This method is mostly for testing, it will read the caches in the file into the database, it will never
+        overwrite existing data. """
+    
+        with gzip.open(filename, mode='rb') as file:
+        
+            for row in file:
+                struct = self.read_cache_obj(row)
                 Cache.objects.create(**struct)

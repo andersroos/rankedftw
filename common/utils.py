@@ -181,3 +181,19 @@ class classproperty(object):
         return self.method(typ)
 
 
+def iterate_query_chunked(query, chunk_size=1024):
+    pk = 0
+    query = query.order_by('pk')
+    
+    while True:
+        objs = list(query.filter(pk__gt=pk)[:chunk_size])
+        if not objs:
+            break
+        
+        pk = objs[-1].pk
+        
+        for obj in objs:
+            yield obj
+
+
+

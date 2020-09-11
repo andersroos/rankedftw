@@ -1,7 +1,10 @@
+import gzip
 import os
 import json
 import shutil
 import tempfile
+
+from django.db import IntegrityError
 
 import aid.test.init_django_sqlite
 
@@ -17,6 +20,8 @@ class Test(DjangoTestCase):
     def setUpClass(self):
         super().setUpClass()
         self.db.create_season()
+        self.s27 = self.db.create_season(id=27)
+        self.s28 = self.db.create_season(id=28)
     
     def setUp(self):
         super().setUp()
@@ -119,3 +124,69 @@ class Test(DjangoTestCase):
         self.archiver.archive_rankings()
 
         self.db.get(Cache, id=c1.id)
+
+    def test_archive_unused_archives_data(self):
+        l27 = self.db.create_ladder(season=self.s27)
+        c1 = self.db.create_cache(ladder=l27, type=Cache.LADDER)
+        c2 = self.db.create_cache(type=Cache.PLAYER_LADDERS)
+        c3 = self.db.create_cache(ladder=None, ranking=None)
+    
+        filename = self.archiver.archive_unused_caches()
+
+        for c in (c1, c2, c3):
+            with self.assertRaises(Cache.DoesNotExist): self.db.get(Cache, id=c.id)
+            with self.assertRaises(Cache.DoesNotExist): self.db.get(Cache, bid=c.bid, type=c.type, region=c.region)
+    
+        self.archiver.load_unused_cache_archive(filename)
+
+        for c in (c1, c2, c3):
+            self.db.get(Cache, id=c.id)
+            self.db.get(Cache, bid=c.bid, type=c.type, region=c.region)
+
+    def test_archive_unused_load_does_not_overwrite_data(self):
+        c = self.db.create_cache(type=Cache.PLAYER_LADDERS)
+
+        filename = self.archiver.archive_unused_caches()
+
+        with self.assertRaises(Cache.DoesNotExist): self.db.get(Cache, id=c.id)
+        with self.assertRaises(Cache.DoesNotExist): self.db.get(Cache, bid=c.bid, type=c.type, region=c.region)
+    
+        self.archiver.load_unused_cache_archive(filename)
+
+        c.status = 123
+        c.save()
+
+        with self.assertRaises(IntegrityError):
+            self.archiver.load_unused_cache_archive(filename)
+            
+        c.refresh_from_db()
+        self.assertEqual(123, c.status)
+
+    def test_archive_unused_load_does_not_archive_and_remove_used_data(self):
+        r = self.db.create_ranking()
+        l28 = self.db.create_ladder(season=self.s28)
+        
+        caches = (
+            self.db.create_cache(type=Cache.PLAYER),                            # Players kept.
+            self.db.create_cache(type=Cache.SEASON),                            # Seasons kept.
+            self.db.create_cache(type=Cache.LEAGUE),                            # Leagues kept.
+            self.db.create_cache(type=Cache.LADDER, ladder=l28, ranking=None),  # Referenced ladder 28 kept.
+            self.db.create_cache(type=Cache.LADDER, ladder=None, ranking=r),    # With referenced ranking kept.
+        )
+
+        self.archiver.archive_unused_caches()
+        
+        for c in caches:
+            self.db.get(Cache, id=c.id)
+            self.db.get(Cache, bid=c.bid, type=c.type, region=c.region)
+
+    def test_archive_load_save_none_data(self):
+        c = self.db.create_cache(ladder=None, ranking=None, data=None)
+        filename = self.archiver.archive_unused_caches()
+        self.archiver.load_unused_cache_archive(filename)
+        c = self.db.get(Cache, id=c.id)
+        self.assertEqual(None, c.data)
+        
+    
+
+    
