@@ -1,6 +1,7 @@
 from django import template
+from django.conf import settings
+
 from main.models import Region, Race, League, Version, Mode
-from common.utils import from_unix
 from main.views.search import SearchView
 
 register = template.Library()
@@ -15,7 +16,23 @@ def region_key(region_id):
 def region_name(region_id):
     return Region.name_by_ids.get(region_id, Region.UNKNOWN_NAME)
 
-        
+
+@register.filter
+def region_id(region_key):
+    return Region.id_by_keys.get(region_key, Region.UNKNOWN_ID)
+
+
+@register.filter
+def region_image(region_id):
+    region_key = Region.key_by_ids.get(region_id, Region.UNKNOWN_KEY)
+    return (
+        '<img class="region" srcset="'
+        f'{settings.STATIC_URL}img/regions/{region_key}-16x16.webp 1.2x'
+        f', {settings.STATIC_URL}img/regions/{region_key}-128x128.webp 2x'
+        '" width="16px" height="16px"/>'
+    )
+    
+    
 @register.filter
 def race_key(race_id):
     return Race.key_by_ids.get(race_id, Race.UNKNOWN_KEY)

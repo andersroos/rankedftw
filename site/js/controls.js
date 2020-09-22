@@ -3,6 +3,7 @@ import {get_cookie} from "./utils";
 import {set_cookie} from "./utils";
 import {set_hash} from "./utils";
 import {settings} from "./settings";
+import {get_league_image_src, get_region_image_srcset} from "./images";
 
 //
 // Set persistent value of control (no checking).
@@ -95,17 +96,17 @@ export class Radio {
         this.allowed_values = options.map(o => String(o.value));
 
         this.ul.innerHTML = null;
-        this.ul.insertAdjacentHTML("beforeend", `<span>${this.heading}</span>`);
+        this.ul.insertAdjacentHTML("beforeend", `<span class="icon-align">${this.heading}</span>`);
         options.forEach(option => {
             let html = `<a data-ctrl-value="${option.value}" title="${option.tooltip || ''}">`;
             if (option.heading) {
-                html += `<span>${option.heading}</span>`;
+                html += `<span class="icon-align ${option.class || ""}">${option.heading}</span>`;
             }
             if (option.src) {
-                html += `<img src="${option.src}" height="16px" width="16px"/>`;
+                html += `<img class="${option.class || ""}" src="${option.src}" height="16px" width="16px"/>`;
             }
             else if (option.srcset) {
-                html += `<img srcset="${option.srcset}" height="16px"/>`;
+                html += `<img class="${option.class || ""}" srcset="${option.srcset}" height="16px" width="16px"/>`;
             }
             html += "</a>";
             this.ul.insertAdjacentHTML("beforeend", html);
@@ -153,11 +154,9 @@ export const create_region_control = graph => {
         regions
             .map(rid => ({
                 value: rid,
+                class: "region",
                 heading: settings.enums_info.region_name_by_ids[rid],
-                srcset: [
-                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '-16x16.png 1x',
-                    settings.static_url + 'img/regions/' + settings.enums_info.region_key_by_ids[rid] + '.svg 2x',
-                ].join(", "),
+                srcset: get_region_image_srcset(rid),
             })),
         settings.ALL, graph.on_control_change.bind(graph))
 };
@@ -169,8 +168,9 @@ export const create_league_control = graph => {
         leagues
             .map(lid => ({
                 value: lid,
+                class: "league",
                 heading: lid === settings.ALL ? settings.enums_info.league_name_by_ids[lid] : null,
-                src: lid === settings.ALL ? null : settings.static_url + 'img/leagues/' + settings.enums_info.league_key_by_ids[lid] + '-128x128.png',
+                src: lid === settings.ALL ? null : get_league_image_src(lid),
                 tooltip: settings.enums_info.league_name_by_ids[lid],
             })),
         settings.ALL, graph.on_control_change.bind(graph));

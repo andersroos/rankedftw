@@ -5,7 +5,7 @@
 
 @content-max-width: 1024px;
 @content-min-width: 540px; // Same as initial view port.
-@hide-logo-width: 910px;
+@hide-logo-width: 980px;
 
 @the-color: #84B585;
 @sub-nav-bg: #eeeeee;
@@ -51,6 +51,20 @@ input, button {
     &:focus {
         box-shadow: 0 0 2px black inset;
     }
+}
+
+span.icon-align {
+    line-height: 17px;
+}
+@supports (-moz-appearance:none) {
+    span.icon-align {
+        position: relative;
+        top: 2px;
+    }
+}
+
+img.region, img.league, img.race {
+    vertical-align: bottom;
 }
 
 h1 {
@@ -201,6 +215,7 @@ a, a.visited {
 .sub-nav {
 
     a {
+        line-height: 17px;
         padding: 3px 10px 3px 10px;
         display: inline-block;
         margin: 0px;
@@ -222,7 +237,17 @@ a, a.visited {
     }
 
     span {
-        font-weight: bold;
+        &.heading {
+            font-weight: bold;
+        }
+        line-height: 17px;
+    }
+
+    @supports (-moz-appearance:none) {
+        span {
+            position: relative;
+            top: 2px;
+        }
     }
 
     .control {
@@ -283,7 +308,6 @@ a, a.visited {
             text-transform: capitalize;
             img {
                 padding: 0px 5px 0px 32px;
-                vertical-align: middle;
             }
         }
             
@@ -292,7 +316,6 @@ a, a.visited {
             text-align: right;
             img {
                 padding: 0px 0px 0px 5px;
-                vertical-align: middle;
             }
             &.no-img {
                 padding-right: 21px;
@@ -300,7 +323,6 @@ a, a.visited {
         }
 
         span {
-            vertical-align: middle;
             display: inline-block;
         }
 
@@ -327,10 +349,9 @@ a, a.visited {
             padding: 0;
             margin: 0px 6px;
             display: inline-block;
-            
+
             > span {
                 display: inline-block;
-                vertical-align: middle;
                 font-weight: bold;
             }
             
@@ -345,15 +366,14 @@ a, a.visited {
                 &:hover {
                     background: darken(@the-color, 25%);
                 }
-                
+
                 img {
                     cursor: pointer;
                     padding: 0px 0px 0px 2px;
-                    vertical-align: middle;
                 }
+
                 span {
                     cursor: pointer;
-                    vertical-align: middle;
                     display: inline-block;
                 }
             }
@@ -467,10 +487,6 @@ body.ladder {
                 padding-left: 5px;
                 padding-right: 5px;
             }
-            
-            img {
-                margin: 0 0 -3px 0;
-            }
         }
     }
 
@@ -509,10 +525,7 @@ body.ladder {
         .cell {
             display: table-cell;
             padding: 4px 6px 4px 2px;
-            img {
-                margin: 0 0 -3px 0;
-            }
-            vertical-align: text-bottom;            
+            vertical-align: text-bottom;
         }
 
         .heading {
@@ -621,10 +634,9 @@ body.player {
                     }
                 }
             }
-            
+
             img, span {
                 margin: -2px 0px 0px 0px;
-                vertical-align: middle;
                 display: inline-block;
             }
 
@@ -672,11 +684,10 @@ body.search {
         li {
             padding: 3px;
             border: 1px solid black;
-            margin: -1px 0px 0px 0px;
+            margin: -1.1px 0px 0px 0px;
 
             img, span {
                 margin: 0px 3px;
-                vertical-align: middle;
                 display: inline-block;
             }
 
@@ -684,7 +695,7 @@ body.search {
                 min-width: 30px;
             }
             
-            .region {
+            .region-name {
                 min-width: 40px;
             }
 

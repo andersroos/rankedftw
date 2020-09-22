@@ -47,7 +47,7 @@
       <tbody>
         {% for region in regions reversed %}
           <tr>
-            <th><span>{{ region | region_name }}</span><img srcset="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png 1x, {{ STATIC_URL }}img/regions/{{ region | region_key }}.svg 2x" height="16px"/></th>
+            <th><span class="icon-align">{{ region|region_name }}</span>{{ region|region_image|safe }}</th>
             <td id="r{{ region }}"><span class="number"></span></td>
           </tr>
         {% endfor %}
@@ -57,7 +57,7 @@
 </div>
 
 <div class="content">
-  <h2>Ladder {{ mode_id | mode_name }} Population Over Time</h2>
+  <h2>Ladder {{ mode_id|mode_name }} Population Over Time</h2>
   <p>
     The graph shows the number of ranked teams over time. Seasons are
     marked by the colored sections of the x-axis. Mouse over on points

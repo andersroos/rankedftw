@@ -36,13 +36,12 @@
       <thead>
         <th></th>
         {% for region in regions %}
-          <th><img srcset="{{ STATIC_URL }}img/regions/{{ region | region_key }}-16x16.png 1x, {{ STATIC_URL }}img/regions/{{ region | region_key }}.svg 2x" height="16px"/><span>{{ region | region_name }}</span></th>
-        {% endfor %}
-      </thead>
+          <th>{{ region|region_image|safe }}<span class="icon-align region">{{ region | region_name }}</span></th>
+        {% endfor %}      </thead>
       <tbody>
         {% for league in leagues %}
           <tr>
-            <th><span>{{ league | league_name }}</span><img src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-128x128.png" height="16px" width="16px"/></th>
+            <th><span class="icon-align league">{{ league | league_name }}</span><img class="league" src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-128x128.webp" height="16px" width="16px"/></th>
             {% for region in regions %}
               <td id="r{{ region }}-l{{ league }}"><span class="number"></span><span class="percent"></span></td>
             {% endfor %}
@@ -76,11 +75,11 @@
   <div class="tooltip">
     <table>
       <tbody>
-        <tr><th class="no-img">Date</th><td colspan="2" class="date"/></tr>
-        <tr><th class="no-img">Season</th><td colspan="2" class="season"/></tr>
+        <tr><th class="no-img">Date</th><td colspan="2" class="date"></td></tr>
+        <tr><th class="no-img">Season</th><td colspan="2" class="season"></td></tr>
         {% for league in leagues %}
           <tr>
-            <th><span>{{ league | league_name }}</span><img src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-128x128.png" height="16px" width="16px"/></th>
+            <th><span>{{ league | league_name }}</span><img class="league" src="{{ STATIC_URL }}img/leagues/{{ league  | league_key }}-128x128.webp" height="16px" width="16px"/></th>
             <td class="l{{ league }}-n"></td><td class="l{{ league }}-p"></td>
           </tr>
         {% endfor %}

@@ -1,8 +1,8 @@
 <div  itemscope="" itemtype="http://schema.org/SiteNavigationElement" class="sub-nav">
   <div class="content">
-    {% if nav.title %}<span>{{ nav.title }}:</span>{% endif %}
+    {% if nav.title %}<span class="heading">{{ nav.title }}:</span>{% endif %}
     {% for heading, href, class, tooltip in nav %}<!--
-      --><a itemprop="url" tabindex="0" class="{{ class }}" href="{{ href }}" title="{{ tooltip }}">{{ heading }}</a><!--
+      --><a itemprop="url" tabindex="0" class="{{ class }}" href="{{ href }}" title="{{ tooltip }}"><span>{{ heading }}</span></a><!--
     -->{% endfor %}
   </div>
 </div>
