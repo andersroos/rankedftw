@@ -343,6 +343,9 @@ a, a.visited {
         border-top: 1px solid black;
         background: @the-color;
         color: @text-color;
+        .content {
+            min-height: 20px;  // Make the controls take the expected height before actual controls are in place.
+        }
         ul:first-child { margin-left: 0px };
         ul {
             list-style-type: none;

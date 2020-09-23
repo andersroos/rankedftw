@@ -56,6 +56,28 @@
     </div>
 
     {% if not debug and al %}{{ al|safe }}{% endif %}
+    <script type="text/javascript">
+        // Resize graph canvases here to make page less jumpy.
+        function resize_canvas(canvas) {
+            const width = canvas.parentNode.offsetWidth;
+            const height = Math.max(280, Math.round(canvas.parentNode.offsetWidth * 0.30));
+
+            // Get the device pixel ratio, falling back to 1.
+            const dpr = window.devicePixelRatio || 1;
+
+            // Scale the canvas and the context by the dpr
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            canvas.getContext('2d').scale(dpr, dpr);
+
+            // Ensure the display is not affected by the dpr
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
+
+            return {width, height};
+        }
+        document.querySelectorAll("canvas.graph").forEach(resize_canvas);
+    </script>
     <script src="{{ STATIC_URL }}site.js" type="text/javascript"></script>
     <script type="text/javascript">
       sc2.settings.static_url = "{{ STATIC_URL }}";

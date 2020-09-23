@@ -401,21 +401,11 @@ export class GraphBase {
     // ratio into account. This prevents the canvas appearing blurry on
     // high-dpi displays. This is done by drawing everything at the native
     // resolution but scaling the canvas back using CSS attributes.
+    //
+    // The global resize_canvas function is used to make an initial resize
+    // of all canvases at page load.
     resize_canvas() {
-        const width = this.container.offsetWidth;
-        const height = Math.max(280, Math.round(this.container.offsetWidth * 0.30));
-
-        // Get the device pixel ratio, falling back to 1.
-        const dpr = window.devicePixelRatio || 1;
-
-        // Scale the canvas and the context by the dpr
-        this.canvas.width = width * dpr;
-        this.canvas.height = height * dpr;
-        this.canvas.getContext('2d').scale(dpr, dpr);
-
-        // Ensure the display is not affected by the dpr
-        this.canvas.style.width = `${width}px`;
-        this.canvas.style.height = `${height}px`;
+        const {width, height} = window.resize_canvas(this.canvas);
 
         // Update the logical width
         this.fullWidth = width;
