@@ -3,8 +3,8 @@
 // variables
 //
 
-@content-max-width: 1024px;
-@content-min-width: 540px; // Same as initial view port.
+@min-width: 820px;  // Below this width some elements looks so ugly it is better to have a horizontal scrollbar.
+@content-max-width: 1024px; // Max with of content (controls, tables, text etc, but not graphs).
 @hide-logo-width: 980px;
 
 @the-color: #84B585;
@@ -126,7 +126,6 @@ a, a.visited {
 
 .content {
     max-width: @content-max-width;
-    min-width: @content-min-width;
     margin: 0 auto;
 }
 
@@ -161,7 +160,8 @@ a, a.visited {
 //
 
 .top-nav {
-    
+    min-width: @min-width;
+
     .logo {
         font-weight: bold;
         margin-left: 0px;
@@ -213,6 +213,7 @@ a, a.visited {
 }
 
 .sub-nav {
+    min-width: @min-width;
 
     a {
         line-height: 17px;
@@ -291,9 +292,9 @@ a, a.visited {
 }
 
 .data-container {
+    min-width: @min-width;
     background: black;
     width: 100%;
-    min-width: @content-min-width;
     color: white;
         
     &.wait {
@@ -498,6 +499,7 @@ body.ladder {
     }    
 
     .table {
+        min-width: @min-width;
         font-size: 0.9em;
         width: 100%;
         border-collapse: collapse;
@@ -736,6 +738,7 @@ body.search {
 
 body.clan-search {
     .result {
+        min-width: @min-width;
         padding: 0;
         list-style-type: none;
 
