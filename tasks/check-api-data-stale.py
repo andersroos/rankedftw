@@ -7,11 +7,20 @@ import init_django
 
 from logging import getLogger
 from common.logging import log_region
-from main.models import Ranking, get_db_name, Enums
+from main.models import Ranking, Enums, Region
 from tasks.base import Command, RegionsArgMixin
 from lib import sc2
 from django.conf import settings
 
+OK = 0
+WARNING = 1
+CRITICAL = 2
+
+TEXT = {
+    OK: "OK",
+    WARNING: "WARNING - data is stale",
+    CRITICAL: "CRITICAL - data is very stale",
+}
 
 logger = getLogger('django')
 sc2.set_logger(logger)
@@ -40,22 +49,31 @@ class Main(RegionsArgMixin, Command):
             if not latest_count_by_region:
                 latest_time_by_region = {region: ranking.data_time for region in regions}
                 latest_count_by_region = {region: counts.get(region, 0) for region in regions}
-                print(f"start at {ranking.data_time}")
+                logger.info(f"start at {ranking.data_time}")
             else:
                 for region in list(regions):
                     if latest_count_by_region[region] != counts.get(region):
                         diff_time_by_region[region] = ranking.data_time
                         regions.remove(region)
-                        print(f"region {region} differs in ranking {ranking.id} at {ranking.data_time}")
+                        logger.info(f"region {region} differs in ranking {ranking.id} at {ranking.data_time}")
                         
             if not regions:
                 break
 
+        status = OK
+        ages = {}
+
         for region in args.regions:
-            age = latest_time_by_region[region] - diff_time_by_region[region]
-            print(f"region {region} age {age.days} days")
-            
-        return 0
+            age = (latest_time_by_region[region] - diff_time_by_region[region]).days
+            logger.info(f"region {region} age {age} days")
+            ages[Region.key_by_ids[region]] = age
+            if age > 4:
+                status = max(status, CRITICAL)
+            elif age > 1:
+                status = max(status, WARNING)
+
+        print(f"{TEXT[status]} - age by region in days: {ages}")
+        return status
 
 
 if __name__ == '__main__':

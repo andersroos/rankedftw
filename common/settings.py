@@ -69,7 +69,7 @@ def common_settings():
     return settings
 
 
-def logging_settings(log_filename=None, log_stdout=False):
+def logging_settings(log_filename=None, log_stderr=False):
         handlers = {}
 
         if log_filename and exists(dirname(log_filename)):
@@ -78,10 +78,10 @@ def logging_settings(log_filename=None, log_stdout=False):
                                 'filename': log_filename,
                                 'formatter': 'default'}
 
-        if log_stdout:
+        if log_stderr:
             handlers['console'] = {'level': 'DEBUG' if config.DB_DEBUG else 'INFO',
                                    'class': 'logging.StreamHandler',
-                                   'stream': sys.stdout,
+                                   'stream': sys.stderr,
                                    'formatter': 'default'}
 
         return {'version': 1,
@@ -114,7 +114,7 @@ def tasks_settings():
 
     settings['LOGGING'] = \
         logging_settings(log_filename=join(config.LOG_DIR, basename(sys.argv[0]).replace('.py', '.log')),
-                         log_stdout=True)
+                         log_stderr=True)
 
     settings['INSTALLED_APPS'] = ('main',)
 
@@ -127,7 +127,7 @@ def site_settings():
 
     settings['LOGGING'] = \
         logging_settings(log_filename=join(config.LOG_DIR, 'site.log'),
-                         log_stdout=config.DEBUG)
+                         log_stderr=config.DEBUG)
 
     settings['STATIC_ROOT'] = config.INSTALL_DIR + '/static' + ('/' + config.VERSION if config.VERSION else '')
 

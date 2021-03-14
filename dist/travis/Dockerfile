@@ -2,9 +2,12 @@
 
 FROM ubuntu:18.04
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update -y
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get install -y \
     g++ \
-    less \
     libboost-python-dev \
     libboost-system-dev \
     libboost-serialization-dev \
@@ -17,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     libjsoncpp-dev \
     libpcre3 \
     libpcre3-dev \
-    node-less \
     npm \
     nodejs
  

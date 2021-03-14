@@ -18,8 +18,11 @@ struct get
 
    // Get all rankings stats for one mode. Returs a string json. Uint32_t or strange errors in python call.
    std::string ranking_stats(uint32_t mode_id);
-   
-   virtual ~get() {}   
+
+   // Returns game played count by region for ranking.
+   boost::python::dict games_played(id_t id);
+
+   virtual ~get() {}
    
 private:
 

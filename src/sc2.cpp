@@ -28,6 +28,7 @@ BOOST_PYTHON_MODULE(sc2)
    class_<get, boost::noncopyable>("Get", init<std::string, dict, uint32_t>())
       .def("rankings_for_team", &get::rankings_for_team)
       .def("ranking_stats", &get::ranking_stats)
+      .def("games_played", &get::games_played)
       ;
 
    class_<purger, boost::noncopyable>("Purger", init<std::string>())

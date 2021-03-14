@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 #include <boost/python/extract.hpp>
 
 #include "get.hpp"
@@ -258,3 +259,27 @@ get::ranking_stats(uint32_t mode_id)
    return ss.str();
 }
 
+boost::python::dict
+get::games_played(id_t id)
+{
+   team_ranks_t team_ranks;
+   _db.load_team_ranks(id, team_ranks);
+
+   std::unordered_map<enum_t, uint32_t> counts;
+   
+   for (team_ranks_t::iterator i = team_ranks.begin(); i != team_ranks.end(); ++i) {
+      auto count_i = counts.find(i->region);
+      if (count_i == counts.end()) {
+         counts[i->region] = i->wins + i->losses;
+      }
+      else {
+         counts[i->region] = count_i->second + i->wins + i->losses;
+      }
+   }
+
+   boost::python::dict res;
+   for (auto i = counts.begin(); i != counts.end(); ++i) {
+      res[i->first] = i->second;
+   }
+   return res;
+}
