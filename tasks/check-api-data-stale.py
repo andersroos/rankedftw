@@ -7,6 +7,7 @@ import init_django
 
 from logging import getLogger
 from common.logging import log_region
+from common.utils import utcnow
 from main.models import Ranking, Enums, Region
 from tasks.base import Command, RegionsArgMixin
 from lib import sc2
@@ -36,6 +37,12 @@ class Main(RegionsArgMixin, Command):
 
         rankings = Ranking.objects.order_by('-id')
 
+        status = OK
+
+        if rankings[0].season.near_start(utcnow(), days=5):
+            print(f"{TEXT[status]} - skipping check, close to season start")
+            return status
+
         latest_time_by_region = {}
         latest_count_by_region = {}
         diff_time_by_region = {}
@@ -60,7 +67,6 @@ class Main(RegionsArgMixin, Command):
             if not regions:
                 break
 
-        status = OK
         ages = {}
 
         for region in args.regions:
